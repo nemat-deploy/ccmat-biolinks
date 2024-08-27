@@ -19,7 +19,7 @@ export default function Home() {
         >Site institucional</LinkButton>
       <LinkButton 
         href="https://docs.google.com/document/d/1R0x3nBFmszOBFnVB7z3bokxXoWJ1dCPINlm9BUhPO_4/edit?usp=sharing"
-        >Edital 2024 - Novos Membros
+        >Edital 2024 <br/> Novos Membros
       </LinkButton>
       
     </main>
