@@ -18,9 +18,11 @@ body {
   }
   
 .description {
-    color: #000;
+    color: #2c3e50;
     font-size: 16pt;
     margin-bottom: 30px;
+    font-family: Roboto, sans-serif;
+    font-weight: bold;
 }
 
   .button {
