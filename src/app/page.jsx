@@ -21,6 +21,9 @@ export default function Home() {
         href="https://docs.google.com/document/d/1R0x3nBFmszOBFnVB7z3bokxXoWJ1dCPINlm9BUhPO_4/edit?usp=sharing"
         >Edital 2024 <br/> Novos Membros
       </LinkButton>
+      <LinkButton href="https://forms.gle/xhscLPgXjvoLwkhv7" target="_blank">
+        Formulário de Inscrição
+      </LinkButton>
       
     </main>
   );

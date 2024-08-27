@@ -1,14 +1,20 @@
 body {
     background-color: #fff;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background: linear-gradient(to right, #b2ebf2, #e0f7fa); /* degradê azul claro */
 }
 .main {
-  background: linear-gradient(to right, #b2ebf2, #e0f7fa); /* Degradê azul claro */
-  min-height: 100vh; /* Garante que o fundo cubra toda a altura da página */
+  min-height: 85vh; 
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 20px;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
 .logo {
@@ -21,10 +27,11 @@ body {
 
 .description {
   color: #2c3e50;
-  font-size: 16pt;
-  margin-bottom: 50px;
+  font-size: 25px;
+  margin-bottom: 40px;
   font-family: Roboto, sans-serif;
   font-weight: bold;
+  text-align: center;
 }
 
 .button:hover {
