@@ -13,8 +13,8 @@ function Footer() {
                     className='emailLogo' 
                     src='/images/logo-email.svg' 
                     alt='Mail' 
-                    width={42}
-                    height={40}
+                    width={45}
+                    height={45}
                 />
             </a>
 
@@ -23,8 +23,8 @@ function Footer() {
                     className='instagramLogo'
                     src='/images/logo-instagram.svg'
                     alt='Logo Instagram'
-                    width={40}
-                    height={40}
+                    width={45}
+                    height={45}
                 />
             </a>
 

@@ -11,7 +11,9 @@ export default function Home() {
         <Image src="/images/logo-laef-ufdpar.svg" 
         alt="Logo" 
         width={130} 
-        height={130} />
+        height={130}
+        style={{ borderRadius: '12px' }}
+        />
       </div>
 
       <div className="description">
