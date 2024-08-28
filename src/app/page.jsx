@@ -18,12 +18,12 @@ export default function Home() {
         Liga Acadêmica de Educaçao Financeira
       </div>
 
-      <LinkButton href="https://sites.google.com/view/laefufdpar/in%C3%ADcio">
-        Site institucional
+      <LinkButton href="https://forms.gle/xhscLPgXjvoLwkhv7" target="_blank">
+        Formulário de Inscrição <br/> para o seletivo 2024
       </LinkButton>
 
-      <LinkButton href="https://forms.gle/xhscLPgXjvoLwkhv7" target="_blank">
-        Formulário de Inscrição <br/> 2024
+      <LinkButton href="https://sites.google.com/view/laefufdpar/in%C3%ADcio">
+        Site institucional
       </LinkButton>
 
       <LinkButton href="https://docs.google.com/document/d/1R0x3nBFmszOBFnVB7z3bokxXoWJ1dCPINlm9BUhPO_4/edit?usp=sharing">

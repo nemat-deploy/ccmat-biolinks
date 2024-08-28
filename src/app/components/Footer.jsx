@@ -11,19 +11,19 @@ function Footer() {
             <div className='footerInstagram'>
 
                 <Image 
-                    className='instagramLogo'
-                    src='/images/instagram.png'
-                    alt='Logo Instagram'
-                    width={25}
-                    height={25}
+                    className='emailLogo' 
+                    src='/images/email-black.png' 
+                    alt='Mail' 
+                    width={40}
+                    height={40}
                 />
 
                 <Image 
-                    className='logMail' 
-                    src='/images/email.png' 
-                    alt='Mail' 
-                    width={43}
-                    height={40}
+                    className='instagramLogo'
+                    src='/images/instagram-black.png'
+                    alt='Logo Instagram'
+                    width={41}
+                    height={41}
                 />
 
             </div>

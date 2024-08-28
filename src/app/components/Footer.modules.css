@@ -2,15 +2,15 @@
     width: 100%;
     display: flex;
     justify-content: center;
-    margin-top: 20px;
+    margin-top: 30px;
+    margin-bottom: 20px;
 }
 
-.logoEmail {
+.emailLogo {
     text-align: center;
-    margin-left: 10px;
+    margin-right: 8px;
 }
 
 .instagramLogo {
-    margin-right: 10px;
-    margin-bottom: 8px;
+    margin-left: 7px;
 }
