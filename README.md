@@ -1,4 +1,4 @@
-Site da LAEF para link bio.
+Site da LAEF para linkBio.
 
 ## Getting Started
 
@@ -17,9 +17,17 @@ bun dev
 Abra o endereço [http://localhost:3000](http://localhost:3000) e veja as atualizações  em tempo real.
 
 Para editar a página principal, edite o arquivo `app/page.jsx`. 
-Para adicionar botões, edicione o componente `LinkButton` no arquivo `app/page.jsx`
+Para adicionar botões, adicione o componente `<LinkButton> </LinkButton>` no arquivo `app/page.jsx`. Adicionando as propriedades *href* e o texto do botão.
+
+Por exemplo, para adicionar um novo botão com link para o site do Google, adicione o componente com essas propriedades:
+
+```<LinkButton href="https://google.com">
+Google
+</LinkButton>
+```
 
 Notes:
+
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
 ## Deploy na Vercel
