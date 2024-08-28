@@ -11,12 +11,17 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
+
       <head>
         <link rel="icon" href="./public/favicon/favicon.ico" />
         {/* mais metadados */}
       </head>
-      <body className={inter.className}>{children}</body>
+
+      <body className={inter.className}>
+        { children }
+      </body>
     </html>
+    
   );
 }

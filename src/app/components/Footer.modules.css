@@ -1,0 +1,16 @@
+.mainFooter {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.logoEmail {
+    text-align: center;
+    margin-left: 10px;
+}
+
+.instagramLogo {
+    margin-right: 10px;
+    margin-bottom: 8px;
+}

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import "./page.css";
 import LinkButton from "./components/LinkButton";
+import Footer from "./components/Footer"
 
 export default function Home() {
   return (
@@ -29,6 +30,8 @@ export default function Home() {
         Edital 2024 <br/> Novos Membros
       </LinkButton>
       
+      <Footer />
+
     </main>
   );
 }
