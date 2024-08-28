@@ -21,7 +21,8 @@ Para adicionar botões, adicione o componente `<LinkButton> </LinkButton>` no ar
 
 Por exemplo, para adicionar um novo botão com link para o site do Google, adicione o componente com essas propriedades:
 
-```<LinkButton href="https://google.com">
+```
+<LinkButton href="https://google.com">
 Google
 </LinkButton>
 ```
