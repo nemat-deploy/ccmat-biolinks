@@ -1,8 +1,8 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Site da LAEF para link bio.
 
 ## Getting Started
 
-First, run the development server:
+Execute o servidor em modo desenvolvedor:
 
 ```bash
 npm run dev
@@ -14,23 +14,13 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra o endereço [http://localhost:3000](http://localhost:3000) e veja as atualizações  em tempo real.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Para editar a página principal, edite o arquivo `app/page.jsx`. 
+Para adicionar botões, edicione o componente LinkButton no arquivo `app/page.jsx`
 
+Notes:
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Deploy na Vercel
+Atualize usando sua conta no Github.
