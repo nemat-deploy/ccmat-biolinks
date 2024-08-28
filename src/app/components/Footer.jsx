@@ -8,25 +8,26 @@ function Footer() {
     return (
         <div className='mainFooter'>
 
-            <div className='footerInstagram'>
-
+            <a href="mailto:laefufdpar@gmail.com">
                 <Image 
                     className='emailLogo' 
-                    src='/images/email-black.png' 
+                    src='/images/email-bck.png' 
                     alt='Mail' 
+                    width={42}
+                    height={40}
+                />
+            </a>
+
+            <a href="https://instagram.com/laef.ufdpar">
+                <Image 
+                    className='instagramLogo'
+                    src='/images/instagram-bck.png'
+                    alt='Logo Instagram'
                     width={40}
                     height={40}
                 />
+            </a>
 
-                <Image 
-                    className='instagramLogo'
-                    src='/images/instagram-black.png'
-                    alt='Logo Instagram'
-                    width={41}
-                    height={41}
-                />
-
-            </div>
 
         </div>
     )
