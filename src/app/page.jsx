@@ -12,7 +12,7 @@ export default function Home() {
         alt="Logo" 
         width={130} 
         height={130}
-        style={{ borderRadius: '12px' }}
+        style={{ borderRadius: '4px' }}
         />
       </div>
 
