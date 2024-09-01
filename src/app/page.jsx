@@ -8,28 +8,25 @@ export default function Home() {
     <main className="main">
 
       <div className="logo">
-        <Image src="/images/logo-laef-ufdpar.svg" 
+        <Image src="/images/logo-cmat-perfil.png" 
+        className="imageLogo"
         alt="Logo" 
         width={130} 
         height={130}
-        style={{ borderRadius: '4px' }}
+        style={{ 
+          borderRadius: '70px',
+          border: '2px solid rgba(0, 0, 0, 0.1)',
+          padding: '2px'
+         }}
         />
       </div>
 
       <div className="description">
-        Liga Acadêmica de Educaçao Financeira
+        Coodenação do Curso de Matemática
       </div>
 
-      <LinkButton href="https://forms.gle/xhscLPgXjvoLwkhv7" target="_blank">
-        Formulário de Inscrição <br/> para o seletivo 2024
-      </LinkButton>
-
-      <LinkButton href="https://sites.google.com/view/laefufdpar/in%C3%ADcio">
-        Site institucional
-      </LinkButton>
-
-      <LinkButton href="https://docs.google.com/document/d/1R0x3nBFmszOBFnVB7z3bokxXoWJ1dCPINlm9BUhPO_4/edit?usp=sharing">
-        Edital 2024 <br/> Novos Membros
+      <LinkButton href="#" target="_blank">
+        Site do Departamento de Matemática
       </LinkButton>
       
       <Footer />

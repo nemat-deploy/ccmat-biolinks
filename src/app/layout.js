@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "LAEF UFDPar",
-  description: "Liga Acadêmica de Educação Financeira",
+  title: "Matemática UFDPar",
+  description: "Curso de Licenciatura em Matemática",
 };
 
 export default function RootLayout({ children }) {

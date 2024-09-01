@@ -3,7 +3,7 @@ body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-    background: linear-gradient(to right, #b2ebf2, #e0f7fa); /* degradê azul claro */
+    background: linear-gradient(to top right, #73a6cf, #ffffff); /* degradê azul claro */
 }
 .main {
   min-height: 98vh; 
@@ -20,6 +20,7 @@ body {
 .logo {
   margin-top: 30px;
   margin-bottom: 20px;
+  border-radius: 50px;
 }
 
 .button-container {
@@ -27,7 +28,7 @@ body {
 }
 
 .description {
-  color: #2c3e50;
+  color: #181818;
   font-size: 25px;
   margin-bottom: 40px;
   font-family: Roboto, sans-serif;
@@ -35,6 +36,6 @@ body {
   text-align: center;
 }
 
-.button:hover {
+/* .button:hover {
   background-color: #005bb5;
-}
+} */

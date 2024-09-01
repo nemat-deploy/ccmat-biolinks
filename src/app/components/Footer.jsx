@@ -8,7 +8,7 @@ function Footer() {
     return (
         <div className='mainFooter'>
 
-            <a href='mailto:laefufdpar@gmail.com' target='_blank'>
+            <a href='#' target='_blank'>
                 <Image 
                     className='emailLogo' 
                     src='/images/logo-email.svg' 
@@ -18,7 +18,7 @@ function Footer() {
                 />
             </a>
 
-            <a href='https://instagram.com/laef.ufdpar' target='_blank'>
+            <a href='https://instagram.com/matematicaufdpar' target='_blank'>
                 <Image 
                     className='instagramLogo'
                     src='/images/logo-instagram.svg'

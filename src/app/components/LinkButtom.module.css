@@ -1,33 +1,48 @@
+/* From Uiverse.io by gharsh11032000 */ 
 .button {
-    background: #f39c12;
-    font-family: inherit;
-    padding: auto;
-    padding-left: 10px;
-    padding-right: 10px;
-    font-weight: 900;
-    font-size: 20px;
-    border: 2px solid black;
-    border-radius: 0.4em;
-    box-shadow: 0.1em 0.1em;
-    cursor: pointer;
-    width: 450px;
-    height: 70px;
-    color: #000;
-    margin-bottom: 20px;
-  }
+  cursor: pointer;
+  position: relative;
+  padding: 10px 24px;
+  font-size: 18px;
+  color: rgb(7, 49, 112);
+  border: 2px solid rgb(7, 49, 112);
+  border-radius: 34px;
+  background-color: #fff;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+  overflow: hidden;
+}
+
+.button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 50px;
+  height: 50px;
+  border-radius: inherit;
+  scale: 0;
+  z-index: -1;
+  background-color: rgb(0, 51, 109);
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.button:hover::before {
+  scale: 7.5;
+}
+
+.button:hover {
+  color: #fafafa;
+  scale: 1;
+  box-shadow: 0 0px 20px rgba(193, 163, 98,0.4);
+}
+
+.button:active {
+  scale: 1;
+}
   
-  .button:hover {
-    transform: translate(-0.05em, -0.05em);
-    box-shadow: 0.15em 0.15em;
+@media (max-width: 600px) {
+  .button {
+    width: 300px;
   }
-  
-  .button:active {
-    transform: translate(0.05em, 0.05em);
-    box-shadow: 0.05em 0.05em;
-  }
-  
-  @media (max-width: 600px) {
-    .button {
-      width: 300px;
-    }
-  }
+}
