@@ -25,7 +25,7 @@ export default function Home() {
         Coodenação do Curso de Matemática
       </div>
 
-      <LinkButton href="#" target="_blank">
+      <LinkButton href="https://ufdpar.edu.br/preg/preg-1/cursos-de-graduacao-1/ciencias-exatas-e-da-natureza/matematica" target="_blank">
         Site do Departamento de Matemática
       </LinkButton>
       

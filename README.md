@@ -1,4 +1,4 @@
-Site da LAEF para um LinkBio.
+Biolinks do Departamento de Mateática da UFDPar.
 
 ## Orientações 
 
