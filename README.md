@@ -14,7 +14,7 @@ pnpm install
 bun install
 ```
 
-Execute o servidor em modo desenvolvedor:
+### 2. Execute o servidor em modo desenvolvedor:
 
 ```bash
 npm run dev
@@ -26,9 +26,9 @@ pnpm dev
 bun dev
 ```
 
-Abra o endereço [http://localhost:3000](http://localhost:3000) e veja as suas atualizações em tempo real.
+### 3. Abra o endereço [http://localhost:3000](http://localhost:3000) e veja as suas atualizações em tempo real.
 
-Para editar a página principal, edite o arquivo `app/page.jsx`. 
+### 4. Para editar a página principal, edite o arquivo `app/page.jsx`. 
 Para adicionar botões, adicione o componente `<LinkButton> </LinkButton>` no arquivo `app/page.jsx`. Adicionando as propriedades *href* e o texto do botão.
 
 Por exemplo, para adicionar um novo botão com link para o site do Google, adicione o componente com essas propriedades:
@@ -39,7 +39,7 @@ Google
 </LinkButton>
 ```
 
-## Deploy na Vercel
+### 5. Deploy na Vercel
 Atualize usando sua conta no Github.
 
 Notes:
