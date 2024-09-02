@@ -1,4 +1,4 @@
-Biolinks do Departamento de Mateática da UFDPar.
+# Biolinks do Departamento de Matemática da UFDPar.
 
 ## Orientações 
 
