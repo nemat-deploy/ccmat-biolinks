@@ -1,16 +1,28 @@
-# Biolinks do Departamento de Matemática da UFDPar.
+# Biolinks do Departamento de Matemática da UFDPar
 
 ## Orientações 
+
+### 1. Instale as dependências
+
+```bash
+npm install
+# ou
+yarn install
+# ou
+pnpm install
+# ou
+bun install
+```
 
 Execute o servidor em modo desenvolvedor:
 
 ```bash
 npm run dev
-# or
+# ou
 yarn dev
-# or
+# ou
 pnpm dev
-# or
+# ou
 bun dev
 ```
 
