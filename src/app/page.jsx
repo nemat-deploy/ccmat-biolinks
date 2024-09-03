@@ -26,7 +26,7 @@ export default function Home() {
       </div>
 
       <LinkButton href="https://ufdpar.edu.br/preg/preg-1/cursos-de-graduacao-1/ciencias-exatas-e-da-natureza/matematica" target="_blank">
-        Site do Departamento de Matemática
+        Página do Curso de Matemática
       </LinkButton>
       
       <Footer />
