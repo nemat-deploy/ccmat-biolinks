@@ -21,13 +21,27 @@ export default function Home() {
         />
       </div>
 
+      <div className="acronym">
+        CCMAT
+      </div>
+
       <div className="description">
         Coordenação do Curso de Matemática
       </div>
 
-      <LinkButton href="https://ufdpar.edu.br/preg/preg-1/cursos-de-graduacao-1/ciencias-exatas-e-da-natureza/matematica" target="_blank">
-        Página do Curso de Matemática
-      </LinkButton>
+      <div className="button-container">
+        <LinkButton 
+          href="https://ufdpar.edu.br/preg/preg-1/cursos-de-graduacao-1/ciencias-exatas-e-da-natureza/matematica" 
+          target="_blank">
+          Página do Curso de Matemática
+        </LinkButton>
+        
+        <LinkButton 
+          href="mailto:ccmat@ufdpar.edu.br">
+          Email da Coordenação <br />
+          ccmat@ufdpar.edu.br
+        </LinkButton>
+      </div>
       
       <Footer />
 

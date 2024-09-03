@@ -25,15 +25,26 @@ body {
 
 .button-container {
   text-align: center;
+  width: 570px;
+}
+
+.acronym, 
+.description {
+  color: #181818;
+  font-size: 23px;
+  margin-bottom: 50px;
+  font-family: Roboto, sans-serif;
+  text-align: center;
+  font-weight: bold;
+}
+
+.acronym {
+  margin-bottom: 5px;
 }
 
 .description {
-  color: #181818;
-  font-size: 25px;
-  margin-bottom: 50px;
-  font-family: Roboto, sans-serif;
-  font-weight: bold;
-  text-align: center;
+  font-size: 20px;
+  font-weight: 500;
 }
 
 /* .button:hover {

@@ -1,7 +1,11 @@
 .button {
   cursor: pointer;
   position: relative;
-  padding: 10px 24px;
+  width: 100%;
+  max-width: 500px;
+  height: 70px;
+  padding: 0 24px;
+  margin-bottom: 20px;
   font-size: 18px;
   color: rgb(7, 50, 112);
   border: 2px solid rgb(7, 50, 112);
@@ -27,12 +31,12 @@
 }
 
 .button:hover::before { /* hover efect */
-  scale: 7.5;
+  scale: 10;
 }
 
 .button:hover {
   color: #fafafa;
-  scale: 1.06;
+  scale: 1.02;
   box-shadow: 0 0px 20px rgba(193, 163, 98,0.4);
 }
 
