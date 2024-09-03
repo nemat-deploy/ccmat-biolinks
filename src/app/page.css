@@ -3,7 +3,7 @@ body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-    background: linear-gradient(to top right, #73a6cf, #ffffff); /* degradê azul claro */
+    background: linear-gradient(to top right, #88b686, #ffffff); /* degradê azul claro */
 }
 .main {
   min-height: 98vh; 
