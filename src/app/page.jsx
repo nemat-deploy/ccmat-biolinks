@@ -31,7 +31,7 @@ export default function Home() {
 
       <div className="button-container">
         <LinkButton 
-          href="https://ufdpar.edu.br/preg/preg-1/cursos-de-graduacao-1/ciencias-exatas-e-da-natureza/matematica" 
+          href="https://sigaa.ufpi.br/sigaa/public/curso/portal.jsf?id=74246&lc=pt_BR" 
           target="_blank">
           Página do Curso de Matemática
         </LinkButton>
