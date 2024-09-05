@@ -8,17 +8,20 @@ export default function Home() {
     <main className="main">
 
       <div className="logo">
-        <Image src="/images/logo-cmat-perfil.png" 
-        className="imageLogo"
-        alt="Logo" 
-        width={130} 
-        height={130}
-        style={{ 
-          borderRadius: '70px',
-          border: '2px solid rgba(0, 0, 0, 0.1)',
-          padding: '2px'
-         }}
+
+        <Image 
+          src="/images/logo-cmat-perfil.png" 
+          className="imageLogo"
+          alt="Logo" 
+          width={130} 
+          height={130}
+          style={{ 
+            borderRadius: '70px',
+            border: '2px solid rgba(255, 255, 255, 1)',
+            padding: '2px'
+          }}
         />
+
       </div>
 
       <div className="acronym">
