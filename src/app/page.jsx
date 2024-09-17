@@ -33,6 +33,7 @@ export default function Home() {
       </div>
 
       <div className="button-container">
+
         <LinkButton 
           href="https://sigaa.ufpi.br/sigaa/public/curso/portal.jsf?id=74246&lc=pt_BR" 
           target="_blank">
@@ -44,6 +45,12 @@ export default function Home() {
           Email da Coordenação <br />
           ccmat@ufdpar.edu.br
         </LinkButton>
+
+        <LinkButton 
+          href="../../images/fluxograma-matematica-ufdpar-1.webp"> 
+          Fluxograma do Curso
+        </LinkButton>
+
       </div>
       
       <Footer />
