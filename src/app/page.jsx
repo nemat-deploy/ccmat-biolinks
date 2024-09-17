@@ -47,7 +47,7 @@ export default function Home() {
         </LinkButton>
 
         <LinkButton 
-          href="../../images/fluxograma-matematica-ufdpar-1.webp"> 
+          href="../../images/fluxograma-matematica-ufdpar-1.jpg"> 
           Fluxograma do Curso
         </LinkButton>
 
