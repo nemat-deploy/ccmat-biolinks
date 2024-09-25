@@ -1,0 +1,13 @@
+.mainFluxograma {
+    display: flex;
+    border: 2px solid #000;
+    height: 100vh;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.btImage {
+    height: 50px;
+    border-radius: 20px;
+}
