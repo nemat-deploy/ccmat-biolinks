@@ -7,6 +7,10 @@
     align-items: center;
 }
 
+.options {
+    border: 2px solid #000;
+}
+
 .btImage {
     height: 50px;
     border-radius: 20px;

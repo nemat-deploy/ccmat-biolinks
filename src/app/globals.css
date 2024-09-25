@@ -41,3 +41,37 @@ body {
   background: linear-gradient(to top right, darkcyan, lightcyan);
   /* degradê azul claro */
 }
+
+.mainFluxograma {
+  display: flex;
+  border: 2px solid #000;
+  height: 100vh;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 20px;
+  height: 250px;
+  width: 280px;
+  padding: 10px;
+  border: 1px solid #424242;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.btImage {
+  height: 50px;
+  width: 100%;
+  border-radius: 20px;
+  border: 1px solid #fff;
+  box-shadow: 3px 3px 3px #979797;
+  font-size: 14pt;
+  cursor: pointer;
+  color: #fff;
+  background-color: rgb(60, 85, 170);
+}

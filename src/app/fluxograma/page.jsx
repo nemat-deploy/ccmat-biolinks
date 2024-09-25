@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import './Page.module.css'
+import styles from './Page.module.css'
 
 function Fluxograma(){
     const handleImageOpen = ()=> {
@@ -13,9 +13,12 @@ function Fluxograma(){
 
     return (
         <div className='mainFluxograma'>
+            <div>
+            </div>
             <div className="options">
+                <h2>Fluxograma do Curso de Matemática UFDPar</h2>
                 <button className='btImage' onClick={handleImageOpen}>
-                    ABRIR COMO IMAGEM JPG
+                    BAIXAR COMO IMAGEM
                 </button>
                 <button className='btImage' onClick={handleImagePdf}>
                     BAIXAR EM PDF
