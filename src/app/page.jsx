@@ -52,6 +52,13 @@ export default function Home() {
           target="_blank"> 
           Fluxograma do Curso
         </LinkButton>
+        
+        <LinkButton 
+          href="https://nemat-ufdpar.vercel.app" 
+          target="_blank"> 
+          NEMAT UFDPar <br />
+          Núcleo de Estudos em Matemática
+        </LinkButton>
 
       </div>
       
