@@ -1,9 +1,15 @@
+'use client'
+
 import React from 'react'
 
 function Fluxograma(){
+    const handleImageOpen = ()=> {
+        window.open("/images/fluxograma-matematica-ufdpar-1.jpg")
+    }
+
     return (
         <main>
-            <button>
+            <button onClick={handleImageOpen}>
                 ABRIR COMO IMAGEM JPG
             </button>
             <button>

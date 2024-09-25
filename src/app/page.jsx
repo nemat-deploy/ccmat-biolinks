@@ -2,7 +2,7 @@ import Image from "next/image";
 import "./page.css";
 import LinkButton from "./components/LinkButton";
 import Footer from "./components/Footer"
-import Link from "next/link"
+// import Link from "next/link"
 
 export default function Home() {
   return (
@@ -48,7 +48,8 @@ export default function Home() {
         </LinkButton>
 
         <LinkButton 
-          href="../../images/fluxograma-matematica-ufdpar-1.jpg"> 
+          href="/fluxograma/" 
+          target="_blank"> 
           Fluxograma do Curso
         </LinkButton>
 

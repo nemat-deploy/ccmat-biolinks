@@ -1,19 +1,15 @@
 'use client'
 
 import React from 'react'
-import { useRouter } from 'next/navigation'
 import styles from './LinkButtom.module.css'
 
-const LinkButton = ({ href, children }) => {
-    const router = useRouter()
-
-    const handleClick = () => {
-        router.push(href)
-    }
+const LinkButton = ({ href, target, children }) => {
     return (
-        <button onClick={handleClick} className={styles.button}>
-            {children}
-        </button>
+        <a href={href} target={target} rel={target === '_blank' ? 'noopener noreferrer' : undefined}>
+            <button className={styles.button}>
+                {children}
+            </button>
+        </a>
     )
 }
 
