@@ -30,7 +30,7 @@ export default function Home() {
       </div>
 
       <div className="description">
-        Coordenação do Curso de Matemática
+        Coordenação do Curso de Matemática - UFDPar
       </div>
 
       <div className="button-container">
