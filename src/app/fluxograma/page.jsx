@@ -16,7 +16,7 @@ function Fluxograma(){
             <div>
             </div>
             <div className="options">
-                <h2>Fluxograma do Curso de Matemática - UFDPar</h2>
+                <h3>Fluxograma do Curso de Matemática - UFDPar</h3>
                 <button className='btImage' onClick={handleImageOpen}>
                     BAIXAR COMO IMAGEM
                 </button>

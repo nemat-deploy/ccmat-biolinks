@@ -58,8 +58,9 @@ body {
   align-items: center;
   text-align: center;
   gap: 20px;
-  height: 250px;
-  width: 280px;
+  height: 260px;
+  width: 100%;
+  max-width: 240px;
   padding: 30px;
   border: 1px solid #424242;
   border-radius: 10px;
