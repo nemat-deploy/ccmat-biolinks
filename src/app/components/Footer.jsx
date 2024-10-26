@@ -8,7 +8,7 @@ function Footer() {
     return (
         <div className='mainFooter'>
 
-            <a href='#' target='_blank'>
+            <a href='mailto:ccmat@ufdpar.edu.br' target='_blank'>
                 <Image 
                     className='emailLogo' 
                     src='/images/logo-email.svg' 
@@ -18,7 +18,7 @@ function Footer() {
                 />
             </a>
 
-            <a href='https://instagram.com/matematicaufdpar' target='_blank'>
+            <a href='https://instagram.com/matematica.ufdpar' target='_blank'>
                 <Image 
                     className='instagramLogo'
                     src='/images/logo-instagram.svg'

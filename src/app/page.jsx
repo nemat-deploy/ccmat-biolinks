@@ -56,8 +56,7 @@ export default function Home() {
         <LinkButton 
           href="https://nemat-ufdpar.vercel.app" 
           target="_blank"> 
-          NEMAT UFDPar <br />
-          Núcleo de Estudos em Matemática
+          NEMAT UFDPar - Núcleo de Estudos em Matemática
         </LinkButton>
 
       </div>
