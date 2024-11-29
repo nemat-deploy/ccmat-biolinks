@@ -29,7 +29,7 @@ function Fluxograma(){
                 </button>
 
                 <button className='btImage' onClick={handleCompletoPdf}>
-                    Fluxograma Resumido
+                    Fluxograma Completo
                 </button>
 
             </div>
