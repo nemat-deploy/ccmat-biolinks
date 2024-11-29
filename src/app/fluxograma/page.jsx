@@ -8,7 +8,7 @@ function Fluxograma(){
         window.open("/images/fluxograma-matematica-ufdpar-1.jpg")
     }
     const handleImagePdf = ()=> {
-        window.open("/images/fluxograma-matematica-ufdpar.pdf")
+        window.open("/docs/fluxograma-matematica-ufdpar.pdf")
     }
 
     return (
