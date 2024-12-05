@@ -36,6 +36,12 @@ export default function Home() {
       <div className="button-container">
 
         <LinkButton 
+          href="https://ufdpar.edu.br/ufdpar/edital-no-39-2024-preg-ufdpar-selecao-de-monitores-que-integrarao-o-programa-de-monitoria-da-ufdpar-no-periodo-letivo-2025.1"
+          target="_blankk">
+          Edital Monitores 2025.1
+        </LinkButton>
+
+        <LinkButton 
           href="https://sigaa.ufpi.br/sigaa/public/curso/portal.jsf?id=74246&lc=pt_BR" 
           target="_blank">
           Página do Curso de Matemática
