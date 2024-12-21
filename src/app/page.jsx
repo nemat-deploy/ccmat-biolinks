@@ -36,12 +36,6 @@ export default function Home() {
       <div className="button-container">
 
         <LinkButton 
-          href="https://ufdpar.edu.br/ufdpar/edital-no-39-2024-preg-ufdpar-selecao-de-monitores-que-integrarao-o-programa-de-monitoria-da-ufdpar-no-periodo-letivo-2025.1"
-          target="_blankk">
-          Edital Monitores 2025.1
-        </LinkButton>
-
-        <LinkButton 
           href="https://sigaa.ufpi.br/sigaa/public/curso/portal.jsf?id=74246&lc=pt_BR" 
           target="_blank">
           Página do Curso de Matemática
@@ -49,8 +43,13 @@ export default function Home() {
         
         <LinkButton 
           href="mailto:ccmat@ufdpar.edu.br">
-          Email da Coordenação <br />
+          Fale com a Coordenação <br />
           ccmat@ufdpar.edu.br
+        </LinkButton>
+
+        <LinkButton 
+          href="https://www.instagram.com/camatufdpar/?hl=pt-br">
+          Centro Acadêmico
         </LinkButton>
 
         <LinkButton 
@@ -62,6 +61,7 @@ export default function Home() {
         <LinkButton 
           href="https://nemat-ufdpar.vercel.app" 
           target="_blank"> 
+          Núcleo de Estudo em Matemática <br />
           NEMAT UFDPar
         </LinkButton>
 
