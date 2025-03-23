@@ -30,7 +30,7 @@ export default function Home() {
 
       <div className="button-container">
         <LinkButton
-          href="https://nhnwihp8.forms.app/curso-latex-ufdpar"
+          href="https://nhnwihp8.forms.app/curso-latex-na-ufdpar"
           target="_blank"
         >
           Curso LaTeX Básico - 2025.1
