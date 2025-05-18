@@ -1,69 +1,74 @@
 import Image from "next/image";
 import "./page.css";
 import LinkButton from "./components/LinkButton";
-import Footer from "./components/Footer";
+import Footer from "./components/Footer"
 // import Link from "next/link"
 
 export default function Home() {
   return (
     <main className="main">
+
       <div className="logo">
-        <Image
-          src="/images/logo-cmat-perfil.png"
+
+        <Image 
+          src="/images/logo-cmat-perfil.png" 
           className="imageLogo"
-          alt="Logo"
-          width={130}
+          alt="Logo" 
+          width={130} 
           height={130}
-          style={{
-            borderRadius: "70px",
-            border: "2px solid rgba(255, 255, 255, 1)",
-            padding: "2px",
+          style={{ 
+            borderRadius: '70px',
+            border: '2px solid rgba(255, 255, 255, 1)',
+            padding: '2px'
           }}
         />
+
       </div>
 
-      <div className="acronym">CCMAT</div>
+      <div className="acronym">
+        CCMAT
+      </div>
 
       <div className="description">
         Coordenação do Curso de Matemática - UFDPar
       </div>
 
       <div className="button-container">
-        <LinkButton
-          href="https://drive.google.com/file/d/1-0QPo7kISBGrVSVzg7yyTeqf24gI4zbM/view?fbclid=PAY2xjawJRgHNleHRuA2FlbQIxMQABplewEDAGWhzxC--Npg3LmOkYk6X0R6z4M84sqsapMsd845bvffg_Nujbyg_aem_nJcudLo8g2hCOLZceukCQg"
-          target="_blank"
-        >
-          Curso LaTeX Básico - 2025.1 <br />
-Resultados das inscrições 
-        </LinkButton>
 
-        <LinkButton
-          href="https://sigaa.ufpi.br/sigaa/public/curso/portal.jsf?id=74246&lc=pt_BR"
-          target="_blank"
-        >
+        <LinkButton 
+          href="https://sigaa.ufpi.br/sigaa/public/curso/portal.jsf?id=74246&lc=pt_BR" 
+          target="_blank">
           Página do Curso de Matemática
         </LinkButton>
-
-        <LinkButton href="mailto:ccmat@ufdpar.edu.br">
+        
+        <LinkButton 
+          href="mailto:ccmat@ufdpar.edu.br">
           Fale com a Coordenação <br />
           ccmat@ufdpar.edu.br
         </LinkButton>
 
-        <LinkButton href="https://www.instagram.com/camatufdpar/?hl=pt-br">
+        <LinkButton 
+          href="https://www.instagram.com/camatufdpar/?hl=pt-br">
           Centro Acadêmico
         </LinkButton>
 
-        <LinkButton href="/fluxograma/" target="_blank">
+        <LinkButton 
+          href="/fluxograma/" 
+          target="_blank"> 
           Fluxograma do Curso
         </LinkButton>
-
-        <LinkButton href="https://nemat-ufdpar.vercel.app" target="_blank">
+        
+        <LinkButton 
+          href="https://nemat-ufdpar.vercel.app" 
+          target="_blank"> 
           Núcleo de Estudo em Matemática <br />
           NEMAT UFDPar
         </LinkButton>
-      </div>
 
+      </div>
+      
       <Footer />
+
     </main>
   );
 }

@@ -10,6 +10,9 @@
 .options {
     border: 2px solid #000;
     padding: 30px;
+    margin: 10px;
+    border: 2px solid #000;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .btImage {
