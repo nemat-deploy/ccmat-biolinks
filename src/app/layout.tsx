@@ -1,4 +1,4 @@
-// app/layout.js
+// src/app/layout.tsx
 import { Inter } from "next/font/google";
 import "./globals.css";
 
@@ -9,19 +9,14 @@ export const metadata = {
   description: "Curso de Licenciatura em Matemática",
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="pt-BR">
-
-      <head>
-        <link rel="icon" href="./public/favicon/favicon.ico" />
-        {/* mais metadados */}
-      </head>
-
-      <body className={inter.className}>
-        { children }
-      </body>
+      <body className={inter.className}>{children}</body>
     </html>
-    
   );
 }

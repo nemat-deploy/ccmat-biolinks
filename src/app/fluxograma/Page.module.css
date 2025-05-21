@@ -1,21 +1,59 @@
 .mainFluxograma {
-    display: flex;
-    border: 2px solid #000;
-    height: 100vh;
-    width: 100%;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(to bottom, #f4f4f4, #ffffff);
 }
 
 .options {
-    border: 2px solid #000;
-    padding: 30px;
-    margin: 10px;
-    border: 2px solid #000;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 100%;
+  background-color: #fff;
+  padding: 2rem;
+  margin: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  border: 1px solid #e5e5e5;
+}
+
+.options h3 {
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  color: #333;
 }
 
 .btImage {
-    height: 50px;
-    border-radius: 8px;
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btImage:hover {
+  background-color: #0059c1;
+}
+
+/* Responsividade extra */
+@media (max-width: 480px) {
+  .mainFluxograma {
+    padding: 1rem;
+  }
+
+  .options {
+    padding: 1.5rem;
+  }
+
+  .btImage {
+    font-size: 0.95rem;
+  }
 }

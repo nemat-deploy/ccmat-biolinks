@@ -1,8 +1,19 @@
-.top-header {
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.eventos-top-header {
     font-weight: normal;
     padding-left: 8px;
     margin-left: 30px;
     font-weight: bold;
+}
+
+.titleEventos {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
 h1 {

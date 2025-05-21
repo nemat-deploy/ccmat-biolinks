@@ -1,5 +1,7 @@
 "use client";
 
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
@@ -7,19 +9,10 @@ import { db } from "@/lib/firebase";
 import Link from "next/link";
 import { increment } from "firebase/firestore";
 import { Timestamp } from "firebase/firestore"
-
-type Evento = {
-  id: string;
-  name: string;
-  description: string;
-  startDate: Date | null;
-  endDate: Date | null;
-  registrationDeadLine: Date | null;
-  maxParticipants: number;
-  registrationsCount: number;
-  status: "aberto" | "encerrado" | "em andamento" | "em breve";
-  minAttendancePercentForCertificate: number;
-};
+import { Participante } from "@/types";
+import { parseTimestamp, TimestampValue } from "@/lib/utils";
+import { formatarData } from "@/lib/utils";
+import "./page.css"
 
 export default function EventoPage() {
   const params = useParams();
@@ -36,10 +29,6 @@ export default function EventoPage() {
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [instituicao, setInstituicao] = useState("UFDPar");
-
-  type TimestampValue = {
-    timestampValue?: string;
-  };
 
   // Função segura pra converter Timestamp ou string em Date
 function parseTimestamp(
@@ -90,13 +79,15 @@ function inscricoesAbertas(evento: Evento): boolean {
     evento.maxParticipants > 0 &&
     evento.registrationsCount >= evento.maxParticipants;
 
-  console.log("Debug - Status atual:", {
-    status: evento.status,
-    prazoExpirado,
-    eventoLotado,
-    deadline: deadline?.toISOString(),
-    hoje: hoje.toISOString()
-  });
+  if (process.env.NODE_ENV === "development") {
+    console.log("Debug - Status atual:", {
+      status: evento.status,
+      prazoExpirado,
+      eventoLotado,
+      deadline: deadline?.toISOString(),
+      hoje: hoje.toISOString()
+    });
+  }
 
   if (evento.status === "encerrado") return false;
   if (prazoExpirado) return false;
@@ -110,34 +101,55 @@ function inscricoesAbertas(evento: Evento): boolean {
   return false;
 }
 
+type Evento = {
+  id: string;
+  name: string;
+  description: string;
+  startDate: Date | null;
+  endDate: Date | null;
+  registrationDeadLine: Date | null;
+  maxParticipants: number;
+  registrationsCount: number;
+  status: "aberto" | "encerrado" | "em breve" | "em andamento";
+  minAttendancePercentForCertificate: number;
+};
+
   // Carrega evento do Firestore
-  useEffect(() => {
-    async function fetchEvento() {
-      try {
-        const eventoRef = doc(db, "eventos", id as string);
-        const eventoSnap = await getDoc(eventoRef);
+useEffect(() => {
+  async function fetchEvento() {
+    try {
+      // Garante que `id` é uma string
+      if (typeof id !== "string") {
+        setErro("ID do evento inválido.");
+        setLoading(false);
+        return;
+      }
 
-        if (eventoSnap.exists()) {
-          const data = eventoSnap.data();
-          console.log("Dados brutos do evento:", data); // Verifique aqui se startDate e endDate estão corretos
+      const eventoRef = doc(db, "eventos", id);
+      const eventoSnap = await getDoc(eventoRef);
 
-          const startDate = parseTimestamp(data.startDate);
-          const endDate = parseTimestamp(data.endDate);
-          const registrationDeadLine = parseTimestamp(data.registrationDeadLine);
+      if (eventoSnap.exists()) {
+        const data = eventoSnap.data();
 
-          const eventoData = {
-            id: eventoSnap.id,
-            name: data.name || "",
-            description: data.description || "",
-            startDate,
-            endDate,
-            registrationDeadLine,
-            maxParticipants: data.maxParticipants || 0,
-            registrationsCount: data.registrationsCount || 0,
-            status: data.status || "aberto",
-            minAttendancePercentForCertificate: data.minAttendancePercentForCertificate || 80
-          };
+        // Função auxiliar para evitar repetição
+        const parseSafeTimestamp = (value: any): Date | null => {
+          return value ? parseTimestamp(value) : null;
+        };
 
+        const eventoData: Evento = {
+          id: eventoSnap.id,
+          name: data.name || "",
+          description: data.description || "",
+          startDate: parseSafeTimestamp(data.startDate),
+          endDate: parseSafeTimestamp(data.endDate),
+          registrationDeadLine: parseSafeTimestamp(data.registrationDeadLine),
+          maxParticipants: data.maxParticipants ?? 0,
+          registrationsCount: data.registrationsCount ?? 0,
+          status: data.status || "aberto",
+          minAttendancePercentForCertificate: data.minAttendancePercentForCertificate ?? 80
+        };
+
+        if (process.env.NODE_ENV === "development") {
           console.log("Debug - Dados crus:", {
             name: data.name,
             registrationDeadLine: data.registrationDeadLine,
@@ -145,44 +157,32 @@ function inscricoesAbertas(evento: Evento): boolean {
             maxParticipants: data.maxParticipants,
             registrationsCount: data.registrationsCount
           });
-
-          type Evento = {
-            id: string;
-            name: string;
-            description: string;
-            startDate: Date | null;
-            endDate: Date | null;
-            registrationDeadLine: Date | null;
-            maxParticipants: number;
-            registrationsCount: number;
-            status: "aberto" | "encerrado" | "em breve" | "em andamento";
-            minAttendancePercentForCertificate: number;
-          };
-
-          setEvento(eventoData);
-        } else {
-          setErro("❌ Evento não encontrado.");
-        }
-      } catch (err) {
-        let errorMessage = "Erro desconhecido";
-
-        if (err instanceof Error) {
-          errorMessage = err.message;
-        } else if (typeof err === "string") {
-          errorMessage = err;
-        } else if (err && typeof err === "object" && "message" in err) {
-          errorMessage = String(err.message);
         }
 
-        console.error("Erro ao buscar evento:", errorMessage);
-        setErro("❌ Erro ao carregar evento.");
-      } finally {
-        setLoading(false);
+        setEvento(eventoData);
+      } else {
+        setErro("❌ Evento não encontrado.");
       }
-    }
+    } catch (err) {
+      let errorMessage = "Erro desconhecido";
 
-    fetchEvento();
-  }, [id]);
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (typeof err === "string") {
+        errorMessage = err;
+      } else if (err && typeof err === "object" && "message" in err) {
+        errorMessage = String(err.message);
+      }
+
+      console.error("Erro ao buscar evento:", errorMessage);
+      setErro("❌ Erro ao carregar evento.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  fetchEvento();
+}, [id]);
 
   // Formata CPF e telefone
   function formatCpf(value: string): string {
@@ -253,51 +253,63 @@ function inscricoesAbertas(evento: Evento): boolean {
       setMensagem("✅ Inscrição realizada com sucesso!");
       setFormEnviado(true);
       
-    } catch (error) {
-      console.error("Erro detalhado na inscrição:", {
-        error: error,
-        message: error.message,
-        stack: error.stack
-      });
-      setMensagem(`❌ Erro: ${error.message || "Tente novamente mais tarde."}`);
-    }
+      } catch (error) {
+        let errorMessage = "Erro desconhecido";
+        let errorStack = "";
+
+        if (error instanceof Error) {
+          errorMessage = error.message;
+          errorStack = error.stack || "";
+        } else if (typeof error === "string") {
+          errorMessage = error;
+        } else if (error && typeof error === "object" && "message" in error) {
+          errorMessage = String((error as { message?: string }).message);
+        }
+
+        console.error("Erro detalhado na inscrição:", {
+          message: errorMessage,
+          stack: errorStack,
+        });
+
+        setMensagem(`❌ Erro: ${errorMessage || "Tente novamente mais tarde."}`);
+      }
   };
 
   if (loading) return <p>Carregando evento...</p>;
   if (!evento) return <p style={{ color: "red" }}>{erro}</p>;
 
   const hoje = new Date();
-  const prazoExpirado =
-    evento.registrationDeadLine &&
-    parseTimestamp(evento.registrationDeadLine) < hoje;
+
+  const deadline = evento.registrationDeadLine
+    ? parseTimestamp(evento.registrationDeadLine)
+    : null;
+
+  const prazoExpirado = deadline ? deadline < hoje : false;
   const eventoLotado =
     evento.maxParticipants &&
     evento.registrationsCount >= evento.maxParticipants;
 
   return (
-    <div style={{ padding: "2rem", fontFamily: "Arial" }}>
-      <h1>{evento.name}</h1>
+    <div style={{ padding: "2rem", fontFamily: "Arial", width: "auto", minWidth: "350px", maxWidth: "600px" }}>
+      <h1 className="titleEventPage">{evento.name}</h1>
       <p>{evento.description}</p>
 
-      <p><strong>Início:</strong> {evento.startDate?.toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      })}</p>
-      <p><strong>Fim:</strong> {evento.endDate?.toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      })}</p>
-      <p><strong>Status:</strong> {evento.status}</p>
+      <p>
+        <strong>Início:</strong>{" "}
+        {formatarData(evento.startDate)}
+      </p>
+
+      <p>
+        <strong>Fim:</strong> {formatarData(evento.endDate)}
+      </p>
+
+      <p>
+        <strong>Status:</strong> {evento.status}
+      </p>
 
       {/* Vagas */}
       {evento.maxParticipants > 0 && (
-        <p><strong>Inscritos / Vagas:</strong> {evento.registrationsCount} / {evento.maxParticipants}</p>
+        <p style={{ marginBottom: "20px" }}><strong>Inscritos / Vagas:</strong> {evento.registrationsCount} / {evento.maxParticipants}</p>
       )}
 
       {/* Mensagem de evento lotado */}
@@ -316,8 +328,8 @@ function inscricoesAbertas(evento: Evento): boolean {
 
       {/* Formulário ou aviso */}
       {!formEnviado && inscricoesAbertas(evento) ? (
-        <form onSubmit={handleSubmit} style={{ marginTop: "2rem", border: "1px solid #ccc", padding: "1rem", borderRadius: "8px" }}>
-          <h2>Formulário de Inscrição</h2>
+        <form onSubmit={handleSubmit} style={{ marginTop: "2rem", border: "1px solid #ccc", padding: "1rem", borderRadius: "8px", margin: "auto", width: "auto", minWidth: "300px", maxWidth: "600px"  }}>
+          <h2 className="titleForm">Formulário de Inscrição</h2>
 
           <div style={{ marginBottom: "1rem" }}>
             <label style={{ display: "block" }}>
@@ -330,7 +342,9 @@ function inscricoesAbertas(evento: Evento): boolean {
                 style={{
                   width: "100%",
                   padding: "0.5rem",
-                  marginTop: "0.25rem"
+                  marginTop: "0.5rem",
+                  border: "1px solid gray",
+                  borderRadius: "4px"
                 }}
               />
             </label>
@@ -343,12 +357,15 @@ function inscricoesAbertas(evento: Evento): boolean {
                 type="text"
                 value={formatCpf(cpf)}
                 onChange={(e) => setCpf(e.target.value)}
-                placeholder="000.000.000-00"
+                placeholder="000.000.000-00" 
+                maxLength={14} 
                 required
                 style={{
                   width: "100%",
                   padding: "0.5rem",
-                  marginTop: "0.25rem"
+                  marginTop: "0.25rem",
+                  border: "1px solid gray",
+                  borderRadius: "4px",
                 }}
               />
             </label>
@@ -365,7 +382,9 @@ function inscricoesAbertas(evento: Evento): boolean {
                 style={{
                   width: "100%",
                   padding: "0.5rem",
-                  marginTop: "0.25rem"
+                  marginTop: "0.25rem",
+                  border: "1px solid gray",
+                  borderRadius: "4px"
                 }}
               />
             </label>
@@ -377,12 +396,15 @@ function inscricoesAbertas(evento: Evento): boolean {
               <input
                 type="tel"
                 value={formatTelefone(telefone)}
-                onChange={(e) => setTelefone(e.target.value)}
+                onChange={(e) => setTelefone(e.target.value)} 
+                maxLength={15}
                 required
                 style={{
                   width: "100%",
                   padding: "0.5rem",
-                  marginTop: "0.25rem"
+                  marginTop: "0.25rem",
+                  border: "1px solid gray",
+                  borderRadius: "4px"                  
                 }}
               />
             </label>
@@ -398,7 +420,9 @@ function inscricoesAbertas(evento: Evento): boolean {
                 style={{
                   width: "100%",
                   padding: "0.5rem",
-                  marginTop: "0.25rem"
+                  marginTop: "0.25rem",
+                  border: "1px solid gray",
+                  borderRadius: "4px"
                 }}
               />
             </label>
@@ -454,6 +478,7 @@ function inscricoesAbertas(evento: Evento): boolean {
               color: "white",
               border: "none",
               padding: "0.6rem 1rem",
+              marginTop: "20px",
               borderRadius: "4px",
               cursor: "pointer"
             }}

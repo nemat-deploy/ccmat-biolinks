@@ -1,60 +1,128 @@
 "use client";
 
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, QueryDocumentSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Link from "next/link";
 import { auth, onAuthStateChanged } from "@/lib/firebaseAuth";
 import { useRouter } from "next/navigation";
+import { User } from "firebase/auth";
+import { Evento } from "@/types"; // ✅ Tipo importado
+import { parseTimestamp } from "@/lib/utils";
+import { Timestamp } from "firebase/firestore";
+import { TimestampValue } from "@/types";
 
 export default function AdminPage() {
-  const [eventos, setEventos] = useState([]);
-  const [user, setUser] = useState(null);
+  const [eventos, setEventos] = useState<Evento[]>([]);
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
   // Redireciona se não estiver logado
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (!currentUser) {
         router.push("/eventos/login");
       } else {
         setUser(currentUser);
-        fetchEventos();
+        await fetchEventos();
       }
     });
 
     return () => unsubscribe();
   }, []);
 
+  /**
+   * Converte diferentes formatos de data em Date ou null
+   * @param value - Pode ser Timestamp, objeto com timestampValue, string ISO ou Date
+   * @returns Date | null
+   */
+  function parseTimestamp(
+    value: Date | Timestamp | string | TimestampValue | null | undefined
+  ): Date | null {
+    if (!value) return null;
+
+    // Se for objeto Date
+    if (value instanceof Date) {
+      return value;
+    }
+
+    // Se for Timestamp do Firebase
+    if ((value as Timestamp)?.toDate && typeof (value as Timestamp).toDate === "function") {
+      return (value as Timestamp).toDate();
+    }
+
+    // Se for objeto com timestampValue (ex: API REST)
+    if (typeof value === "object" && "timestampValue" in value && value.timestampValue) {
+      const date = new Date(value.timestampValue);
+      return isNaN(date.getTime()) ? null : date;
+    }
+
+    // Se for string ISO
+    if (typeof value === "string") {
+      const parsed = new Date(value);
+      return isNaN(parsed.getTime()) ? null : parsed;
+    }
+
+    return null;
+  }
+
   // Busca todos os eventos
   async function fetchEventos() {
     try {
       const querySnapshot = await getDocs(collection(db, "eventos"));
-      const lista = [];
 
-      querySnapshot.forEach((doc) => {
+      const lista: Evento[] = [];
+
+      querySnapshot.forEach((docSnap: QueryDocumentSnapshot) => {
+        const data = docSnap.data();
+
         lista.push({
-          id: doc.id,
-          ...doc.data(),
+          id: docSnap.id,
+          name: data.name || "Evento sem nome",
+          description: data.description || "",
+          startDate: parseTimestamp(data.startDate),
+          endDate: parseTimestamp(data.endDate),
+          registrationDeadLine: parseTimestamp(data.registrationDeadLine),
+          maxParticipants: Number(data.maxParticipants) || 0,
+          registrationsCount: Number(data.registrationsCount) || 0,
+          status: data.status || "aberto",
+          minAttendancePercentForCertificate: Number(data.minAttendancePercentForCertificate) || 80
         });
       });
 
       setEventos(lista);
     } catch (err) {
       console.error("Erro ao carregar eventos:", err);
+      alert("⚠️ Erro ao carregar lista de eventos.");
     }
-  }
-
-  if (!eventos.length) {
-    return <p>Carregando eventos...</p>;
   }
 
   return (
     <div style={{ padding: "2rem", fontFamily: "Arial" }}>
       <h1 style={{ fontSize: "20px", fontWeight: "bold" }}>Área Administrativa</h1>
-      <p style={{ marginBottom: "2.5rem", borderTop: "1px solid #d3d3d3", borderBottom: "1px solid #d3d3d3" }}>Logado como: {user?.email}</p>
 
+      {/* Mostra email do usuário */}
+      <p
+        style={{
+          marginBottom: "2.5rem",
+          borderTop: "1px solid #d3d3d3",
+          borderBottom: "1px solid #d3d3d3",
+          padding: "0.5rem 0"
+        }}
+      >
+        Logado como: <strong>{user?.email}</strong>
+      </p>
+
+      {/* Lista de eventos */}
       <ul style={{ listStyle: "none", paddingLeft: 0 }}>
+        {eventos.length === 0 && (
+          <li>
+            <em>Nenhum evento encontrado.</em>
+          </li>
+        )}
+
         {eventos.map((evento) => (
           <li key={evento.id} style={{ marginBottom: "1rem" }}>
             <Link
@@ -63,7 +131,7 @@ export default function AdminPage() {
                 fontSize: "1.2rem",
                 fontWeight: "bold",
                 color: "#0070f3",
-                textDecoration: "none",
+                textDecoration: "none"
               }}
             >
               {evento.name || evento.id}
@@ -83,7 +151,7 @@ export default function AdminPage() {
           border: "none",
           padding: "0.5rem 1rem",
           borderRadius: "4px",
-          cursor: "pointer",
+          cursor: "pointer"
         }}
       >
         Sair

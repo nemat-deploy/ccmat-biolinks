@@ -1,5 +1,7 @@
 "use client";
 
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
 import { useEffect, useState, Fragment } from "react"; // Adicionei Fragment aqui
 import { useParams, useRouter } from "next/navigation";
 import { 
@@ -16,45 +18,68 @@ import { db } from "@/lib/firebase";
 import { auth, onAuthStateChanged } from "@/lib/firebaseAuth";
 import Link from "next/link";
 import './page.css'
+import { parseTimestamp } from "@/lib/utils";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { Evento } from "@/types";
+import { Participante } from "@/types";
+import { debugLog, errorLog } from "@/lib/logger";
 
 export default function AdminEventoPage() {
   const params = useParams();
   const { id } = params;
-  const [participantes, setParticipantes] = useState([]);
-  const [evento, setEvento] = useState(null);
+  const [participantes, setParticipantes] = useState<Participante[]>([]);
+  const [evento, setEvento] = useState<Evento | null>(null);
   const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState<string | null>(null);
   const router = useRouter();
 
   // Verifica login e carrega dados
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (!currentUser) {
-        router.push("/eventos/login");
-      } else {
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    if (!currentUser) {
+      router.push("/eventos/login");
+    } else {
+      if (typeof id === "string") {
         await fetchEvento(id);
         await fetchParticipantes(id);
+      } else {
+        console.error("ID do evento inválido ou ausente:", id);
+        setLoading(false);
+        setErro("ID do evento inválido.");
       }
-    });
-
-    return () => unsubscribe();
-  }, [id]);
+    }
+  });
+  return () => unsubscribe();
+}, [id]);
 
   // Busca evento
-  async function fetchEvento(eventoId) {
+  async function fetchEvento(eventoId: string) {
     try {
       const eventoRef = doc(db, "eventos", eventoId);
       const eventoSnap = await getDoc(eventoRef);
 
       if (eventoSnap.exists()) {
+        const data = eventoSnap.data();
+
         setEvento({
           id: eventoSnap.id,
-          ...eventoSnap.data(),
+          name: data.name || "",
+          description: data.description || "",
+          startDate: parseTimestamp(data.startDate),
+          endDate: parseTimestamp(data.endDate),
+          registrationDeadLine: parseTimestamp(data.registrationDeadLine),
+          maxParticipants: data.maxParticipants ?? 0,
+          registrationsCount: data.registrationsCount ?? 0,
+          status: data.status || "aberto",
+          minAttendancePercentForCertificate: data.minAttendancePercentForCertificate ?? 80
         });
       } else {
         throw new Error("Evento não encontrado.");
       }
     } catch (err) {
       console.error("Erro ao buscar evento:", err);
+      setErro("Erro ao carregar evento.");
     }
   }
 
@@ -85,18 +110,18 @@ export default function AdminEventoPage() {
       });
 
       setParticipantes(participantesData);
-      console.log(`Encontrados ${participantesData.length} participantes`);
+      debugLog(`Encontrados ${participantesData.length} participantes`);
       
-    } catch (error) {
-      console.error("Erro ao buscar participantes:", error);
-      alert("Erro ao carregar lista de participantes");
-    } finally {
-      setLoading(false);
-    }
+      } catch (error) {
+        errorLog("Erro ao buscar participantes", error);
+        alert("⚠️ Erro ao carregar lista de participantes");
+      } finally {
+        setLoading(false);
+      }
   }
 
   // Exclui participante
-  const handleDelete = async (cpf) => {
+  const handleDelete = async (cpf: string) => {
     if (!confirm("Tem certeza que deseja excluir este participante?")) return;
 
     try {
@@ -110,7 +135,7 @@ export default function AdminEventoPage() {
   };
 
   // Estado para edição
-  const [editingParticipant, setEditingParticipant] = useState(null);
+  const [editingParticipant, setEditingParticipant] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     nome: "",
     email: "",
@@ -118,8 +143,11 @@ export default function AdminEventoPage() {
     institution: ""
   });
 
-  // Inicia edição
-  const startEdit = (participante) => {
+/**
+ * Inicia edição de um participante
+ * @param participante - Objeto com dados do participante
+ */
+  const startEdit = (participante: Participante) => {
     setEditingParticipant(participante.id);
     setEditForm({
       nome: participante.nome,
@@ -130,7 +158,7 @@ export default function AdminEventoPage() {
   };
 
   // Atualiza formulário de edição
-  const handleEditChange = (e) => {
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEditForm(prev => ({ ...prev, [name]: value }));
   };
@@ -194,33 +222,41 @@ export default function AdminEventoPage() {
                   <td>{p.id}</td>
                   <td>{p.email}</td>
                   <td>
-                    <button
-                      onClick={() => startEdit(p)}
-                      style={{
-                        marginRight: "0.5rem",
-                        background: "#0070f3",
-                        color: "white",
-                        border: "none",
-                        padding: "0.4rem 0.8rem",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => handleDelete(p.id)}
-                      style={{
-                        background: "red",
-                        color: "white",
-                        border: "none",
-                        padding: "0.4rem 0.8rem",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Excluir
-                    </button>
+                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                      <button
+                        onClick={() => startEdit(p)}
+                        style={{
+                          marginRight: "0.5rem",
+                          background: "none",
+                          color: "blue",
+                          border: "none",
+                          padding: "0.4rem 0.8rem",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center"
+                        }}
+                        title="Editar participante"
+                      >
+                        <FontAwesomeIcon icon={faEdit} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(p.id)}
+                        style={{
+                          background: "none",
+                          color: "red",
+                          border: "none",
+                          padding: "0.4rem 0.8rem",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center"
+                        }}
+                        title="Excluir participante"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
                 

@@ -1,72 +1,89 @@
 "use client";
 
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, DocumentData } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { Timestamp } from "firebase/firestore";
 import Link from "next/link";
 
-// Função pra converter Timestamp ou string em Date
-function parseTimestamp(value) {
+// Tipo centralizado (pode vir de @/types)
+type Evento = {
+  id: string;
+  name: string;
+  description: string;
+  startDate: Date | null;
+  endDate: Date | null;
+  registrationDeadLine: Date | null;
+  maxParticipants: number;
+  registrationsCount: number;
+  status: "aberto" | "encerrado" | "em breve" | "em andamento";
+  minAttendancePercentForCertificate: number;
+};
+
+// Função pra converter Timestamp, Date ou string em Date
+function parseTimestamp(
+  value: Date | Timestamp | { toDate?: () => Date } | string | { timestampValue?: string } | null | undefined
+): Date | null {
   if (!value) return null;
 
-  // Se for objeto com toDate()
-  if (typeof value === "object" && value.toDate) return value.toDate();
+  if (value instanceof Date) {
+    return value;
+  }
 
-  // Se vier como string ISO
-  if (typeof value === "string") return new Date(value);
+  if ((value as any)?.toDate && typeof (value as any).toDate === "function") {
+    return (value as any).toDate();
+  }
 
-  // Se vier como { timestampValue: '2025-04-04T22:00:00Z' }
-  if (value?.timestampValue) return new Date(value.timestampValue);
+  if (typeof value === "object" && "timestampValue" in value && value.timestampValue) {
+    return new Date(value.timestampValue);
+  }
+
+  if (typeof value === "string") {
+    const parsed = new Date(value);
+    return isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  if (typeof value === "string") {
+    const parsed = new Date(value);
+    return isNaN(parsed.getTime()) ? null : parsed;
+  }
 
   return null;
 }
 
 export default function EventosPage() {
-  const [eventos, setEventos] = useState([]);
+  const [eventos, setEventos] = useState<Evento[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchEventos() {
       try {
         const querySnapshot = await getDocs(collection(db, "eventos"));
-        const lista = [];
+        const lista: Evento[] = [];
 
         querySnapshot.forEach((docSnap) => {
           const data = docSnap.data();
 
-          const startDate = parseTimestamp(data.startDate);
-          const endDate = parseTimestamp(data.endDate);
-          const registrationDeadLine = parseTimestamp(data.registrationDeadLine);
-
           lista.push({
             id: docSnap.id,
-            name: data.name?.stringValue || data.name || "Sem título",
-            description: data.description?.stringValue || data.description || "",
-            startDate,
-            endDate,
-            registrationDeadLine,
-            maxParticipants: parseInt(
-              data.maxParticipants?.integerValue || `${data.maxParticipants || 0}`,
-              10
-            ),
-            registrationsCount: parseInt(
-              data.registrationsCount?.integerValue ||
-                `${data.registrationsCount || 0}`,
-              10
-            ),
-            status: data.status?.stringValue || data.status || "aberto",
-            minAttendancePercentForCertificate: parseInt(
-              data.minAttendancePercentForCertificate?.integerValue ||
-                `${data.minAttendancePercentForCertificate || 80}`,
-              10
-            )
+            name: data.name || "Sem título",
+            description: data.description || "",
+            startDate: parseTimestamp(data.startDate),
+            endDate: parseTimestamp(data.endDate),
+            registrationDeadLine: parseTimestamp(data.registrationDeadLine),
+            maxParticipants: Number(data.maxParticipants) || 0,
+            registrationsCount: Number(data.registrationsCount) || 0,
+            status: data.status || "aberto",
+            minAttendancePercentForCertificate: Number(data.minAttendancePercentForCertificate) || 80
           });
         });
 
-        console.log("Eventos carregados:", lista); // 👈 Veja no DevTools
+        // console.log("Eventos carregados:", lista);
         setEventos(lista);
       } catch (err) {
-        console.error("Erro ao carregar eventos:", err.message || err);
+        console.error("Erro ao carregar eventos:", err);
       } finally {
         setLoading(false);
       }
@@ -79,14 +96,25 @@ export default function EventosPage() {
 
   return (
     <div style={{ padding: "2rem", fontFamily: "Arial" }}>
-      <h1>Eventos</h1>
+      <h1 className="titleEventos">Eventos</h1>
 
       {eventos.length === 0 ? (
         <p>Nenhum evento encontrado.</p>
       ) : (
-        <ul style={{ listStyle: "none", paddingLeft: 0 }}>
+        <ul style={{
+          listStyle: "none",
+          paddingLeft: 0,
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "30px"
+        }}>
           {eventos.map((evento) => (
-            <li key={evento.id} style={{ marginBottom: "2rem" }}>
+            <li key={evento.id} style={{
+              border: "2px solid gray",
+              padding: "12px",
+              borderRadius: "8px",
+              maxWidth: "300px"
+            }}>
               <Link
                 href={`/eventos/${evento.id}`}
                 style={{
@@ -99,7 +127,7 @@ export default function EventosPage() {
                 {evento.name}
               </Link>
               <p>{evento.description}</p>
-              <p>
+              <p style={{ color: "magenta", fontWeight: "bold" }}>
                 De{" "}
                 {evento.startDate?.toLocaleDateString() || "sem data"} até{" "}
                 {evento.endDate?.toLocaleDateString() || "sem data"}

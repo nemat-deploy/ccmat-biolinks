@@ -2,7 +2,6 @@
 
 import React from "react";
 import styles from "./Page.module.css";
-// import "./Page.module.css";
 
 function Fluxograma() {
   const handleImageOpen = () => {
@@ -16,19 +15,19 @@ function Fluxograma() {
   };
 
   return (
-    <div className="mainFluxograma">
-      <div></div>
-      <div className="options">
+    <div className={styles.mainFluxograma}>
+      <div className={styles.options}>
         <h3>Fluxograma do Curso de Matemática - UFDPar</h3>
-        <button className="btImage" onClick={handleImageOpen}>
-          Pre-requisitos
+
+        <button className={styles.btImage} onClick={handleImageOpen}>
+          Pré-requisitos
         </button>
 
-        <button className="btImage" onClick={handleResumidoPdf}>
+        <button className={styles.btImage} onClick={handleResumidoPdf}>
           Fluxograma Resumido
         </button>
 
-        <button className="btImage" onClick={handleCompletoPdf}>
+        <button className={styles.btImage} onClick={handleCompletoPdf}>
           Fluxograma Completo
         </button>
       </div>
