@@ -1,7 +1,7 @@
 // src/app/eventos/layout.tsx
 "use client"
 
-import './page.css'
+import './layout.css'
 import { ReactNode } from "react";
 
 export default function EventosLayout({ children }: { children: ReactNode }) {

@@ -30,9 +30,19 @@ export type Participante = {
   email: string;
   telefone: string;
   institution: string;
-  eventoId: string;
+  // eventoId?: string;
   dataInscricao: Date | FirebaseTimestamp | null;
 };
+
+export interface ParticipanteData {
+  id: string;
+  cpf: string;
+  nome: string;
+  email: string;
+  telefone: string;
+  institution: string;
+  dataInscricao: string;
+}
 
 /**
  * Tipo para compatibilidade com API REST
@@ -40,3 +50,4 @@ export type Participante = {
 export type TimestampValue = {
   timestampValue?: string;
 } | FirebaseTimestamp;
+

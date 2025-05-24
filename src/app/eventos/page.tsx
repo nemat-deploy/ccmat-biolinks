@@ -95,16 +95,19 @@ export default function EventosPage() {
   if (loading) return <p>Carregando eventos...</p>;
 
   return (
-    <div style={{ padding: "2rem", fontFamily: "Arial" }}>
+    <div className="listaTodosEventos" style={{ padding: "2rem", fontFamily: "Arial" }}>
+
       <h1 className="titleEventos">Eventos</h1>
 
       {eventos.length === 0 ? (
         <p>Nenhum evento encontrado.</p>
       ) : (
         <ul style={{
+          display: "flex", 
+          justifyContent: "center", 
+          alignItems: "center", 
           listStyle: "none",
           paddingLeft: 0,
-          display: "flex",
           flexWrap: "wrap",
           gap: "30px"
         }}>
@@ -113,7 +116,10 @@ export default function EventosPage() {
               border: "2px solid gray",
               padding: "12px",
               borderRadius: "8px",
-              maxWidth: "300px"
+              width: "100%",
+              maxWidth: "320px",
+              height: "auto",
+              minHeight: "150px"
             }}>
               <Link
                 href={`/eventos/${evento.id}`}

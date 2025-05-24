@@ -1,13 +1,16 @@
+// src/app/eventos/admin/novo-evento/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+// import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import Link from "next/link";
 import "./page.css";
+import type { User } from "firebase/auth";
 
-// Tipagem para os dados do evento
 type Evento = {
   id: string;
   name: string;
@@ -24,8 +27,6 @@ type Evento = {
 export default function NovoEventoPage() {
   const router = useRouter();
   const params = useParams();
-
-  // Extrai ID do evento da URL
   const { id } = params || {};
 
   // Estados do formulário
@@ -40,23 +41,75 @@ export default function NovoEventoPage() {
   const [percentualMinimoCertificado, setPercentualMinimoCertificado] = useState<string>("80");
   const [mensagem, setMensagem] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [slugExists, setSlugExists] = useState<boolean>(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
-  // Se for edição, carrega os dados do evento
-  useEffect(() => {
-    async function fetchEvento() {
-      if (typeof id !== "string") {
-        setMensagem("⚠️ ID do evento inválido.");
+// Verifica autenticação e permissões
+useEffect(() => {
+  // Solução com dynamic import para garantir compatibilidade
+  import("firebase/auth").then(({ getAuth, onAuthStateChanged }) => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/eventos/login");
         return;
       }
 
+      // Verifica se é admin
+      const adminEmails = [
+        "ricardomelo.rt@gmail.com",
+        "andrielmo.silva@ufdpar.edu.br", 
+        "nemat.ufdpar@gmail.com"
+      ];
+      
+      if (user.email && adminEmails.includes(user.email)) {
+        setIsAdmin(true);
+      } else {
+        setMensagem("❌ Acesso restrito a administradores");
+        router.push("/eventos/admin");
+      }
+    });
+
+    return () => unsubscribe();
+  }).catch(error => {
+    console.error("Erro ao carregar módulo de autenticação:", error);
+    setMensagem("❌ Erro ao verificar autenticação");
+  });
+}, [router]);
+
+  // Verifica se slug já existe
+  const checkSlugExists = async (slug: string) => {
+    if (!slug) return false;
+    try {
+      const eventoRef = doc(db, "eventos", slug);
+      const eventoSnap = await getDoc(eventoRef);
+      setSlugExists(eventoSnap.exists());
+      return eventoSnap.exists();
+    } catch (error) {
+      console.error("Erro ao verificar slug:", error);
+      return false;
+    }
+  };
+
+  // Atualiza verificação de slug quando eventoId muda
+  useEffect(() => {
+    if (eventoId && !id) {
+      checkSlugExists(eventoId);
+    }
+  }, [eventoId, id]);
+
+  // Carrega dados do evento se for edição
+  useEffect(() => {
+    async function fetchEvento() {
+      if (typeof id !== "string") return;
+
       try {
+        setLoading(true);
         const eventoRef = doc(db, "eventos", id);
         const eventoSnap = await getDoc(eventoRef);
 
         if (eventoSnap.exists()) {
           const data = eventoSnap.data();
-
-          // Função auxiliar pra converter Timestamp ou Date pra string ISO (input date)
           const toDateInputValue = (value: any): string => {
             if (!value) return "";
             if (value?.toDate) return value.toDate().toISOString().split("T")[0];
@@ -68,6 +121,7 @@ export default function NovoEventoPage() {
             return "";
           };
 
+          setEventoId(id);
           setNome(data.name || "");
           setDescricao(data.description || "");
           setInicio(toDateInputValue(data.startDate));
@@ -80,312 +134,269 @@ export default function NovoEventoPage() {
           setMensagem("❌ Evento não encontrado.");
         }
       } catch (err) {
-        let errorMessage = "Erro desconhecido";
-        if (err instanceof Error) {
-          errorMessage = err.message;
-        } else if (typeof err === "object" && err !== null && "message" in err) {
-          errorMessage = String((err as { message?: string }).message);
-        }
-
-        console.error("Erro ao carregar evento:", errorMessage);
-        setMensagem(`❌ Erro ao carregar evento: ${errorMessage}`);
+        console.error("Erro ao carregar evento:", err);
+        setMensagem(`❌ Erro ao carregar evento: ${err instanceof Error ? err.message : String(err)}`);
+      } finally {
+        setLoading(false);
       }
     }
 
     if (id) fetchEvento();
   }, [id]);
 
-  // Função de envio do formulário com tipagem correta
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setMensagem("");
 
-    if (!nome.trim() || !descricao.trim() || !inicio || !fim || !prazoInscricao) {
-      setMensagem("⚠️ Todos os campos são obrigatórios.");
-      setLoading(false);
-      return;
+  try {
+    // 1. Validação dos campos obrigatórios
+    const camposObrigatorios = [
+      { valor: nome.trim(), nome: "Nome" },
+      { valor: descricao.trim(), nome: "Descrição" },
+      { valor: inicio, nome: "Data de início" },
+      { valor: fim, nome: "Data de fim" },
+      { valor: prazoInscricao, nome: "Prazo de inscrição" }
+    ];
+
+    const campoFaltante = camposObrigatorios.find(campo => !campo.valor);
+    if (campoFaltante) {
+      throw new Error(`⚠️ O campo "${campoFaltante.nome}" é obrigatório.`);
     }
 
-    try {
-      const eventId = eventoId || nome.toLowerCase().replace(/\s+/g, "-");
+    // 2. Processamento das datas
+    const startDate = new Date(`${inicio}T00:00:00`);
+    const endDate = new Date(`${fim}T23:59:59`);
+    const registrationDeadline = new Date(`${prazoInscricao}T23:59:59`);
 
-      const eventoRef = doc(db, "eventos", eventId);
+    // 3. Validação das datas
+    if (startDate > endDate) {
+      throw new Error("⚠️ Data de início não pode ser após a data de fim.");
+    }
 
-      const startDate = new Date(inicio + "T00:00:00");
-      const endDate = new Date(fim + "T23:59:59");
-      const registrationDeadline = new Date(prazoInscricao + "T23:59:59");
+    if (registrationDeadline > endDate) {
+      throw new Error("⚠️ Prazo de inscrição não pode ser após o fim do evento.");
+    }
 
-      await setDoc(eventoRef, {
-        name: nome,
-        description: descricao,
-        startDate: Timestamp.fromDate(startDate),
-        endDate: Timestamp.fromDate(endDate),
-        registrationDeadLine: Timestamp.fromDate(registrationDeadline),
-        maxParticipants: parseInt(vagas, 10) || 0,
+    // 4. Verificação de autenticação
+    const { getAuth } = await import("firebase/auth");
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user?.email) {
+      throw new Error("⚠️ Você precisa estar logado para realizar esta ação.");
+    }
+
+    // 5. Criação do ID do evento (slug)
+    const eventId = eventoId || nome.toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
+
+    // 6. Verificação de slug duplicado (apenas para novos eventos)
+    if (!id && (await checkSlugExists(eventId))) {
+      throw new Error("⚠️ Esse endereço já está em uso. Por favor, escolha outro.");
+    }
+
+    // 7. Preparação dos dados do evento
+    const dadosEvento = {
+      name: nome.trim(),
+      description: descricao.trim(),
+      startDate: Timestamp.fromDate(startDate),
+      endDate: Timestamp.fromDate(endDate),
+      registrationDeadLine: Timestamp.fromDate(registrationDeadline),
+      maxParticipants: Number(vagas) || 0,
+      status,
+      minAttendancePercentForCertificate: Number(percentualMinimoCertificado) || 80,
+      lastUpdatedBy: user.email,
+      lastUpdatedAt: Timestamp.now(),
+      ...(!id && {
         registrationsCount: 0,
-        status: status,
-        minAttendancePercentForCertificate: parseInt(percentualMinimoCertificado, 10) || 80
-      });
+        createdBy: user.email,
+        createdAt: Timestamp.now()
+      })
+    };
 
-      setMensagem("✅ Evento salvo com sucesso!");
-      setTimeout(() => {
-        router.push("/eventos/admin");
-      }, 1000);
-    } catch (error) {
-      let errorMessage = "Erro desconhecido";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (typeof error === "object" && error !== null && "message" in error) {
-        errorMessage = String((error as { message?: string }).message);
-      }
+    // 8. Salvamento no Firestore
+    const eventoRef = doc(db, "eventos", eventId);
+    await setDoc(eventoRef, dadosEvento, { merge: true });
 
-      console.error("Erro ao salvar evento:", errorMessage);
-      setMensagem(`❌ Erro ao salvar evento: ${errorMessage}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // 9. Feedback e redirecionamento
+    setMensagem("✅ Evento salvo com sucesso!");
+    setTimeout(() => router.push("/eventos/admin"), 1500);
+
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
+    console.error("Erro ao salvar evento:", error);
+    setMensagem(errorMessage.startsWith("⚠️") ? errorMessage : `❌ ${errorMessage}`);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  if (loading) return <div className="loading">Carregando...</div>;
+  if (!isAdmin) return <div className="loading">Verificando permissões...</div>;
 
   return (
-    <div style={{ padding: "2rem", fontFamily: "Arial" }}>
+    <div className="container">
       <h1>{id ? "Editar Evento" : "Novo Evento"}</h1>
-      {mensagem && <p>{mensagem}</p>}
+      
+      {mensagem && (
+        <div className={`message ${mensagem.includes("✅") ? "success" : "error"}`}>
+          {mensagem}
+        </div>
+      )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="event-form">
         {!id && (
-          <div style={{ marginBottom: "1rem" }}>
-            <label style={{ display: "block" }}>
+          <div className="form-group">
+            <label>
               ID do evento (usado na URL):
               <input
                 type="text"
                 value={eventoId}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setEventoId(e.target.value)
-                }
-                required={!id}
-                placeholder="ex: curso-latex"
-                style={{
-                  width: "100%",
-                  padding: "0.5rem",
-                  marginTop: "0.25rem",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px"
+                onChange={(e) => {
+                  const value = e.target.value
+                    .toLowerCase()
+                    .replace(/\s+/g, "-")
+                    .replace(/[^a-z0-9-]/g, "");
+                  setEventoId(value);
                 }}
+                required
+                placeholder="ex: curso-latex"
+                className="form-input"
               />
+              {slugExists && (
+                <p className="slug-error">Esse endereço já existe, escolha outro.</p>
+              )}
             </label>
           </div>
         )}
 
-        <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block" }}>
+        <div className="form-group">
+          <label>
             Nome do evento:
             <input
               type="text"
               value={nome}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setNome(e.target.value)
-              }
+              onChange={(e) => setNome(e.target.value)}
               required
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                marginTop: "0.25rem",
-                border: "1px solid #ccc",
-                borderRadius: "4px"
-              }}
+              className="form-input"
             />
           </label>
         </div>
 
-        <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block" }}>
+        <div className="form-group">
+          <label>
             Descrição:
             <textarea
               value={descricao}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                setDescricao(e.target.value)
-              }
+              onChange={(e) => setDescricao(e.target.value)}
               required
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                marginTop: "0.25rem",
-                border: "1px solid #ccc",
-                borderRadius: "4px"
-              }}
+              className="form-input"
+              rows={4}
             />
           </label>
         </div>
 
-        <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block" }}>
-            Data de início:
-            <input
-              type="date"
-              value={inicio}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setInicio(e.target.value)
-              }
-              required
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                marginTop: "0.25rem",
-                border: "1px solid #ccc",
-                borderRadius: "4px"
-              }}
-            />
-          </label>
+        <div className="date-grid">
+          <div className="form-group">
+            <label>
+              Data de início:
+              <input
+                type="date"
+                value={inicio}
+                onChange={(e) => setInicio(e.target.value)}
+                required
+                className="form-input"
+              />
+            </label>
+          </div>
+
+          <div className="form-group">
+            <label>
+              Data de fim:
+              <input
+                type="date"
+                value={fim}
+                onChange={(e) => setFim(e.target.value)}
+                required
+                className="form-input"
+              />
+            </label>
+          </div>
+
+          <div className="form-group">
+            <label>
+              Prazo de inscrição:
+              <input
+                type="date"
+                value={prazoInscricao}
+                onChange={(e) => setPrazoInscricao(e.target.value)}
+                required
+                className="form-input"
+              />
+            </label>
+          </div>
         </div>
 
-        <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block" }}>
-            Data de fim:
-            <input
-              type="date"
-              value={fim}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setFim(e.target.value)
-              }
-              required
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                marginTop: "0.25rem",
-                border: "1px solid #ccc",
-                borderRadius: "4px"
-              }}
-            />
-          </label>
-        </div>
-
-        <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block" }}>
-            Prazo de inscrição:
-            <input
-              type="date"
-              value={prazoInscricao}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setPrazoInscricao(e.target.value)
-              }
-              required
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                marginTop: "0.25rem",
-                border: "1px solid #ccc",
-                borderRadius: "4px"
-              }}
-            />
-          </label>
-        </div>
-
-        <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block" }}>
+        <div className="form-group">
+          <label>
             Máximo de vagas:
             <input
               type="number"
               value={vagas}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setVagas(e.target.value)
-              }
+              onChange={(e) => setVagas(e.target.value)}
               required
               min="0"
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                marginTop: "0.25rem",
-                border: "1px solid #ccc",
-                borderRadius: "4px"
-              }}
+              className="form-input"
             />
           </label>
         </div>
 
-        <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block" }}>
+        <div className="form-group">
+          <label>
             Status:
             <select
               value={status}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setStatus(e.target.value as Evento["status"])
-              }
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                marginTop: "0.25rem",
-                border: "1px solid #ccc",
-                borderRadius: "4px"
-              }}
+              onChange={(e) => setStatus(e.target.value as Evento["status"])}
+              className="form-input"
             >
               <option value="aberto">Aberto</option>
-              <option value="em andamento">Em andamento</option>
               <option value="em breve">Em breve</option>
+              <option value="em andamento">Em andamento</option>
               <option value="encerrado">Encerrado</option>
             </select>
           </label>
         </div>
 
-        <div style={{ marginBottom: "1rem" }}>
-          <label style={{ display: "block" }}>
+        <div className="form-group">
+          <label>
             Percentual mínimo de presença para certificado (%):
             <input
               type="number"
               value={percentualMinimoCertificado}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setPercentualMinimoCertificado(e.target.value)
-              }
+              onChange={(e) => setPercentualMinimoCertificado(e.target.value)}
               min="0"
               max="100"
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                marginTop: "0.25rem",
-                border: "1px solid #ccc",
-                borderRadius: "4px"
-              }}
+              className="form-input"
             />
           </label>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            background: "#0070f3",
-            color: "white",
-            border: "none",
-            padding: "0.6rem 1rem",
-            borderRadius: "4px",
-            cursor: "pointer"
-          }}
-        >
-          {id ? "Atualizar evento" : "Criar evento"}
-        </button>
-
-        {id && (
+        <div className="form-actions">
           <button
-            type="button"
-            onClick={() => {}}
-            style={{
-              marginLeft: "1rem",
-              background: "red",
-              color: "white",
-              border: "none",
-              padding: "0.6rem 1rem",
-              borderRadius: "4px",
-              cursor: "pointer"
-            }}
+            type="submit"
+            disabled={loading}
+            className="submit-button"
           >
-            Excluir evento
+            {loading ? "Salvando..." : (id ? "Atualizar evento" : "Criar evento")}
           </button>
-        )}
-      </form>
 
-      <br />
-      <Link href="/eventos/admin" style={{ color: "#0070f3" }}>
-        ← Voltar para eventos
-      </Link>
+          <Link href="/eventos/admin" className="cancel-button">
+            Cancelar
+          </Link>
+        </div>
+      </form>
     </div>
   );
 }

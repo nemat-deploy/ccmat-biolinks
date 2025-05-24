@@ -1,6 +1,7 @@
 body {
     margin: 0;
     padding: 0;
+    background-color: dimgray;
 }
 
 .eventos-top-header {
@@ -18,6 +19,12 @@ body {
 
 h1 {
     font-size: 18px;
+}
+
+.listaTodosEventos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .center-container {

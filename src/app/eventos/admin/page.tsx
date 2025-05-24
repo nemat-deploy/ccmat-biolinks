@@ -13,13 +13,14 @@ import { Evento } from "@/types"; // ✅ Tipo importado
 import { parseTimestamp } from "@/lib/utils";
 import { Timestamp } from "firebase/firestore";
 import { TimestampValue } from "@/types";
+import './page.css'
 
 export default function AdminPage() {
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
-  // Redireciona se não estiver logado
+  // redirecionar se não estiver logado
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (!currentUser) {
@@ -103,17 +104,31 @@ export default function AdminPage() {
     <div style={{ padding: "2rem", fontFamily: "Arial" }}>
       <h1 style={{ fontSize: "20px", fontWeight: "bold" }}>Área Administrativa</h1>
 
-      {/* Mostra email do usuário */}
-      <p
-        style={{
-          marginBottom: "2.5rem",
-          borderTop: "1px solid #d3d3d3",
-          borderBottom: "1px solid #d3d3d3",
-          padding: "0.5rem 0"
-        }}
-      >
-        Logado como: <strong>{user?.email}</strong>
-      </p>
+      {/* barra de menu */}
+      <div className="menuBar">
+        <div className="userLogged">
+          Logado como: <strong>{user?.email}</strong>
+        </div>
+
+        <div className="adminBtns">
+          <Link href="/eventos/admin/novo-evento/">
+            <button 
+              className="btnNewEvent"
+            >
+              novo evento
+            </button>
+          </Link>
+
+          <button 
+            className="btnSair"
+            onClick={() => {
+              auth.signOut().then(() => router.push("/eventos/login"));
+            }}
+          >
+            sair
+          </button>
+        </div>
+      </div>
 
       {/* Lista de eventos */}
       <ul style={{ listStyle: "none", paddingLeft: 0 }}>
@@ -139,23 +154,6 @@ export default function AdminPage() {
           </li>
         ))}
       </ul>
-
-      <br />
-      <button
-        onClick={() => {
-          auth.signOut().then(() => router.push("/eventos/login"));
-        }}
-        style={{
-          background: "red",
-          color: "white",
-          border: "none",
-          padding: "0.5rem 1rem",
-          borderRadius: "4px",
-          cursor: "pointer"
-        }}
-      >
-        Sair
-      </button>
     </div>
   );
 }
