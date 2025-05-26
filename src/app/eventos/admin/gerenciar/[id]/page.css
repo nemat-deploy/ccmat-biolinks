@@ -1,0 +1,10 @@
+.titleEditEvento {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 30px;
+    margin-bottom: 0;
+}
+
+.eventoToEdit {
+    color: blue;
+}

@@ -111,7 +111,7 @@ export default function AdminPage() {
         </div>
 
         <div className="adminBtns">
-          <Link href="/eventos/admin/novo-evento/">
+          <Link href="/eventos/admin/gerenciar/novo/">
             <button 
               className="btnNewEvent"
             >
@@ -137,20 +137,68 @@ export default function AdminPage() {
             <em>Nenhum evento encontrado.</em>
           </li>
         )}
-
         {eventos.map((evento) => (
-          <li key={evento.id} style={{ marginBottom: "1rem" }}>
+          <li
+            key={evento.id}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "1rem",
+              border: "1px solid #ccc",
+              padding: "0.5rem 1rem",
+              borderRadius: "8px"
+            }}
+          >
             <Link
               href={`/eventos/admin/${evento.id}`}
               style={{
                 fontSize: "1.2rem",
                 fontWeight: "bold",
                 color: "#0070f3",
-                textDecoration: "none"
+                textDecoration: "none",
+                flexGrow: 1
               }}
             >
               {evento.name || evento.id}
             </Link>
+
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <button
+                className="btnEditar"
+                onClick={() => router.push(`/eventos/admin/gerenciar/${evento.id}`)}
+                style={{
+                  backgroundColor: "#f0ad4e",
+                  color: "#fff",
+                  border: "none",
+                  padding: "0.3rem 0.7rem",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                Editar
+              </button>
+
+              <button
+                className="btnExcluir"
+                onClick={async () => {
+                  if (confirm(`Tem certeza que deseja excluir o evento "${evento.name}"?`)) {
+                    try {
+                      await import("firebase/firestore").then(async ({ doc, deleteDoc }) => {
+                        await deleteDoc(doc(db, "eventos", evento.id));
+                        setEventos(eventos.filter(e => e.id !== evento.id));
+                      });
+                    } catch (error) {
+                      console.error("Erro ao excluir evento:", error);
+                      alert("❌ Erro ao excluir evento.");
+                    }
+                  }
+                }}
+                style={{ backgroundColor: "#d9534f", color: "#fff", border: "none", padding: "0.3rem 0.7rem", borderRadius: "4px", cursor: "pointer" }}
+              >
+                Excluir
+              </button>
+            </div>
           </li>
         ))}
       </ul>

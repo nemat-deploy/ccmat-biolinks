@@ -8,10 +8,14 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "date-fns": "^4.1.0",
     "firebase": "^11.8.1",
     "next": "15.3.2",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-datepicker": "^8.4.0",
+    "react-dom": "^19.1.0",
+    "react-hot-toast": "^2.5.2",
+    "slugify": "^1.6.6"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.2",

@@ -17,6 +17,11 @@ body {
   font-size: 1.2rem;
 }
 
+.titleNewEvent {
+  text-align: center;
+  margin-top: 20px;
+}
+
 .message {
   padding: 1rem;
   margin-bottom: 1.5rem;

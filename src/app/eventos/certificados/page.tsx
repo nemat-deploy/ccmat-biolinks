@@ -106,7 +106,7 @@ export default function CertificadosPage() {
 
   return (
     <div className="container">
-      <h1>Consulta de Certificados</h1>
+      <h1>Consulte se você receberá certificado</h1>
       
       <div className="input-group">
         <input
@@ -129,7 +129,7 @@ export default function CertificadosPage() {
 
 {result && (
   <div className="resultado">
-    <h2>Seus Certificados</h2>
+    <h2>Certificados que serão disponibilizados</h2>
     
     <div className="eventos-grid">
       {result.eventos.map((evento) => (

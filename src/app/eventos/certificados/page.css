@@ -1,21 +1,33 @@
+body {
+  margin-top: 20px;
+}
+
 .container {
   max-width: 800px;
+  height: auto;
   margin: 0 auto;
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 }
 
 .input-group {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
 }
 
 .input-group input {
-  flex: 1;
-  padding: 0.75rem;
+  width: 300px;
+  padding: 4pxem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 20px;
+  height: 50px;
 }
 
 inpu[text] {
@@ -27,6 +39,8 @@ inpu[text] {
   background: #0070f3;
   color: white;
   border: none;
+  height: 50px;
+  width: 120px;
   border-radius: 4px;
   cursor: pointer;
 }

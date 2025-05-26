@@ -1,5 +1,6 @@
 import { initializeApp, FirebaseApp } from "firebase/app";
 import { getFirestore, Firestore } from "firebase/firestore";
+import { getAuth } from 'firebase/auth';
 
 // Tipagem para as credenciais
 interface FirebaseConfig {
@@ -25,3 +26,4 @@ const app: FirebaseApp = initializeApp(firebaseConfig);
 const db: Firestore = getFirestore(app);
 
 export { app, db };
+export const auth = getAuth(app);

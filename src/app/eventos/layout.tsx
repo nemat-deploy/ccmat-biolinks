@@ -3,13 +3,19 @@
 
 import './layout.css'
 import { ReactNode } from "react";
+import { Toaster } from "react-hot-toast";
+import Image from 'next/image';
 
 export default function EventosLayout({ children }: { children: ReactNode }) {
   return (
     <section>
       <div className="eventos-top-header">
-        <h1>Universidade Federal do Delta do Parnaíba</h1>
-        <h2>Núcleo de Estudos em Matemática</h2>
+          <Image
+            src="/images/logo-eventos-nemat.png" 
+            alt="Descrição da imagem"
+            width={280}
+            height={80}
+          />
       </div>
       {children}
     </section>
