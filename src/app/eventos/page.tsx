@@ -132,8 +132,8 @@ export default function EventosPage() {
               >
                 {evento.name}
               </Link>
-              <p>{evento.description}</p>
-              <p style={{ color: "magenta", fontWeight: "bold" }}>
+              <p className="eventoDescription">{evento.description}</p>
+              <p style={{ color: "green", fontWeight: "bold" }}>
                 De{" "}
                 {evento.startDate?.toLocaleDateString() || "sem data"} até{" "}
                 {evento.endDate?.toLocaleDateString() || "sem data"}

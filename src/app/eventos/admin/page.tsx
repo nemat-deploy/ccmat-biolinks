@@ -130,6 +130,10 @@ export default function AdminPage() {
         </div>
       </div>
 
+        <div>
+          INSCRITOS - clique no evento
+        </div>
+
       {/* Lista de eventos */}
       <ul style={{ listStyle: "none", paddingLeft: 0 }}>
         {eventos.length === 0 && (
@@ -168,7 +172,7 @@ export default function AdminPage() {
                 className="btnEditar"
                 onClick={() => router.push(`/eventos/admin/gerenciar/${evento.id}`)}
                 style={{
-                  backgroundColor: "#f0ad4e",
+                  backgroundColor: "#37a9d1",
                   color: "#fff",
                   border: "none",
                   padding: "0.3rem 0.7rem",

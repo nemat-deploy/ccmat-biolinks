@@ -228,13 +228,29 @@ useEffect(() => {
           />
           <button type="submit">Enviar Inscrição</button>
         </form>
+      ) : formEnviado ? (
+        <div className="success-container">
+          <p className="success-message">✅ Inscrição realizada com sucesso!</p>
+          <button 
+            className="new-registration-btn"
+            onClick={() => {
+              setFormEnviado(false);
+              setMensagem("");
+              setCpf("");
+              setNome("");
+              setEmail("");
+              setTelefone("");
+            }}
+          >
+            Nova Inscrição
+          </button>
+          <Link href="/eventos" className="back-link">Voltar para Eventos</Link>
+        </div>
       ) : (
-        <div dangerouslySetInnerHTML={{ __html: mensagem }} />
+        <p className="error-message">{mensagem}</p>
       )}
 
-      {!formEnviado && mensagem && <p>{mensagem}</p>}
-
-      <Link href="/eventos"> Voltar para Eventos</Link>
+      {!formEnviado && mensagem && !prazoEncerrado && <p className="error-message">{mensagem}</p>}
     </div>
   );
 }
