@@ -174,7 +174,7 @@ export default function EventoForm({
       </div>
 
       <div className="form-group">
-        <label>Data de Início:</label>
+        <label>Data de Início (formato MêS/Dia/Ano):</label>
         <input
           type="datetime-local"
           value={startDate ? formatDateToInput(startDate) : ""}
@@ -185,7 +185,7 @@ export default function EventoForm({
       </div>
 
       <div className="form-group">
-        <label>Data de Término:</label>
+        <label>Data de Término (formato MêS/Dia/Ano):</label>
         <input
           type="datetime-local"
           value={endDate ? formatDateToInput(endDate) : ""}
@@ -196,7 +196,7 @@ export default function EventoForm({
       </div>
 
       <div className="form-group">
-        <label>Data limite de inscrição:</label>
+        <label>Data limite de inscrição (formato MêS/Dia/Ano):</label>
         <input
           type="datetime-local"
           value={registrationDeadLine ? formatDateToInput(registrationDeadLine) : ""}
