@@ -145,9 +145,9 @@ export default function EventosPage() {
       )}
 
       <br />
-      <Link href="/eventos/admin" style={{ color: "#0070f3" }}>
+{/*      <Link href="/eventos/admin" style={{ color: "#0070f3" }}>
         → Área administrativa
-      </Link>
+      </Link>*/}
     </div>
   );
 }

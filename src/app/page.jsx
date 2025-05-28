@@ -40,17 +40,6 @@ export default function Home() {
           target="_blank">
           Página do Curso de Matemática
         </LinkButton>
-        
-        <LinkButton 
-          href="mailto:ccmat@ufdpar.edu.br">
-          Fale com a Coordenação <br />
-          ccmat@ufdpar.edu.br
-        </LinkButton>
-
-        <LinkButton 
-          href="https://www.instagram.com/camatufdpar/?hl=pt-br">
-          Centro Acadêmico
-        </LinkButton>
 
         <LinkButton 
           href="/fluxograma/" 
@@ -63,6 +52,17 @@ export default function Home() {
           target="_blank"> 
           Núcleo de Estudo em Matemática <br />
           NEMAT UFDPar
+        </LinkButton>
+
+        <LinkButton 
+          href="https://www.instagram.com/camatufdpar/?hl=pt-br">
+          Centro Acadêmico
+        </LinkButton>
+        
+        <LinkButton 
+          href="mailto:ccmat@ufdpar.edu.br">
+          Fale com a Coordenação <br />
+          ccmat@ufdpar.edu.br
         </LinkButton>
 
       </div>
