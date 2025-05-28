@@ -52,7 +52,7 @@ export default function EventoPage() {
 
   const [cpf, setCpf] = useState("");
   const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("sem@email.com");
   const [telefone, setTelefone] = useState("");
   const [instituicao, setInstituicao] = useState("UFDPar");
 

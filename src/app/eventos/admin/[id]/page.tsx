@@ -155,6 +155,9 @@ export default function AdminEventoPage() {
   if (loading) return <p>Carregando...</p>;
   if (erro) return <p>{erro}</p>;
 
+  // ordenar por ordem alfabética
+  const participantesOrdenados = [...participantes].sort((a, b) => a.nome.localeCompare(b.nome));
+
   return (
     <div style={{ padding: "2rem" }}>
       <h1 className="titleCourse">Admin - {evento?.name || id}</h1>
@@ -196,7 +199,7 @@ export default function AdminEventoPage() {
               </td>
             </tr>
           ) : (
-            participantes.map((p) => (
+            participantesOrdenados.map((p) => (
               <Fragment key={p.cpf}>
                 <tr>
                   <td> { p.nome } </td>
