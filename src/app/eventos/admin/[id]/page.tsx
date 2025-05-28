@@ -158,6 +158,22 @@ export default function AdminEventoPage() {
   return (
     <div style={{ padding: "2rem" }}>
       <h1 className="titleCourse">Admin - {evento?.name || id}</h1>
+
+      {/* exibir a URL aqui */}
+      {id && (
+        <p style={{ marginTop: "0.5rem", marginBottom: "0.5rem", color: "#0070f3" }}>
+          Link do evento:{" "}
+          <a
+            href={`https://matematica-ufdpar.vercel.app/eventos/${id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ textDecoration: "underline" }}
+          >
+            https://matematica-ufdpar.vercel.app/eventos/{id}
+          </a>
+        </p>
+      )}
+
       <p className="totalInscritos">
         <strong>{participantes.length}</strong> participantes inscritos
       </p>

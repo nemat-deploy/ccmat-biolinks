@@ -16,6 +16,7 @@ interface EventoFormProps {
   setEventoId?: (value: string) => void;
   slugExists?: boolean;
   eventoData?: Evento | null;
+  onEventoCriado?: (slug: string) => void;
 }
 
 export default function EventoForm({
@@ -24,6 +25,7 @@ export default function EventoForm({
   setEventoId,
   slugExists,
   eventoData,
+  onEventoCriado
 }: EventoFormProps) {
   const router = useRouter();
   const [localSlug, setLocalSlug] = useState(eventoId || "");
@@ -123,6 +125,11 @@ export default function EventoForm({
         const novoSlug = localSlug.trim() || slugify(name, { lower: true, strict: true });
         const eventoRef = doc(db, "eventos", novoSlug);
         await setDoc(eventoRef, { ...data, id: novoSlug });
+
+        if (onEventoCriado) {
+          onEventoCriado(novoSlug); // 👈 sinaliza para o pai que o evento foi criado
+        }
+
         alert("Evento criado com sucesso.");
         router.replace(`/eventos/admin/${novoSlug}`);
       }
@@ -138,7 +145,7 @@ export default function EventoForm({
     <form onSubmit={handleSubmit} className="evento-form">
       {!isEditing && setEventoId && (
         <div className="form-group">
-          <label>Slug (será usado na URL do evento):</label>
+          <label>Nome no link da página:</label>
           <input
             type="text"
             value={localSlug}
@@ -147,7 +154,7 @@ export default function EventoForm({
             required
             className="form-input"
           />
-          {slugExists && <p className="form-error">Esse slug já está em uso.</p>}
+          {slugExists && <p className="form-error">Esse nome já está em uso.</p>}
         </div>
       )}
 
@@ -231,7 +238,7 @@ export default function EventoForm({
       </div>
 
       <div className="form-group">
-        <label>% mínima de presença para certificado:</label>
+        <label>% mínima de presença para certificado (0 - 100):</label>
         <input
           type="number"
           value={minAttendancePercentForCertificate}
