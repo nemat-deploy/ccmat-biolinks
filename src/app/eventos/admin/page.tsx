@@ -101,7 +101,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div style={{ padding: "2rem", fontFamily: "Arial" }}>
+    <div style={{ padding: "12px", fontFamily: "Arial" }}>
       <h1 style={{ fontSize: "20px", fontWeight: "bold" }}>Área Administrativa</h1>
 
       {/* barra de menu */}
@@ -131,7 +131,7 @@ export default function AdminPage() {
       </div>
 
         <div>
-          INSCRITOS - clique no evento
+          Clique no evento para vê e editar os Participantes
         </div>
 
       {/* Lista de eventos */}
@@ -142,32 +142,25 @@ export default function AdminPage() {
           </li>
         )}
         {eventos.map((evento) => (
-          <li
+          <li 
+            className="eventoItems"
             key={evento.id}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "1rem",
-              border: "1px solid #ccc",
-              padding: "0.5rem 1rem",
-              borderRadius: "8px"
-            }}
           >
             <Link
               href={`/eventos/admin/${evento.id}`}
               style={{
+                width: "auto",
+                textAlign: "left",
                 fontSize: "1.2rem",
                 fontWeight: "bold",
                 color: "#0070f3",
                 textDecoration: "none",
-                flexGrow: 1
               }}
             >
               {evento.name || evento.id}
             </Link>
 
-            <div style={{ display: "flex", gap: "0.5rem" }}>
+            <div className="actionsBtn">
               <button
                 className="btnEditar"
                 onClick={() => router.push(`/eventos/admin/gerenciar/${evento.id}`)}
@@ -178,6 +171,7 @@ export default function AdminPage() {
                   padding: "0.3rem 0.7rem",
                   borderRadius: "4px",
                   cursor: "pointer",
+                  width: "80px"
                 }}
               >
                 Editar
@@ -198,7 +192,7 @@ export default function AdminPage() {
                     }
                   }
                 }}
-                style={{ backgroundColor: "#d9534f", color: "#fff", border: "none", padding: "0.3rem 0.7rem", borderRadius: "4px", cursor: "pointer" }}
+                style={{ backgroundColor: "#d9534f", color: "#fff", border: "none", padding: "0.3rem 0.7rem", borderRadius: "4px", cursor: "pointer", width: "80px" }}
               >
                 Excluir
               </button>

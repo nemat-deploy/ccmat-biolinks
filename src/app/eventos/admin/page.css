@@ -36,6 +36,32 @@
     font-weight: bold;
 }
 
+.eventoItems {
+    width: 100%;
+    min-width: 350px;
+    height: auto;
+    gap: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    padding-left: 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin: 20px 0;
+    padding: 20px 8px;
+}
+
+.actionsBtn {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    width: auto;
+    height: 25px;
+    font-weight: bold;
+}
+
 .btnNewEvent {
     background-color: royalblue;
 }
@@ -55,5 +81,11 @@
     }
     .adminBtns {
         justify-content: center;
+    }
+    .eventoItems {
+        flex-direction: column;
+    }
+    .actionsBtn {
+        margin-top: 16px;
     }
 }
