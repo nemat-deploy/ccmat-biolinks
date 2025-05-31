@@ -184,50 +184,81 @@ useEffect(() => {
     <div className="container">
       <h1>{evento.name}</h1>
       <p>{evento.description}</p>
-      <p>Início: {formatarData(evento.startDate)}</p>
-      <p>Fim: {formatarData(evento.endDate)}</p>
+      <p>Início: {formatarData(evento.startDate)}<br />
+      Fim: {formatarData(evento.endDate)}</p>
       <p>Status: {evento.status}</p>
 
       {prazoEncerrado && (
         <p className="mensagem">⚠️ Inscrições encerradas para esse evento.</p>
       )}
 
+      <h1 style={{ fontSize: "22px", color: "#0070f3" }}>Faça sua inscrição</h1>
       {!formEnviado && !prazoEncerrado ? (
         <form onSubmit={handleSubmit} className="form">
-          <input
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            placeholder="Nome"
-            required
-          />
-          <input
-            value={cpf}
-            onChange={(e) => setCpf(formatCpf(e.target.value))}
-            placeholder="CPF"
-            required
-            maxLength={14}
-          />
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            type="email"
-            required
-          />
-          <input
-            value={telefone}
-            onChange={(e) => setTelefone(formatTelefone(e.target.value))}
-            placeholder="Telefone"
-            required
-            maxLength={15}
-          />
-          <input
-            value={instituicao}
-            onChange={(e) => setInstituicao(e.target.value)}
-            placeholder="Instituição"
-          />
+          <div className="form-floating">
+            <input
+              id="nome"
+              type="text"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              required
+              placeholder=" "
+            />
+            <label htmlFor="nome">Nome</label>
+          </div>
+
+          <div className="form-floating">
+            <input
+              id="cpf"
+              type="text"
+              value={cpf}
+              onChange={(e) => setCpf(formatCpf(e.target.value))}
+              required
+              maxLength={14}
+              placeholder=" "
+            />
+            <label htmlFor="cpf">CPF</label>
+          </div>
+
+          <div className="form-floating">
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder=" "
+            />
+            <label htmlFor="email">Email</label>
+          </div>
+
+          <div className="form-floating">
+            <input
+              id="telefone"
+              type="tel"
+              value={telefone}
+              onChange={(e) => setTelefone(formatTelefone(e.target.value))}
+              required
+              maxLength={15}
+              placeholder=" "
+            />
+            <label htmlFor="telefone">Telefone</label>
+          </div>
+
+          <div className="form-floating">
+            <input
+              id="instituicao"
+              type="text"
+              value={instituicao}
+              onChange={(e) => setInstituicao(e.target.value)}
+              placeholder=" "
+            />
+            <label htmlFor="instituicao">Instituição</label>
+          </div>
+
           <button type="submit">Enviar Inscrição</button>
         </form>
+
       ) : formEnviado ? (
         <div className="success-container">
           <p className="success-message">✅ Inscrição realizada com sucesso!</p>

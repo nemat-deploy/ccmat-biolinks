@@ -1,39 +1,77 @@
+/* ===== Estrutura geral ===== */
 body {
   background-color: whitesmoke;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 .container {
   padding: 2rem;
-  font-family: Arial, sans-serif;
   max-width: 600px;
   margin: 0 auto;
 }
 
+/* ===== Formulário ===== */
 form.form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  padding: 1rem;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
   border: 1px solid #ccc;
   border-radius: 8px;
-  background-color: #f9f9f9;
-  margin-bottom: 20px;
+  background-color: white;
 }
 
-form.form input {
-  padding: 0.6rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+/* Campos com efeito flutuante */
+.form-floating {
+  position: relative;
+  width: 100%;
+}
+
+.form-floating input {
+  width: 96%;
+  padding: 8px;
+  padding-top: 12px;
   font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: white;
+  outline: none;
 }
 
+.form-floating label {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.4rem;
+  color: #777;
+  font-size: 1rem;
+  background-color: white;
+  padding: 0 4px;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+/* Efeito ao focar/preencher */
+.form-floating input:focus + label,
+.form-floating input:not(:placeholder-shown) + label,
+.form-floating input:valid + label {
+  top: -0.5rem;
+  left: 0.6rem;
+  font-size: 0.75rem;
+  color: #0070f3;
+}
+
+/* Botão com a mesma largura dos campos */
 form.form button {
+  width: 100%;
   background-color: #0070f3;
   color: white;
   border: none;
   padding: 0.8rem;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.3s ease;
@@ -43,8 +81,9 @@ form.form button:hover {
   background-color: #005ac1;
 }
 
+/* ===== Outros elementos ===== */
 p {
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
 .eventNoFound {
@@ -59,7 +98,7 @@ p {
 }
 
 .inicioFimStatus {
-  display: inline-block; /* for to set width */
+  display: inline-block;
   width: 55px;
 }
 
