@@ -1,20 +1,14 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: dimgray;
-}
-
-.eventos-top-header {
-    font-weight: normal;
-    padding-left: 8px;
-    margin-left: 30px;
-    font-weight: bold;
+    background-color: #fcfcfc;
 }
 
 .titleEventos {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
     margin-bottom: 10px;
+    color: #3d3d3d;
 }
 
 h1 {
@@ -23,6 +17,7 @@ h1 {
 
 .listaTodosEventos {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }

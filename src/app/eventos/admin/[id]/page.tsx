@@ -188,7 +188,7 @@ export default function AdminEventoPage() {
           registrar presenças
         </Link>
       </p>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "40px" }}>
         <thead>
           <tr>
             <th> Nome </th>

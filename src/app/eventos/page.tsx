@@ -7,6 +7,7 @@ import { collection, getDocs, doc, DocumentData } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Timestamp } from "firebase/firestore";
 import Link from "next/link";
+import './page.css'
 
 // Tipo centralizado (pode vir de @/types)
 type Evento = {
@@ -97,7 +98,9 @@ export default function EventosPage() {
   return (
     <div className="listaTodosEventos" style={{ padding: "2rem", fontFamily: "Arial" }}>
 
-      <h1 className="titleEventos">Eventos</h1>
+      <div>
+      <p className="titleEventos">Eventos disponíveis</p>
+      </div>
 
       {eventos.length === 0 ? (
         <p>Nenhum evento encontrado.</p>
@@ -114,6 +117,7 @@ export default function EventosPage() {
           {eventos.map((evento) => (
             <li key={evento.id} style={{
               border: "2px solid gray",
+              backgroundColor: "#ffffff",
               padding: "12px",
               borderRadius: "8px",
               width: "100%",
@@ -134,9 +138,8 @@ export default function EventosPage() {
               </Link>
               <p className="eventoDescription">{evento.description}</p>
               <p style={{ color: "green", fontWeight: "bold" }}>
-                De{" "}
-                {evento.startDate?.toLocaleDateString() || "sem data"} até{" "}
-                {evento.endDate?.toLocaleDateString() || "sem data"}
+                De {evento.startDate?.toLocaleDateString('pt-BR') || "sem data"} até{" "}
+                {evento.endDate?.toLocaleDateString('pt-BR') || "sem data"}
               </p>
               <p>Status: {evento.status}</p>
             </li>

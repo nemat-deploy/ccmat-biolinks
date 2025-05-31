@@ -276,13 +276,14 @@ useEffect(() => {
           >
             Nova Inscrição
           </button>
-          <Link href="/eventos" className="back-link">Voltar para Eventos</Link>
         </div>
       ) : (
         <p className="error-message">{mensagem}</p>
       )}
 
       {!formEnviado && mensagem && !prazoEncerrado && <p className="error-message">{mensagem}</p>}
+
+      <Link href="/eventos" className="back-link">Voltar para Eventos</Link>
     </div>
   );
 }
