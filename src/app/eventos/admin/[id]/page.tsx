@@ -165,7 +165,7 @@ export default function AdminEventoPage() {
       {/* exibir a URL aqui */}
       {id && (
         <p style={{ marginTop: "0.5rem", marginBottom: "0.5rem", color: "#0070f3" }}>
-          Link do evento:{" "}
+          <strong>Link do evento:</strong>{" "}
           <a
             href={`https://matematica-ufdpar.vercel.app/eventos/${id}`}
             target="_blank"
@@ -178,7 +178,15 @@ export default function AdminEventoPage() {
       )}
 
       <p className="totalInscritos">
-        <strong>{participantes.length}</strong> participantes inscritos
+        <strong>{participantes.length}</strong> participantes inscritos &nbsp;
+        <Link 
+          href={`/eventos/admin/evento/${id}/presenca`} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="linkRegistrarPresenca"
+        >
+          registrar presenças
+        </Link>
       </p>
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>

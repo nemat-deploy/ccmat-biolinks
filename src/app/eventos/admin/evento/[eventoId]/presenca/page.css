@@ -28,6 +28,14 @@
   margin: 0 auto;
 }
 
+.presencaTitle {
+  font-weight: bold;
+}
+
+.eventoTitle {
+  color: blue;
+}
+
 .presenca-table {
   width: 100%;
   border-collapse: collapse;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -202,7 +202,8 @@ useEffect(() => {
               value={nome}
               onChange={(e) => setNome(e.target.value)}
               required
-              placeholder=" "
+              placeholder=" " 
+              autoFocus
             />
             <label htmlFor="nome">Nome</label>
           </div>
