@@ -20,3 +20,10 @@ h2 {
 	font-size: 11pt;
 	margin-top: 0px;
 }
+
+@media (max-width: 767px) {
+	.eventos-top-header {
+		width: 100%;
+		margin: auto;
+	}
+}

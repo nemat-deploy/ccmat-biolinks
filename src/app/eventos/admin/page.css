@@ -2,6 +2,11 @@
     margin: 8px;
 }
 
+.admin-container {
+    width: 95%;
+    margin: auto;
+}
+
 .menuBar {
     display: flex;
     justify-content: space-between;

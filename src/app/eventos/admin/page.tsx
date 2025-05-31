@@ -101,7 +101,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div style={{ padding: "12px", fontFamily: "Arial" }}>
+    <div className="admin-container">
       <h1 style={{ fontSize: "20px", fontWeight: "bold" }}>Área Administrativa</h1>
 
       {/* barra de menu */}

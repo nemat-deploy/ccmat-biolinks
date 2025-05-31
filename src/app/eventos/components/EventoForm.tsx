@@ -238,7 +238,7 @@ export default function EventoForm({
       </div>
 
       <div className="form-group">
-        <label>% mínima de presença para certificado (0 - 100):</label>
+        <label>presença mínima para certificado (0% a 100%):</label>
         <input
           type="number"
           value={minAttendancePercentForCertificate}
@@ -263,19 +263,29 @@ export default function EventoForm({
         </select>
       </div>
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className={`submit-button ${isEditing ? "editing" : "creating"}`}
-      >
-        {isSubmitting
-          ? isEditing
-            ? "Salvando..."
-            : "Criando..."
-          : isEditing
-          ? "Salvar alterações"
-          : "Criar evento"}
-      </button>
+      <div className="form-buttons">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className={`submit-button ${isEditing ? "editing" : "creating"}`}
+        >
+          {isSubmitting
+            ? isEditing
+              ? "salvando..."
+              : "criando..."
+            : isEditing
+            ? "salvar alterações"
+            : "criar evento"}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => router.push('/eventos/admin')}
+          className="cancel-button"
+        >
+          voltar
+        </button>
+      </div>
     </form>
   );
 }

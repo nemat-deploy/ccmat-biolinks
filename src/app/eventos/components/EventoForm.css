@@ -43,7 +43,10 @@
   font-size: 0.9rem;
 }
 
-.submit-button {
+/* Estilos compartilhados */
+.button,
+.submit-button,
+.cancel-button {
   padding: 0.7rem 1.4rem;
   font-size: 1rem;
   font-weight: 600;
@@ -51,18 +54,43 @@
   border-radius: 6px;
   cursor: pointer;
   color: #fff;
-  transition: background-color 0.3s ease, opacity 0.3s ease;
+  transition: all 0.3s ease;
 }
 
+/* Estilos específicos */
 .submit-button.creating {
-  background-color: #28a745;
+  background-color: #1976d2; /* Verde para criação */
+}
+
+.submit-button.creating:hover {
+  background-color: #094c8e; /* Verde mais escuro no hover */
 }
 
 .submit-button.editing {
-  background-color: #f0ad4e;
+  background-color: #1ec244; /* Azul para edição */
+}
+
+.submit-button.editing:hover {
+  background-color: #12892e; /* Azul mais escuro no hover */
 }
 
 .submit-button:disabled {
   cursor: not-allowed;
   opacity: 0.6;
+  /* Mantém a cor original quando desabilitado */
+}
+
+.cancel-button {
+  background-color: #909090;
+}
+
+.cancel-button:hover {
+  background-color: #6f6f6f;
+}
+
+/* Container */
+.form-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
 }
