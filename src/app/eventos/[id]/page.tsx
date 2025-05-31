@@ -270,7 +270,7 @@ useEffect(() => {
               setMensagem("");
               setCpf("");
               setNome("");
-              setEmail("");
+              // setEmail("");
               setTelefone("");
             }}
           >
