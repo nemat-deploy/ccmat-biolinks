@@ -248,9 +248,9 @@ export default function EventoForm({
             className="form-input"
           />
           {slugExists && <p className="form-error">Esse nome já está em uso.</p>}
+          <small>O link da página será assim: https://matematica-ufdpar.vercel.app/eventos/<span className="example-url">nome-no-link</span></small>
         </div>
       )}
-
       <div className="form-group">
         <label>Título:</label>
         <input
@@ -273,121 +273,129 @@ export default function EventoForm({
         />
       </div>
 
-      <div className="form-group">
-        <label>Data de hora de início (dd/mm/aaaa 00:00):</label>
-        <IMaskInput
-          mask="00/00/0000 00:00"
-          placeholder="dd/mm/aaaa hh:mm"
-          value={startDateInput}
-          onAccept={(value: string) => {
-            if (value === startDateInput) return; // evita loop infinito
-            setStartDateInput(value);
+      <div className="eventDates">
+        <div className="form-group">
+          Datas e horários do evento no formato <span className="date-format-hint">(DD/MM/AAAA 00:00)</span>
+        </div>
 
-            const [datePart, timePart] = value.split(" ");
-            if (!datePart || !timePart) {
-              setStartDate(null);
-              return;
-            }
+        <div className="form-group-dates">
+          <div className="form-group form-group-dates-item">
+            <label>Início:</label>
+            <IMaskInput
+              mask="00/00/0000 00:00"
+              placeholder="dd/mm/aaaa hh:mm"
+              value={startDateInput}
+              onAccept={(value: string) => {
+                if (value === startDateInput) return; // evita loop infinito
+                setStartDateInput(value);
 
-            const [day, month, year] = datePart.split("/");
-            const [hour, minute] = timePart.split(":");
+                const [datePart, timePart] = value.split(" ");
+                if (!datePart || !timePart) {
+                  setStartDate(null);
+                  return;
+                }
 
-            const localDate = new Date(
-              Number(year),
-              Number(month) - 1,
-              Number(day),
-              Number(hour),
-              Number(minute)
-            );
+                const [day, month, year] = datePart.split("/");
+                const [hour, minute] = timePart.split(":");
 
-            if (!isNaN(localDate.getTime())) {
-              setStartDate(localDate);
-            } else {
-              setStartDate(null);
-            }
-          }}
-          className="form-input"
-          required
-          lazy={false}
-        />
-      </div>
+                const localDate = new Date(
+                  Number(year),
+                  Number(month) - 1,
+                  Number(day),
+                  Number(hour),
+                  Number(minute)
+                );
 
-      <div className="form-group">
-        <label>Data e hora de término (dd/mm/aaaa 00:00):</label>
-        <IMaskInput
-          mask="00/00/0000 00:00"
-          placeholder="dd/mm/aaaa hh:mm"
-          value={endDateInput}
-          onAccept={(value: string) => {
-            if (value === endDateInput) return;
-            setEndDateInput(value);
+                if (!isNaN(localDate.getTime())) {
+                  setStartDate(localDate);
+                } else {
+                  setStartDate(null);
+                }
+              }}
+              className="form-input"
+              required
+              lazy={false}
+            />
+          </div>
 
-            const [datePart, timePart] = value.split(" ");
-            if (!datePart || !timePart) {
-              setEndDate(null);
-              return;
-            }
+          <div className="form-group form-group-dates-item">
+            <label>Término:</label>
+            <IMaskInput
+              mask="00/00/0000 00:00"
+              placeholder="dd/mm/aaaa hh:mm"
+              value={endDateInput}
+              onAccept={(value: string) => {
+                if (value === endDateInput) return;
+                setEndDateInput(value);
 
-            const [day, month, year] = datePart.split("/");
-            const [hour, minute] = timePart.split(":");
+                const [datePart, timePart] = value.split(" ");
+                if (!datePart || !timePart) {
+                  setEndDate(null);
+                  return;
+                }
 
-            const localDate = new Date(
-              Number(year),
-              Number(month) - 1,
-              Number(day),
-              Number(hour),
-              Number(minute)
-            );
+                const [day, month, year] = datePart.split("/");
+                const [hour, minute] = timePart.split(":");
 
-            if (!isNaN(localDate.getTime())) {
-              setEndDate(localDate);
-            } else {
-              setEndDate(null);
-            }
-          }}
-          className="form-input"
-          required
-          lazy={false}
-        />
-      </div>
+                const localDate = new Date(
+                  Number(year),
+                  Number(month) - 1,
+                  Number(day),
+                  Number(hour),
+                  Number(minute)
+                );
 
-      <div className="form-group">
-        <label>Data e hora limite das inscrições (dd/mm/aaaa 00:00):</label>
-        <IMaskInput
-          mask="00/00/0000 00:00"
-          placeholder="dd/mm/aaaa hh:mm"
-          value={registrationDeadLineInput}
-          onAccept={(value: string) => {
-            if (value === registrationDeadLineInput) return;
-            setRegistrationDeadLineInput(value);
+                if (!isNaN(localDate.getTime())) {
+                  setEndDate(localDate);
+                } else {
+                  setEndDate(null);
+                }
+              }}
+              className="form-input"
+              required
+              lazy={false}
+            />
+          </div>
 
-            const [datePart, timePart] = value.split(" ");
-            if (!datePart || !timePart) {
-              setRegistrationDeadLine(null);
-              return;
-            }
+          <div className="form-group form-group-dates-item">
+            <label>Fim das inscrições:</label>
+            <IMaskInput
+              mask="00/00/0000 00:00"
+              placeholder="dd/mm/aaaa hh:mm"
+              value={registrationDeadLineInput}
+              onAccept={(value: string) => {
+                if (value === registrationDeadLineInput) return;
+                setRegistrationDeadLineInput(value);
 
-            const [day, month, year] = datePart.split("/");
-            const [hour, minute] = timePart.split(":");
+                const [datePart, timePart] = value.split(" ");
+                if (!datePart || !timePart) {
+                  setRegistrationDeadLine(null);
+                  return;
+                }
 
-            const localDate = new Date(
-              Number(year),
-              Number(month) - 1,
-              Number(day),
-              Number(hour),
-              Number(minute)
-            );
+                const [day, month, year] = datePart.split("/");
+                const [hour, minute] = timePart.split(":");
 
-            if (!isNaN(localDate.getTime())) {
-              setRegistrationDeadLine(localDate);
-            } else {
-              setRegistrationDeadLine(null);
-            }
-          }}
-          className="form-input"
-          required
-          lazy={false}
-        />
+                const localDate = new Date(
+                  Number(year),
+                  Number(month) - 1,
+                  Number(day),
+                  Number(hour),
+                  Number(minute)
+                );
+
+                if (!isNaN(localDate.getTime())) {
+                  setRegistrationDeadLine(localDate);
+                } else {
+                  setRegistrationDeadLine(null);
+                }
+              }}
+              className="form-input"
+              required
+              lazy={false}
+            />
+          </div>
+        </div>
       </div>
 
       <div className="form-group">
@@ -427,7 +435,7 @@ export default function EventoForm({
       </div>
 
       <div className="form-group">
-        <label>presença mínima para certificado (0% a 100%):</label>
+        <label>Presença mínima para certificado (0% - 100%)%:</label>
         <input
           type="number"
           value={minAttendancePercentForCertificate}
@@ -444,6 +452,7 @@ export default function EventoForm({
           step={1}
           className="form-input"
         />
+        <small className="presenca-minima-hint">Digite a porcentagem mínima de presença necessária para emitir o certificado (ex: 75).</small>
       </div>
 
       <div className="form-group">

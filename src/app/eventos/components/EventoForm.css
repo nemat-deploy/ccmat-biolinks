@@ -8,7 +8,12 @@
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
-  font-family: "Segoe UI", sans-serif;
+  font-family: sans-serif;
+}
+
+.date-format-hint {
+  font-size: 13px;
+  font-weight: bold;
 }
 
 .form-group {
@@ -17,8 +22,7 @@
 
 .form-group label {
   display: block;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 2px;
   color: #333;
 }
 
@@ -27,10 +31,21 @@
   padding: 0.4rem 0.8rem;
   border: 1px solid #ccc;
   border-radius: 6px;
-  font-size: 18px;
+  font-size: 16px;
   transition: border-color 0.2s ease;
 }
 
+.presenca-minima-hint {
+  color: gray;
+}
+
+.example-url {
+  color: blue;
+}
+
+small {
+  color: gray;
+}
 .form-input:focus {
   border-color: #0070f3;
   outline: none;
@@ -41,6 +56,30 @@
   margin-top: 0.4rem;
   color: #d9534f;
   font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.eventDates {
+  border: 1px solid lightgray;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 25px;
+}
+
+.form-group-dates {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-group-dates-item {
+  width: 140px;
+}
+
+.input-date {
+  text-align: center;
 }
 
 /* Estilos compartilhados */

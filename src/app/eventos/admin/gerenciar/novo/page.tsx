@@ -35,7 +35,7 @@ export default function NovoEventoPage() {
   return (
     <div>
       <h1 style={{ textAlign: 'center', marginTop: '30px', fontSize: '22px' }}>Criar novo evento</h1>
-      <p style={{ textAlign: 'center' }} ><em>O link da página será assim:</em><br /> https://matematica-ufdpar.vercel.app/eventos/<span style={{ color: 'blue' }}>nome-no-link</span></p>
+      
       {/* mostra a URL se o evento for criado */}
       {eventoCriado && (
         <p style={{ textAlign: 'center', marginBottom: '20px' }}>
