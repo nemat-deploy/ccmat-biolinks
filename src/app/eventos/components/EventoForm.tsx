@@ -9,6 +9,42 @@ import slugify from "slugify";
 import "./EventoForm.css";
 import { format, parseISO } from 'date-fns';
 import { formatDateInput, parseDateInput } from "@/utils/date";
+import { IMaskInput } from 'react-imask'
+import {
+  parseBrazilianDateTimeToLocalDate,
+  formatDateToBrazilianDateTime,
+} from '@/utils/dateUtils'
+import { parseBrazilianDateTimeToUTCISOString } from '@/utils/dateUtils'
+
+// setting dates
+const formatToFirestoreString = (date: Date | null) => {
+  if (!date) return '';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hour = String(date.getHours()).padStart(2, '0');
+  const minute = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hour}:${minute}`;
+};
+
+const parseDateString = (value: string): Date | null => {
+  const [datePart, timePart] = value.split(" ");
+  if (!datePart || !timePart) return null;
+
+  const [day, month, year] = datePart.split("/");
+  const [hour, minute] = timePart.split(":");
+
+  const localDate = new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    Number(hour),
+    Number(minute)
+  );
+
+  return isNaN(localDate.getTime()) ? null : localDate;
+};
+// end setting date
 
 interface EventoFormProps {
   isEditing: boolean;
@@ -26,23 +62,61 @@ export default function EventoForm({
   slugExists,
   eventoData,
   onEventoCriado
-}: EventoFormProps) {
-  const router = useRouter();
-  const [localSlug, setLocalSlug] = useState(eventoId || "");
-  const [name, setName] = useState<string>(eventoData?.name || "");
-  const [description, setDescription] = useState<string>(eventoData?.description || "");
-  const [startDate, setStartDate] = useState<string>(eventoData?.startDate ? formatDateInput(eventoData.startDate) : "");
-  const [endDate, setEndDate] = useState<string>(eventoData?.endDate ? formatDateInput(eventoData.endDate) : "");
-  const [registrationDeadLine, setRegistrationDeadLine] = useState<string>(
-    eventoData?.registrationDeadLine ? formatDateInput(eventoData.registrationDeadLine) : ""
+  }: EventoFormProps) {
+    const router = useRouter();
+    const [localSlug, setLocalSlug] = useState(eventoId || "");
+    const [name, setName] = useState<string>(eventoData?.name || "");
+    const [description, setDescription] = useState<string>(eventoData?.description || "");
+    const [startDate, setStartDate] = useState<Date | string | null>(
+      eventoData?.startDate ? formatDateInput(eventoData.startDate) : ""
+    );
+    const [endDate, setEndDate] = useState<Date | string | null>(
+      eventoData?.endDate ? formatDateInput(eventoData.endDate) : ""
+    );
+    const [registrationDeadLine, setRegistrationDeadLine] = useState<Date | string | null>(
+      eventoData?.registrationDeadLine ? formatDateInput(eventoData.registrationDeadLine) : ""
+    );
+    // allow to clean this fields
+    // const [maxParticipants, setMaxParticipants] = useState<number>(eventoData?.maxParticipants || 0);
+    const [maxParticipants, setMaxParticipants] = useState<string>(
+      eventoData?.maxParticipants !== undefined ? String(eventoData.maxParticipants) : ""
+    );
+    // const [totalSessoes, setTotalSessoes] = useState<number>(eventoData?.totalSessoes || 0);
+    const [totalSessoes, setTotalSessoes] = useState<string>(
+      eventoData?.totalSessoes !== undefined ? String(eventoData.totalSessoes) : ""
+    );
+    // const [minAttendancePercentForCertificate, setMinAttendancePercentForCertificate] = useState<number>(
+    //   eventoData?.minAttendancePercentForCertificate || 0
+    // );
+    const [minAttendancePercentForCertificate, setMinAttendancePercentForCertificate] = useState<string>(
+    eventoData?.minAttendancePercentForCertificate !== undefined
+      ? String(eventoData.minAttendancePercentForCertificate)
+      : ""
   );
-  const [maxParticipants, setMaxParticipants] = useState<number>(eventoData?.maxParticipants || 0);
-  const [totalSessoes, setTotalSessoes] = useState<number>(eventoData?.totalSessoes || 0);
-  const [minAttendancePercentForCertificate, setMinAttendancePercentForCertificate] = useState<number>(
-    eventoData?.minAttendancePercentForCertificate || 0
-  );
+
   const [status, setStatus] = useState<StatusEvento>(eventoData?.status || "aberto");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [startDateInput, setStartDateInput] = useState('')
+  const [endDateInput, setEndDateInput] = useState(
+    endDate ? formatDateToBrazilianDateTime(endDate) : ""
+  );
+  const [registrationDeadLineInput, setRegistrationDeadLineInput] = useState(
+    registrationDeadLine ? formatDateToBrazilianDateTime(registrationDeadLine) : ""
+  );
+
+  // start to use for Brasilian mask
+  useEffect(() => {
+    if (startDate) {
+      const parsed = new Date(startDate);
+      const dia = String(parsed.getDate()).padStart(2, "0");
+      const mes = String(parsed.getMonth() + 1).padStart(2, "0");
+      const ano = parsed.getFullYear();
+      const hora = String(parsed.getHours()).padStart(2, "0");
+      const minuto = String(parsed.getMinutes()).padStart(2, "0");
+
+      setStartDateInput(`${dia}/${mes}/${ano} ${hora}:${minuto}`);
+    }
+  }, [startDate]);
 
   // Atualiza o estado local quando a prop eventoId muda
   useEffect(() => {
@@ -57,9 +131,9 @@ export default function EventoForm({
       setStartDate("");
       setEndDate("");
       setRegistrationDeadLine("");
-      setMaxParticipants(0);
-      setTotalSessoes(0);
-      setMinAttendancePercentForCertificate(0);
+      setMaxParticipants("0");
+      setTotalSessoes("0");
+      setMinAttendancePercentForCertificate("0");
       setStatus("aberto");
     }
   }, [isEditing]);
@@ -98,6 +172,25 @@ export default function EventoForm({
       return;
     }
 
+    // allow to clean this fields
+    const maxParticipantsNumber = Number(maxParticipants);
+    if (isNaN(maxParticipantsNumber) || maxParticipantsNumber < 0) {
+      alert("Informe um número válido para máximo de participantes");
+      return;
+    }
+
+    const totalSessoesNumber = Number(totalSessoes);
+      if (isNaN(totalSessoesNumber) || totalSessoesNumber < 0) {
+        alert("Informe um número válido para total de sessões");
+        return;
+      }
+
+    const minAttendanceNumber = Number(minAttendancePercentForCertificate);
+      if (isNaN(minAttendanceNumber) || minAttendanceNumber < 0 || minAttendanceNumber > 100) {
+        alert("Informe um número válido entre 0 e 100 para presença mínima para certificado");
+        return;
+      }
+
     const data: Evento | EventoSemId = {
       ...(isEditing && eventoData?.id && { id: eventoData.id }),
       name: name.trim(),
@@ -105,9 +198,9 @@ export default function EventoForm({
       startDate: new Date(startDate),
       endDate: new Date(endDate),
       registrationDeadLine: new Date(registrationDeadLine),
-      maxParticipants,
-      totalSessoes,
-      minAttendancePercentForCertificate,
+      maxParticipants: maxParticipantsNumber,
+      totalSessoes: totalSessoesNumber,
+      minAttendancePercentForCertificate: minAttendanceNumber,
       status,
       registrationsCount: eventoData?.registrationsCount || 0,
       sessions: eventoData?.sessions || []
@@ -181,35 +274,119 @@ export default function EventoForm({
       </div>
 
       <div className="form-group">
-        <label>Data (MÊS/dia/ano) de início e hora:</label>
-        <input
-          type="datetime-local"
-          value={startDate ? formatDateToInput(startDate) : ""}
-          onChange={(e) => setStartDate(parseInputToDateStr(e.target.value))}
-          required
+        <label>Data de hora de início (dd/mm/aaaa 00:00):</label>
+        <IMaskInput
+          mask="00/00/0000 00:00"
+          placeholder="dd/mm/aaaa hh:mm"
+          value={startDateInput}
+          onAccept={(value: string) => {
+            if (value === startDateInput) return; // evita loop infinito
+            setStartDateInput(value);
+
+            const [datePart, timePart] = value.split(" ");
+            if (!datePart || !timePart) {
+              setStartDate(null);
+              return;
+            }
+
+            const [day, month, year] = datePart.split("/");
+            const [hour, minute] = timePart.split(":");
+
+            const localDate = new Date(
+              Number(year),
+              Number(month) - 1,
+              Number(day),
+              Number(hour),
+              Number(minute)
+            );
+
+            if (!isNaN(localDate.getTime())) {
+              setStartDate(localDate);
+            } else {
+              setStartDate(null);
+            }
+          }}
           className="form-input"
+          required
+          lazy={false}
         />
       </div>
 
       <div className="form-group">
-        <label>Data (MÊS/dia/ano) e hora de término:</label>
-        <input
-          type="datetime-local"
-          value={endDate ? formatDateToInput(endDate) : ""}
-          onChange={(e) => setEndDate(parseInputToDateStr(e.target.value))}
-          required
+        <label>Data e hora de término (dd/mm/aaaa 00:00):</label>
+        <IMaskInput
+          mask="00/00/0000 00:00"
+          placeholder="dd/mm/aaaa hh:mm"
+          value={endDateInput}
+          onAccept={(value: string) => {
+            if (value === endDateInput) return;
+            setEndDateInput(value);
+
+            const [datePart, timePart] = value.split(" ");
+            if (!datePart || !timePart) {
+              setEndDate(null);
+              return;
+            }
+
+            const [day, month, year] = datePart.split("/");
+            const [hour, minute] = timePart.split(":");
+
+            const localDate = new Date(
+              Number(year),
+              Number(month) - 1,
+              Number(day),
+              Number(hour),
+              Number(minute)
+            );
+
+            if (!isNaN(localDate.getTime())) {
+              setEndDate(localDate);
+            } else {
+              setEndDate(null);
+            }
+          }}
           className="form-input"
+          required
+          lazy={false}
         />
       </div>
 
       <div className="form-group">
-        <label>Data (MÊS/dia/ano) e hora limite para inscrição:</label>
-        <input
-          type="datetime-local"
-          value={registrationDeadLine ? formatDateToInput(registrationDeadLine) : ""}
-          onChange={(e) => setRegistrationDeadLine(parseInputToDateStr(e.target.value))}
-          required
+        <label>Data e hora limite das inscrições (dd/mm/aaaa 00:00):</label>
+        <IMaskInput
+          mask="00/00/0000 00:00"
+          placeholder="dd/mm/aaaa hh:mm"
+          value={registrationDeadLineInput}
+          onAccept={(value: string) => {
+            if (value === registrationDeadLineInput) return;
+            setRegistrationDeadLineInput(value);
+
+            const [datePart, timePart] = value.split(" ");
+            if (!datePart || !timePart) {
+              setRegistrationDeadLine(null);
+              return;
+            }
+
+            const [day, month, year] = datePart.split("/");
+            const [hour, minute] = timePart.split(":");
+
+            const localDate = new Date(
+              Number(year),
+              Number(month) - 1,
+              Number(day),
+              Number(hour),
+              Number(minute)
+            );
+
+            if (!isNaN(localDate.getTime())) {
+              setRegistrationDeadLine(localDate);
+            } else {
+              setRegistrationDeadLine(null);
+            }
+          }}
           className="form-input"
+          required
+          lazy={false}
         />
       </div>
 
@@ -218,7 +395,14 @@ export default function EventoForm({
         <input
           type="number"
           value={maxParticipants}
-          onChange={(e) => setMaxParticipants(Number(e.target.value))}
+          // onChange={(e) => setMaxParticipants(Number(e.target.value))}
+          onChange={(e) => {
+            const val = e.target.value;
+            // Permitir apenas números positivos ou vazio
+            if (val === "" || /^[0-9\b]+$/.test(val)) {
+              setMaxParticipants(val);
+            }
+          }}
           required
           min={0}
           className="form-input"
@@ -230,7 +414,12 @@ export default function EventoForm({
         <input
           type="number"
           value={totalSessoes}
-          onChange={(e) => setTotalSessoes(Number(e.target.value))}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (val === "" || /^[0-9\b]+$/.test(val)) {
+              setTotalSessoes(val);
+            }
+          }}
           required
           min={0}
           className="form-input"
@@ -242,7 +431,13 @@ export default function EventoForm({
         <input
           type="number"
           value={minAttendancePercentForCertificate}
-          onChange={(e) => setMinAttendancePercentForCertificate(Number(e.target.value))}
+          onChange={(e) => {
+            const val = e.target.value;
+            // Permite vazio ou números entre 0 e 100
+            if (val === "" || (/^\d+$/.test(val) && Number(val) >= 0 && Number(val) <= 100)) {
+              setMinAttendancePercentForCertificate(val);
+            }
+          }}
           required
           min={0}
           max={100}

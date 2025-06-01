@@ -1,4 +1,3 @@
-/* ===== Estrutura geral ===== */
 body {
   background-color: whitesmoke;
   font-family: Arial, sans-serif;
@@ -12,7 +11,6 @@ body {
   margin: 0 auto;
 }
 
-/* ===== Formulário ===== */
 form.form {
   display: flex;
   flex-direction: column;
@@ -25,7 +23,6 @@ form.form {
   background-color: white;
 }
 
-/* Campos com efeito flutuante */
 .form-floating {
   position: relative;
   width: 100%;
