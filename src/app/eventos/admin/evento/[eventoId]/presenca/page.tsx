@@ -16,7 +16,9 @@ export default function PresencePage() {
   const [authChecked, setAuthChecked] = useState(false);
   const [nomeEvento, setNomeEvento] = useState<string | null>(null);
 
-  // ✅ EXTRAÍMOS O eventoId AQUI, NO ESCOPO DO COMPONENTE
+  /* ESCOPO DO COMPONENTE
+   * extraindo o eventoId aqui
+   */
   const eventoId = Array.isArray(params.eventoId) ? params.eventoId[0] : params.eventoId;
 
   useEffect(() => {
@@ -48,7 +50,8 @@ export default function PresencePage() {
       }
       
       const lista = await getInscritos(eventoId);
-      setInscritos(lista);
+      // listando participantes em ordem alfabética
+      setInscritos([...lista].sort((a, b) => a.nome.localeCompare(b.nome)));
     } catch (error) {
       console.error("Erro ao carregar inscritos:", error);
     } finally {
@@ -89,7 +92,7 @@ export default function PresencePage() {
       <table className="presenca-table">
         <thead>
           <tr>
-            <th>Nome</th>
+            <th style={{ textAlign: "center" }}>Nome</th>
             <th style={{ textAlign: "center" }}>Presenças</th>
             <th style={{ textAlign: "center" }}>Ações</th>
           </tr>

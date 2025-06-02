@@ -178,7 +178,7 @@ export default function AdminEventoPage() {
       )}
 
       <p className="totalInscritos">
-        <strong>{participantes.length}</strong> participantes inscritos &nbsp;
+        <strong>{participantes.length}</strong> participantes inscritos
         <Link 
           href={`/eventos/admin/evento/${id}/presenca`} 
           target="_blank" 
@@ -186,6 +186,15 @@ export default function AdminEventoPage() {
           className="linkRegistrarPresenca"
         >
           registrar presenças
+        </Link>
+
+        <Link 
+          href={`/eventos/admin/evento/${id}/folha-assinaturas`}
+          className="linkImprimirFolha"
+          target="_blank" 
+          rel="noopener noreferrer"
+        >
+         imprimir folha de assinaturas
         </Link>
       </p>
       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "40px" }}>

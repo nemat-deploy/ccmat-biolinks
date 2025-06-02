@@ -13,8 +13,9 @@ export default function EventosLayout({ children }: { children: ReactNode }) {
           <Image
             src="/images/logo-eventos-nemat.png" 
             alt="Descrição da imagem"
-            width={280}
-            height={80}
+            width={280} 
+            height={80} 
+            priority
           />
       </div>
       {children}

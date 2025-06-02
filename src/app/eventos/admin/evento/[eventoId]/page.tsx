@@ -19,6 +19,13 @@ export default function EventoAdminPage() {
       >
         <h2 className="font-semibold">Controle de Presença</h2>
       </Link>
+
+      <Link 
+        href={`/eventos/admin/evento/${eventoId}/folha-assinaturas`}
+        className="p-4 border rounded-lg hover:bg-gray-50"
+      >
+        <h2 className="font-semibold">Imprimir Folha de Assinaturas</h2>
+      </Link>
     </div>
   );
 }

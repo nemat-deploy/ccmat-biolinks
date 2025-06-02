@@ -435,7 +435,7 @@ export default function EventoForm({
       </div>
 
       <div className="form-group">
-        <label>Presença mínima para certificado (0% - 100%)%:</label>
+        <label>Presença mínima para certificado (0% - 100%):</label>
         <input
           type="number"
           value={minAttendancePercentForCertificate}

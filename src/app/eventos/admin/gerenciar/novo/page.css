@@ -6,7 +6,7 @@ body {
 
 .container {
   max-width: 800px;
-  margin: 0 auto;
+  margin: auto;
   padding: 2rem;
   font-family: Arial, sans-serif;
 }

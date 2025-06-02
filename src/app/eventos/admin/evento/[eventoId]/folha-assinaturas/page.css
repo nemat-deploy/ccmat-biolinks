@@ -1,0 +1,59 @@
+body {
+  font-size: 14px;
+}
+table {
+  width: 100%;
+  max-width: 900px;
+  border-collapse: collapse;
+  margin: auto;
+  background-color: #ffffff;
+}
+th, td {
+  border: 1px solid #000;
+}
+
+th {
+  padding: 8px;
+  background-color: #dfdfdf;
+}
+
+td {
+  height: 25px;
+  padding: 0 4px;
+}
+
+.names {
+  width: 350px;
+}
+
+@media print {
+  body {
+    font-size: 14px;
+  }
+  .eventos-top-header{
+    visibility: hidden;
+  }
+  .titleFolhaAssinaturas {
+    margin-top: -100px;
+  }
+  table {
+    width: 100%;
+    margin-top: 0;
+    border-collapse: collapse;
+    background-color: #ffffff;
+  }
+  th, td {
+    border: 1px solid #000;
+  }
+  th {
+    padding: 8px;
+    background-color: #dfdfdf;
+  }
+  td {
+    height: 20px;
+    padding: 4px;
+  }
+  .names {
+    width: 350px;
+  }
+}

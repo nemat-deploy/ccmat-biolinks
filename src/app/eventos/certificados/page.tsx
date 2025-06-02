@@ -89,7 +89,7 @@ export default function CertificadosPage() {
       if (eventosComInscricao.length === 0) {
         setError("Nenhuma inscrição encontrada para este CPF");
       } else {
-        // Obtém nome do primeiro documento de inscrição (todos devem ter o mesmo nome)
+        // obtendo o nome do primeiro documento de inscrição (todos devem ter o mesmo nome)
         const primeiroInscricao = await getDoc(doc(db, "eventos", eventosComInscricao[0].id, "inscricoes", rawCpf));
         setResult({
           nome: primeiroInscricao.data()?.nome || "Participante",
@@ -129,7 +129,7 @@ export default function CertificadosPage() {
 
 {result && (
   <div className="resultado">
-    <h2>Certificados que serão disponibilizados</h2>
+    <h2>Certificados que serão disponibilizados:</h2>
     
     <div className="eventos-grid">
       {result.eventos.map((evento) => (

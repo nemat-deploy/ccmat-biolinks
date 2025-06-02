@@ -1,5 +1,5 @@
 body {
-  margin-top: 20px;
+  margin-top: 0;
 }
 
 .container {
@@ -22,11 +22,12 @@ body {
 }
 
 .input-group input {
-  width: 300px;
-  padding: 4pxem;
+  background-color: #ffffff;
+  width: 220px;
+  padding: 0 8px 0 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 20px;
+  font-size: 24px;
   height: 50px;
 }
 
@@ -38,6 +39,7 @@ inpu[text] {
   padding: 0 1.5rem;
   background: #0070f3;
   color: white;
+  font-size: 18px;
   border: none;
   height: 50px;
   width: 120px;
@@ -52,24 +54,27 @@ inpu[text] {
 
 .error {
   color: #dc3545;
+  font-size: 18px;
+  font-weight: bold;
   margin-bottom: 1rem;
 }
 
 .resultado {
-  margin-top: 2rem;
+  margin-top: 0.5rem;
 }
 
 .eventos-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1.5rem;
+/*  gap: 0.5rem;
+  margin-top: 0.5rem;*/
 }
 
 .evento-card {
+  background-color: #ffffff;
   border: 1px solid gray;
   border-radius: 8px;
-  padding: 1rem;
+  padding: 20px;
 }
 
 .success {

@@ -102,7 +102,7 @@ export default function AdminPage() {
 
   return (
     <div className="admin-container">
-      <h1 style={{ fontSize: "20px", fontWeight: "bold" }}>Área Administrativa</h1>
+      <h1 className="titleAdmin">Área Administrativa</h1>
 
       {/* barra de menu */}
       <div className="menuBar">
@@ -131,7 +131,7 @@ export default function AdminPage() {
       </div>
 
         <div>
-          Clique no evento para vê e editar os Participantes
+          Clique no evento para listar os Participantes
         </div>
 
       {/* Lista de eventos */}

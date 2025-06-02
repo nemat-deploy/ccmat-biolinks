@@ -193,6 +193,7 @@ useEffect(() => {
       )}
 
       <h1 style={{ fontSize: "22px", color: "#0070f3" }}>Faça sua inscrição</h1>
+
       {!formEnviado && !prazoEncerrado ? (
         <form onSubmit={handleSubmit} className="form">
           <div className="form-floating">
