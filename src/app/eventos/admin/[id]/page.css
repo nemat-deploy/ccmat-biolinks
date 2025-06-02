@@ -50,9 +50,14 @@ td {
     text-align: left;
 }
 
+th {
+    background-color: #808080;
+    color: #ffffff;
+}
+
 /* Linhas pares e ímpares com cores diferentes */
 tbody tr:nth-child(even) {
-    background-color: #f9fafb;
+    background-color: #eeeeee;
 }
 
 tbody tr:nth-child(odd) {

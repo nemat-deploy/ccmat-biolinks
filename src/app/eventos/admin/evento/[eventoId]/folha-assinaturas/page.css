@@ -1,11 +1,36 @@
 body {
   font-size: 14px;
+  margin: 0;
 }
+
+.titleFolhaAssinaturas {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+  margin-top: 10px;
+}
+
+.titleFolhaAssinaturasItem {
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.headerText {
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+}
+
 table {
   width: 100%;
   max-width: 900px;
   border-collapse: collapse;
-  margin: auto;
+  margin: 10px auto 60px auto;
   background-color: #ffffff;
 }
 th, td {
@@ -23,12 +48,13 @@ td {
 }
 
 .names {
-  width: 350px;
+  width: 340px;
 }
 
 @media print {
   body {
     font-size: 14px;
+    background: none;
   }
   .eventos-top-header{
     visibility: hidden;
@@ -38,7 +64,7 @@ td {
   }
   table {
     width: 100%;
-    margin-top: 0;
+    margin-top: 10px;
     border-collapse: collapse;
     background-color: #ffffff;
   }
