@@ -20,6 +20,11 @@ h1 {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 2rem;
+    margin: auto;
+    width: 100%;
+    max-width: 900px;
+    height: 100%;
 }
 
 .center-container {
