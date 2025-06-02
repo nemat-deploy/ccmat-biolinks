@@ -9,7 +9,7 @@ import Link from "next/link";
 import { auth, onAuthStateChanged } from "@/lib/firebaseAuth";
 import { useRouter } from "next/navigation";
 import { User } from "firebase/auth";
-import { Evento } from "@/types"; // ✅ Tipo importado
+import { Evento } from "@/types";
 import { parseTimestamp } from "@/lib/utils";
 import { Timestamp } from "firebase/firestore";
 import { TimestampValue } from "@/types";
@@ -44,23 +44,23 @@ export default function AdminPage() {
   ): Date | null {
     if (!value) return null;
 
-    // Se for objeto Date
+    // se for objeto Date
     if (value instanceof Date) {
       return value;
     }
 
-    // Se for Timestamp do Firebase
+    //se for Timestamp do Firebase
     if ((value as Timestamp)?.toDate && typeof (value as Timestamp).toDate === "function") {
       return (value as Timestamp).toDate();
     }
 
-    // Se for objeto com timestampValue (ex: API REST)
+    // se for objeto com timestampValue (ex: API REST)
     if (typeof value === "object" && "timestampValue" in value && value.timestampValue) {
       const date = new Date(value.timestampValue);
       return isNaN(date.getTime()) ? null : date;
     }
 
-    // Se for string ISO
+    // se for string ISO
     if (typeof value === "string") {
       const parsed = new Date(value);
       return isNaN(parsed.getTime()) ? null : parsed;
@@ -69,7 +69,7 @@ export default function AdminPage() {
     return null;
   }
 
-  // Busca todos os eventos
+  // busca todos os eventos
   async function fetchEventos() {
     try {
       const querySnapshot = await getDocs(collection(db, "eventos"));

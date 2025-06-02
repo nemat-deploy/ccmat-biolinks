@@ -177,8 +177,8 @@ export default function AdminEventoPage() {
         </p>
       )}
 
-      <p className="totalInscritos">
-        <strong>{participantes.length}</strong> participantes inscritos
+      <p className="linksInscritos">
+        <span><strong>{participantes.length}</strong> participantes inscritos</span>
         <Link 
           href={`/eventos/admin/evento/${id}/presenca`} 
           target="_blank" 

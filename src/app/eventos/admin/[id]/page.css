@@ -24,6 +24,12 @@ button {
     background-color: darkblue;
 }
 
+.linksInscritos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
 /* Tabela de Participantes */
 table {
     width: 100%;
@@ -122,4 +128,13 @@ button {
 .edit-form .cancel-btn {
     background-color: #6b7280;
     padding: 0.4rem 0.8rem;
+}
+
+@media (max-width: 767px) {
+    .linksInscritos {
+        flex-direction: column; 
+        justify-content: center;
+        align-items: center;
+        margin-top: 30px;
+    }
 }
