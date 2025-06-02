@@ -96,7 +96,7 @@ export default function EventosPage() {
   if (loading) return <p>Carregando eventos...</p>;
 
   return (
-    <div className="listaTodosEventos" style={{ padding: "2rem", fontFamily: "Arial" }}>
+    <div className="listaTodosEventos">
 
       <div>
       <p className="titleEventos">Eventos disponíveis</p>
