@@ -1,8 +1,5 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { useParams } from "next/navigation";
-import Link from "next/link";
 import {
   doc,
   getDoc,
@@ -10,24 +7,17 @@ import {
   updateDoc,
   increment,
   collection,
+  Timestamp,
+  serverTimestamp,
+  DocumentReference,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { parseTimestamp, formatarData } from "@/lib/utils";
-import { Timestamp } from "firebase/firestore";
 import "./page.css";
-
-// // Função utilitária para converter valores em Date, está no arquivo lib/utils.ts
-// function parseTimestamp(value: any): Date | null {
-//   if (value instanceof Timestamp) {
-//     return value.toDate();
-//   } else if (value instanceof Date) {
-//     return value;
-//   } else if (typeof value === "string" || typeof value === "number") {
-//     const date = new Date(value);
-//     return isNaN(date.getTime()) ? null : date;
-//   }
-//   return null;
-// }
+import Link from "next/link";
+import { Inscricao } from "@/types";
+import { db } from "@/lib/firebase";
+import { useParams } from "next/navigation";
+import { useEffect, useState, useRef } from "react";
+import { parseTimestamp, formatarData } from "@/lib/utils";
 
 type Evento = {
   id: string;
@@ -139,27 +129,28 @@ useEffect(() => {
     }
 
     try {
-      const inscricaoRef = doc(
-        collection(db, `eventos/${evento.id}/inscricoes`),
-        cpfNumeros
-      );
-      const inscricaoSnap = await getDoc(inscricaoRef);
+      const cpfNumeros = cpf.replace(/\D/g, ""); // Garante CPF só com números
+      const inscricaoRef = doc(collection(db, `eventos/${evento.id}/inscricoes`), cpfNumeros);
+
+      const inscricaoSnap = await getDoc(inscricaoRef as DocumentReference<Inscricao>);
 
       if (inscricaoSnap.exists()) {
         setMensagem("⚠️ Você já está inscrito neste evento.");
         return;
       }
 
+      // Envia os dados com serverTimestamp()
       await setDoc(inscricaoRef, {
         nome,
         email,
         telefone: telefoneNumeros,
         institution: instituicao,
-        dataInscricao: new Date(),
-        attendances: [],
+        dataInscricao: serverTimestamp(), // ✅ Agora importado corretamente
+        attendances: [], // Firestore entende como array vazio de timestamps
         certificateIssued: false,
       });
 
+      // Atualiza contagem de inscritos
       const eventoRef = doc(db, "eventos", evento.id);
       await updateDoc(eventoRef, {
         registrationsCount: increment(1),
@@ -169,7 +160,7 @@ useEffect(() => {
       setFormEnviado(true);
     } catch (error) {
       setMensagem("❌ Erro ao realizar inscrição.");
-      console.error(error);
+      console.error("Erro ao salvar inscrição:", error);
     }
   };
 

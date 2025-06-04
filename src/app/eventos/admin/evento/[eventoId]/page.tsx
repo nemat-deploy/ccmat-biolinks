@@ -6,6 +6,7 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { Inscricao } from "@/types"
 
 export default function EventoAdminPage() {
   const params = useParams();

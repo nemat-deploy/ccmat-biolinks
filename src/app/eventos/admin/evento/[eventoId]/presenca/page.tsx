@@ -1,3 +1,4 @@
+// src/app/eventos/admin/evento/[eventoId]/presenca/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -12,13 +13,11 @@ export default function PresencePage() {
   const params = useParams();
   const router = useRouter();
   const [inscritos, setInscritos] = useState<any[]>([]);
+  const [filtro, setFiltro] = useState('');
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
   const [nomeEvento, setNomeEvento] = useState<string | null>(null);
 
-  /* ESCOPO DO COMPONENTE
-   * extraindo o eventoId aqui
-   */
   const eventoId = Array.isArray(params.eventoId) ? params.eventoId[0] : params.eventoId;
 
   useEffect(() => {
@@ -39,7 +38,6 @@ export default function PresencePage() {
     try {
       if (!eventoId) throw new Error("EventoId não definido.");
 
-      // carregar dados do evento
       const eventoRef = doc(db, 'eventos', eventoId);
       const eventoSnap = await getDoc(eventoRef);
 
@@ -50,7 +48,6 @@ export default function PresencePage() {
       }
       
       const lista = await getInscritos(eventoId);
-      // listando participantes em ordem alfabética
       setInscritos([...lista].sort((a, b) => a.nome.localeCompare(b.nome)));
     } catch (error) {
       console.error("Erro ao carregar inscritos:", error);
@@ -85,10 +82,41 @@ export default function PresencePage() {
     }
   };
 
+  const inscritosFiltrados = inscritos.filter(i =>
+    i.nome.toLowerCase().includes(filtro.toLowerCase()) ||
+    i.cpf?.replace(/\D/g, '').includes(filtro.replace(/\D/g, '')) // || usar com a linha abaixo para busca por cpf
+    // i.id?.replace(/\D/g, '').includes(filtro.replace(/\D/g, ''))
+  );
+
+  if (authChecked && nomeEvento === null) {
+    return (
+      <div className="presenca-container">
+        <p>⚠️ Acesse essa página a partir do painel de administração.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="presenca-container">
       <p className="presencaTitle">Controle de Presença - <span className="eventoTitle">{nomeEvento || eventoId}</span></p>
       
+      <input
+        type="text"
+        placeholder="buscar por nome..."
+        value={filtro}
+        onChange={(e) => setFiltro(e.target.value)}
+        style={{
+          marginTop: "10px",
+          marginBottom: "10px",
+          padding: "0.5rem",
+          width: "100%",
+          maxWidth: "400px",
+          borderRadius: "4px",
+          border: "1px solid #ccc",
+          fontSize: "18px"
+        }}
+      />
+
       <table className="presenca-table">
         <thead>
           <tr>
@@ -98,7 +126,7 @@ export default function PresencePage() {
           </tr>
         </thead>
         <tbody>
-          {inscritos.map((inscrito) => (
+          {inscritosFiltrados.map((inscrito) => (
             <tr key={inscrito.id}>
               <td>{inscrito.nome}</td>
               <td style={{ textAlign: "center" }}>{inscrito.attendances?.length || 0}</td>

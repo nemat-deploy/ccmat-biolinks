@@ -6,24 +6,11 @@ import { useEffect, useState } from "react";
 import { collection, getDocs, doc, DocumentData } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Timestamp } from "firebase/firestore";
+import { Evento } from "@/types";
 import Link from "next/link";
 import './page.css'
 
-// Tipo centralizado (pode vir de @/types)
-type Evento = {
-  id: string;
-  name: string;
-  description: string;
-  startDate: Date | null;
-  endDate: Date | null;
-  registrationDeadLine: Date | null;
-  maxParticipants: number;
-  registrationsCount: number;
-  status: "aberto" | "encerrado" | "em breve" | "em andamento";
-  minAttendancePercentForCertificate: number;
-};
-
-// Função pra converter Timestamp, Date ou string em Date
+// função pra converter Timestamp, Date ou string em Date
 function parseTimestamp(
   value: Date | Timestamp | { toDate?: () => Date } | string | { timestampValue?: string } | null | undefined
 ): Date | null {
@@ -121,8 +108,8 @@ export default function EventosPage() {
               padding: "12px",
               borderRadius: "8px",
               width: "100%",
-              maxWidth: "320px",
-              height: "auto",
+              maxWidth: "360px",
+              height: "180px",
               minHeight: "150px"
             }}>
               <Link

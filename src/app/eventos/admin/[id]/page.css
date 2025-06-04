@@ -4,6 +4,12 @@ button {
     font-family: Arial, sans-serif;
 }
 
+.topContent {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 2rem auto;
+}
+
 .titleCourse {
     font-weight: bold;
     margin-bottom: 8px;
@@ -30,11 +36,12 @@ button {
     gap: 15px;
 }
 
-/* Tabela de Participantes */
+/* tabela de Participantes */
 table {
     width: 100%;
+    max-width: 1200px;
     border-collapse: collapse;
-    margin-top: 1rem;
+    margin: 1rem auto 2rem auto;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 

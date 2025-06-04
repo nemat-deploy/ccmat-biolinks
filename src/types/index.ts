@@ -18,28 +18,28 @@ export type TimestampValue = {
   timestampValue?: string;
 } | FirebaseTimestamp;
 
-/**
- * tipo para eventos no sistema
- */
 export type Evento = {
   id: string;
   name: string;
-  description?: string;
-  startDate?: Date | FirebaseTimestamp | null;
-  endDate?: Date | FirebaseTimestamp | null;
-  registrationDeadLine?: Date | FirebaseTimestamp | null;
-  maxParticipants?: number;
-  registrationsCount?: number;
+  description: string;
+  startDate: Date | null;
+  endDate: Date | null;
+  registrationDeadLine: Date | null;
+  maxParticipants: number;
+  registrationsCount: number;
   status: "aberto" | "encerrado";
-  minAttendancePercentForCertificate?: number;
+  minAttendancePercentForCertificate: number;
   totalSessoes?: number;
-  sessions?: Array<{  // Novo campo para sessões do evento
-    id: string;
-    name: string;
-    time: 'manha' | 'tarde' | 'noite';
-    date: Date | FirebaseTimestamp;
-  }>;
+  sessions?: Sessao[];
 };
+
+export interface Sessao {
+  id: string;
+  titulo: string;
+  data: string;
+  horario: string;
+}
+
 
 /**
  * tipo para registro de presença
@@ -93,3 +93,21 @@ export type FirestoreParticipante = Omit<Participante, 'id'> & {
     session: 'manha' | 'tarde' | 'noite';
   }>;
 };
+
+// src/types/inscricao.ts
+export type Inscricao = {
+  nome: string
+  email: string
+  telefone: string
+  institution: string
+  dataInscricao: Date
+  attendances: string[] // ou outro tipo se não for apenas string
+  certificateIssued: boolean
+}
+
+export interface Usuario {
+  id: string;
+  nome: string;
+  email: string;
+  isAdmin: boolean;
+}

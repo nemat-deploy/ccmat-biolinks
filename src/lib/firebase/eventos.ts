@@ -102,7 +102,14 @@ export async function getEventos(): Promise<Evento[]> {
       name: data.name,
       description: data.description || '',
       registrationsCount: data.registrationsCount || 0,
-      status: data.status || 'aberto'
+      status: data.status || 'aberto',
+      startDate: data.startDate,
+      endDate: data.endDate,
+      registrationDeadLine: data.registrationDeadLine,
+      maxParticipants: data.maxParticipants,
+      minAttendancePercentForCertificate: data.minAttendancePercentForCertificate,
+      totalSessoes: data.totalSessoes ?? 0,
+      sessions: data.sessions ?? []
     };
   });
 }
@@ -145,13 +152,13 @@ export function buildEventoSemId(params: {
 }): EventoSemId {
   return {
     name: params.name,
-    description: params.description,
+    description: params.description ?? "",
     startDate: params.startDate ? new Date(params.startDate) : null,
     endDate: params.endDate ? new Date(params.endDate) : null,
     registrationDeadLine: params.registrationDeadLine ? new Date(params.registrationDeadLine) : null,
-    maxParticipants: params.maxParticipants,
+    maxParticipants: params.maxParticipants ?? 0,
     totalSessoes: params.totalSessoes,
-    minAttendancePercentForCertificate: params.minAttendancePercentForCertificate,
+    minAttendancePercentForCertificate: params.minAttendancePercentForCertificate ?? 60,
     status: params.status,
     registrationsCount: params.registrationsCount ?? 0,
     sessions: params.sessions ?? [],

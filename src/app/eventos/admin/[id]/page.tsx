@@ -12,7 +12,8 @@ import {
   increment,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { auth, onAuthStateChanged } from "@/lib/firebaseAuth";
+import { auth } from "@/lib/firebaseAuth";
+import { onAuthStateChanged } from "firebase/auth";
 import { parseTimestamp } from "@/lib/utils";
 import { debugLog } from "@/lib/logger";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -160,44 +161,46 @@ export default function AdminEventoPage() {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <h1 className="titleCourse">Admin - {evento?.name || id}</h1>
+      <div className="topContent">
+        <h1 className="titleCourse">Admin - {evento?.name || id}</h1>
 
-      {/* exibir a URL aqui */}
-      {id && (
-        <p style={{ marginTop: "0.5rem", marginBottom: "0.5rem", color: "#0070f3" }}>
-          <strong>Link do evento:</strong>{" "}
-          <a
-            href={`https://matematica-ufdpar.vercel.app/eventos/${id}`}
-            target="_blank"
+        {/* exibir a URL aqui */}
+        {id && (
+          <p style={{ marginTop: "0.5rem", marginBottom: "0.5rem", color: "#0070f3" }}>
+            <strong>Link do evento:</strong>{" "}
+            <a
+              href={`https://matematica-ufdpar.vercel.app/eventos/${id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: "underline" }}
+            >
+              https://matematica-ufdpar.vercel.app/eventos/{id}
+            </a>
+          </p>
+        )}
+
+        <p className="linksInscritos">
+          <span><strong>{participantes.length}</strong> participantes inscritos</span>
+          <Link 
+            href={`/eventos/admin/evento/${id}/presenca`} 
+            target="_blank" 
             rel="noopener noreferrer"
-            style={{ textDecoration: "underline" }}
+            className="linkRegistrarPresenca"
           >
-            https://matematica-ufdpar.vercel.app/eventos/{id}
-          </a>
+            registrar presenças
+          </Link>
+
+          <Link 
+            href={`/eventos/admin/evento/${id}/folha-assinaturas`}
+            className="linkImprimirFolha"
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
+           imprimir folha de assinaturas
+          </Link>
         </p>
-      )}
-
-      <p className="linksInscritos">
-        <span><strong>{participantes.length}</strong> participantes inscritos</span>
-        <Link 
-          href={`/eventos/admin/evento/${id}/presenca`} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="linkRegistrarPresenca"
-        >
-          registrar presenças
-        </Link>
-
-        <Link 
-          href={`/eventos/admin/evento/${id}/folha-assinaturas`}
-          className="linkImprimirFolha"
-          target="_blank" 
-          rel="noopener noreferrer"
-        >
-         imprimir folha de assinaturas
-        </Link>
-      </p>
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "40px" }}>
+      </div>
+      <table>
         <thead>
           <tr>
             <th> Nome </th>
