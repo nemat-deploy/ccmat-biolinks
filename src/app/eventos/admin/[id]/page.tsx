@@ -16,8 +16,8 @@ import { auth } from "@/lib/firebaseAuth";
 import { onAuthStateChanged } from "firebase/auth";
 import { parseTimestamp } from "@/lib/utils";
 import { debugLog } from "@/lib/logger";
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch, faTimes, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Evento, Participante } from "@/types";
 import Link from "next/link";
 import "./page.css";
@@ -270,7 +270,7 @@ export default function AdminEventoPage() {
               onClick={() => setSearchTerm('')}
               style={{
                 position: "absolute",
-                right: "10px",
+                right: "1px",
                 top: "50%",
                 transform: "translateY(-50%)",
                 background: "none",
