@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Fragment } from "react";
+import { useEffect, useState, Fragment, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   collection,
@@ -16,8 +16,8 @@ import { auth } from "@/lib/firebaseAuth";
 import { onAuthStateChanged } from "firebase/auth";
 import { parseTimestamp } from "@/lib/utils";
 import { debugLog } from "@/lib/logger";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import { faEdit, faTrash, faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Evento, Participante } from "@/types";
 import Link from "next/link";
 import "./page.css";
@@ -33,6 +33,7 @@ export default function AdminEventoPage() {
   const [participantes, setParticipantes] = useState<ParticipanteData[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<Partial<ParticipanteData>>({
@@ -42,6 +43,47 @@ export default function AdminEventoPage() {
     telefone: "",
     institution: "",
   });
+
+  // normalizar texto removendo acentos
+  const normalizeText = (text: string) => {
+    return text
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  };
+
+  // Filtrar participantes com base no termo de busca
+  const filteredParticipantes = useMemo(() => {
+    if (!searchTerm) return participantes;
+
+    const normalizedSearch = normalizeText(searchTerm);
+    return participantes.filter((p) => {
+      const normalizedNome = normalizeText(p.nome);
+      return normalizedNome.includes(normalizedSearch);
+    });
+  }, [participantes, searchTerm]);
+
+  // Adicionando o listener para a tecla Esc
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSearchTerm('');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  // Ordenar participantes
+  const participantesOrdenados = useMemo(() => {
+    return [...filteredParticipantes].sort((a, b) =>
+      a.nome.localeCompare(b.nome)
+    );
+  }, [filteredParticipantes]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -156,9 +198,6 @@ export default function AdminEventoPage() {
   if (loading) return <p>Carregando...</p>;
   if (erro) return <p>{erro}</p>;
 
-  // ordenar por ordem alfabética
-  const participantesOrdenados = [...participantes].sort((a, b) => a.nome.localeCompare(b.nome));
-
   return (
     <div style={{ padding: "2rem" }}>
       <div className="topContent">
@@ -200,6 +239,53 @@ export default function AdminEventoPage() {
           </Link>
         </p>
       </div>
+
+      <div className="search-container" style={{ margin: "auto", width: "1200px" }}>
+        <div style={{ position: "relative", width: "100%", maxWidth: "400px" }}>
+          <FontAwesomeIcon 
+            icon={faSearch} 
+            style={{
+              position: "absolute",
+              left: "10px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: "#666",
+            }} 
+          />
+          <input
+            type="text"
+            placeholder="buscar por nome (tecle ESC para limpar)"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "8px 10px 8px 35px",
+              borderRadius: "4px",
+              border: "1px solid #ddd",
+              fontSize: "16px",
+            }}
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              style={{
+                position: "absolute",
+                right: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "#666",
+              }}
+              title="Limpar busca"
+            >
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+          )}
+        </div>
+      </div>
+
       <table>
         <thead>
           <tr>
@@ -212,10 +298,10 @@ export default function AdminEventoPage() {
           </tr>
         </thead>
         <tbody>
-          {participantes.length === 0 ? (
+          {participantesOrdenados.length === 0 ? (
             <tr>
-              <td colSpan={4} style={{ textAlign: "center" }}>
-                Nenhum participante
+              <td colSpan={6} style={{ textAlign: "center" }}>
+                {searchTerm ? "Nenhum participante encontrado" : "Nenhum participante"}
               </td>
             </tr>
           ) : (
@@ -246,7 +332,7 @@ export default function AdminEventoPage() {
                 </tr>
                 {editingId === p.cpf && (
                   <tr key={`edit-${p.cpf}`}>
-                    <td colSpan={4}>
+                    <td colSpan={6}>
                       <div className="edit-form">
                         <label>
                           Nome
