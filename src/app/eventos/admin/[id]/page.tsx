@@ -199,9 +199,9 @@ export default function AdminEventoPage() {
   if (erro) return <p>{erro}</p>;
 
   return (
-    <div style={{ padding: "2rem" }}>
+    <div style={{ padding: "1rem" }}>
       <div className="topContent">
-        <h1 className="titleCourse">Admin - {evento?.name || id}</h1>
+        <h1 className="titleCourse">Admin - {evento?.name || id} <span>({participantes.length} participantes inscritos)</span></h1>
 
         {/* exibir a URL aqui */}
         {id && (
@@ -217,9 +217,8 @@ export default function AdminEventoPage() {
             </a>
           </p>
         )}
-
+        
         <p className="linksInscritos">
-          <span><strong>{participantes.length}</strong> participantes inscritos</span>
           <Link 
             href={`/eventos/admin/evento/${id}/presenca`} 
             target="_blank" 
@@ -244,7 +243,7 @@ export default function AdminEventoPage() {
             target="_blank" 
             rel="noopener noreferrer"
           >
-           imprimir elegíveis
+           elegíveis para certificado
           </Link>
         </p>
       </div>
