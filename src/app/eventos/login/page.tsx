@@ -82,7 +82,7 @@ export default function LoginPage() {
   return (
     <div style={{ padding: "2rem" }}>
       <h1>Login Administrativo</h1>
-      <p>Somente usuários administradores podem fazer login.</p>
+      <p>Seu cadastro de usuário será criado após fazer o login com sua conta Google.</p>
 
       <button
         onClick={handleLogin}
