@@ -60,8 +60,8 @@ export type Participante = {
   telefone: string;
   institution: string;
   dataInscricao: Date | FirebaseTimestamp | null;
-  attendances?: RegistroPresenca[]; // Novo campo para presenças
-  certificateIssued?: boolean; // Novo campo para status do certificado
+  attendances?: RegistroPresenca[]; 
+  certificateIssued?: boolean; 
 };
 
 /**
@@ -101,7 +101,7 @@ export type Inscricao = {
   telefone: string
   institution: string
   dataInscricao: Date
-  attendances: string[] // ou outro tipo se não for apenas string
+  attendances: string[] 
   certificateIssued: boolean
 }
 
@@ -110,4 +110,34 @@ export interface Usuario {
   nome: string;
   email: string;
   isAdmin: boolean;
+}
+
+// export interface ParticipanteComCertificado extends ParticipanteData {
+//   id: string;
+//   cpf: string;
+//   nome: string;
+//   email: string;
+//   telefone: string;
+//   institution: string;
+//   dataInscricao: Date | null; // já como Date
+//   presencaPercentual: number;
+//   attendances: RegistroPresenca[];
+//   certificateIssued: boolean;
+// }
+
+// this is only use into 'elegiveis-certificado' page
+export interface ParticipanteDataWithDate extends Omit<ParticipanteData, 'dataInscricao'> {
+  dataInscricao: Date | null;
+}
+
+export interface Attendance {
+  registradoPor: string;
+  registradoEm: Date;
+  timestamp: Date;
+}
+
+export interface ParticipanteComCertificado extends ParticipanteDataWithDate {
+  presencaPercentual: number;
+  attendances: Attendance[];
+  certificateIssued: boolean;
 }

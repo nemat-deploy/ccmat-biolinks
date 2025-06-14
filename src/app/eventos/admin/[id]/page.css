@@ -16,7 +16,8 @@ button {
 }
 
 .linkRegistrarPresenca,
-.linkImprimirFolha {
+.linkImprimirFolha,
+.linkImprimirElegiveis {
     text-decoration: none;
     background-color: royalblue;
     color: white;
@@ -53,7 +54,7 @@ thead {
 th,
 td {
     padding: 0.75rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid #888888;
     text-align: left;
 }
 

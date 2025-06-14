@@ -135,7 +135,7 @@ export default function AdminPage() {
           Clique no evento para listar os Participantes
         </div>
 
-      {/* Lista de eventos */}
+      {/* lista de eventos */}
       <ul style={{ listStyle: "none", paddingLeft: 0 }}>
         {eventos.length === 0 && (
           <li>

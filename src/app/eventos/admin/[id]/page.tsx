@@ -237,6 +237,15 @@ export default function AdminEventoPage() {
           >
            imprimir folha de assinaturas
           </Link>
+
+          <Link 
+            href={`/eventos/admin/${id}/elegiveis-certificado`}
+            className="linkImprimirElegiveis"
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
+           imprimir elegíveis
+          </Link>
         </p>
       </div>
 

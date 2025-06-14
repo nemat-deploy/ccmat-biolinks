@@ -19,16 +19,16 @@ export default function FolhaAssinaturasPage() {
       if (!eventoId) return;
 
       try {
-        // Busca evento e inscritos em paralelo
+        // busca evento e inscritos em paralelo
         const [eventoData, inscritosData] = await Promise.all([
           getEvento(eventoId),
           getInscritos(eventoId),
         ]);
 
-        // Salva o nome do evento
+        // salvando o nome do evento
         setNomeEvento(eventoData?.name || 'Evento sem nome');
 
-        // Ordena os inscritos por nome
+        // ordena os inscritos por nome
         const ordenados = [...inscritosData].sort((a, b) => a.nome.localeCompare(b.nome));
         setInscritos(ordenados);
       } catch (error) {
