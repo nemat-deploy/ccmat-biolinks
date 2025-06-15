@@ -201,7 +201,7 @@ export default function AdminEventoPage() {
   return (
     <div style={{ padding: "1rem" }}>
       <div className="topContent">
-        <h1 className="titleCourse">Admin - {evento?.name || id} <span>({participantes.length} participantes inscritos)</span></h1>
+        <h1 className="titleCourse">Admin - <span className="titleNameEvento">{evento?.name || id}</span> ({participantes.length} participantes inscritos)</h1>
 
         {/* exibir a URL aqui */}
         {id && (

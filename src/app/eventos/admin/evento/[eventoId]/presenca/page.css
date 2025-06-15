@@ -63,19 +63,31 @@
 }
 
 .presenca-button {
-  background-color: #4CAF50;
+  width: 148px;
+  background-color: #4d9950;
+  font-size: 15px;
+  font-family: sans-serif;
   color: white;
   border: none;
-  padding: 8px 12px;
+  padding: 8px 4px;
   border-radius: 4px;
   cursor: pointer;
 }
 
 .presenca-button:disabled {
-  background-color: #cccccc;
+  background-color: #d5111a;
   cursor: not-allowed;
+  color: #ffffff;
+  border: #c6c6c6;
 }
 
 .presenca-button:hover:not(:disabled) {
   background-color: #45a049;
+}
+
+.checkboxAtividadeFinal {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  background-color: #4d9950;
 }

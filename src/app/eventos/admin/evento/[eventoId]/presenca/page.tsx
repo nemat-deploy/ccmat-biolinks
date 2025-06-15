@@ -6,8 +6,10 @@ import { useParams, useRouter } from 'next/navigation';
 import { getInscritos, marcarPresenca } from '@/lib/firebase/eventos';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import './page.css';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase'; 
+import { arrayUnion } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 export default function PresencePage() {
   const params = useParams();
@@ -82,6 +84,37 @@ export default function PresencePage() {
     }
   };
 
+  const toggleAtividadeFinal = async (participantId: string) => {
+    try {
+      setLoading(true);
+      if (!eventoId) throw new Error("EventoId não definido.");
+
+      const participantRef = doc(db, 'eventos', eventoId, 'inscricoes', participantId);
+      const participantSnap = await getDoc(participantRef);
+
+      if (participantSnap.exists()) {
+        const current = participantSnap.data().enviou_atividade_final || false;
+
+        await updateDoc(participantRef, {
+          enviou_atividade_final: !current
+        });
+
+        setInscritos(prev =>
+          prev.map(inscrito =>
+            inscrito.id === participantId
+              ? { ...inscrito, enviou_atividade_final: !current }
+              : inscrito
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar atividade final:", error);
+      alert("Erro ao atualizar.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const inscritosFiltrados = inscritos.filter(i =>
     i.nome.toLowerCase().includes(filtro.toLowerCase()) ||
     i.cpf?.replace(/\D/g, '').includes(filtro.replace(/\D/g, '')) // || usar com a linha abaixo para busca por cpf
@@ -122,6 +155,7 @@ export default function PresencePage() {
           <tr>
             <th style={{ textAlign: "center" }}>Nome</th>
             <th style={{ textAlign: "center" }}>Presenças</th>
+            <th style={{ textAlign: "center" }}>Atividade Final Enviada?</th>
             <th style={{ textAlign: "center" }}>Ações</th>
           </tr>
         </thead>
@@ -130,6 +164,15 @@ export default function PresencePage() {
             <tr key={inscrito.id}>
               <td>{inscrito.nome}</td>
               <td style={{ textAlign: "center" }}>{inscrito.attendances?.length || 0}</td>
+              <td style={{ textAlign: "center" }}>
+                <input
+                  type="checkbox"
+                  checked={Boolean(inscrito.enviou_atividade_final)}
+                  onChange={() => toggleAtividadeFinal(inscrito.id)}
+                  disabled={loading}
+                  className="checkboxAtividadeFinal" 
+                />
+              </td>
               <td style={{ textAlign: "center" }}>
                 <button 
                   onClick={() => handlePresenca(inscrito.id)}

@@ -133,3 +133,15 @@ small {
   gap: 1rem;
   margin-top: 1rem;
 }
+
+.radio-group {
+  display: flex;
+  gap: 1rem;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 14px;
+}

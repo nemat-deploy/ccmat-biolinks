@@ -31,6 +31,7 @@ export type Evento = {
   minAttendancePercentForCertificate: number;
   totalSessoes?: number;
   sessions?: Sessao[];
+  requer_atividade_final?: boolean;
 };
 
 export interface Sessao {
@@ -61,7 +62,8 @@ export type Participante = {
   institution: string;
   dataInscricao: Date | FirebaseTimestamp | null;
   attendances?: RegistroPresenca[]; 
-  certificateIssued?: boolean; 
+  certificateIssued?: boolean;
+  enviou_atividade_final?: boolean;
 };
 
 /**
@@ -86,12 +88,14 @@ export type PresencaResponse = {
   lastAttendance?: RegistroPresenca;
 };
 
-// utilitário para converter tipos do Firestore
-export type FirestoreParticipante = Omit<Participante, 'id'> & {
+// Tipo compatível com dados do Firestore
+export type FirestoreParticipante = Omit<Participante, 'id' | 'dataInscricao'> & {
+  dataInscricao: FirebaseTimestamp | null;
   attendances?: Array<{
     timestamp: FirebaseTimestamp;
     session: 'manha' | 'tarde' | 'noite';
   }>;
+  enviou_atividade_final?: boolean; // adiciona compatibilidade
 };
 
 // src/types/inscricao.ts

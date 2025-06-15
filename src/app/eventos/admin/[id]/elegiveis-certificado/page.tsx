@@ -85,42 +85,54 @@ export default function CertificadosPage() {
     });
   }
 
-  async function loadParticipantesComCertificado(eventoId: string) {
-    const ref = collection(db, `eventos/${eventoId}/inscricoes`);
-    const snap = await getDocs(ref);
-    const eventoDoc = await getDoc(doc(db, "eventos", eventoId));
-    const eventoData = eventoDoc.data();
-    const totalSessoes = eventoData?.totalSessoes || 0;
-    const minPercentual = eventoData?.minAttendancePercentForCertificate || 80;
+async function loadParticipantesComCertificado(eventoId: string) {
+  const ref = collection(db, `eventos/${eventoId}/inscricoes`);
+  const snap = await getDocs(ref);
+  const eventoDoc = await getDoc(doc(db, "eventos", eventoId));
+  const eventoData = eventoDoc.data();
+
+  const totalSessoes = eventoData?.totalSessoes || 0;
+  const minPercentual = eventoData?.minAttendancePercentForCertificate || 80;
+
+  const list: ParticipanteComCertificado[] = [];
     
-    const list: ParticipanteComCertificado[] = [];
-    
-    snap.forEach((docSnap) => {
-      const d = docSnap.data();
-      const attendances = d.attendances || [];
-      
-      // calcula percentual de presença
-      const presencaPercentual = totalSessoes > 0 
-        ? Math.round((attendances.length / totalSessoes) * 100) 
-        : 0;
-      
-      // verifica se atingiu a frequência mínima
-      if (presencaPercentual >= minPercentual) {
-        list.push({
-          id: docSnap.id,
-          cpf: docSnap.id,
-          nome: d.nome || "",
-          email: d.email || "",
-          telefone: d.telefone || "",
-          institution: d.institution || "",
-          dataInscricao: d.dataInscricao?.toDate?.() ?? null,
-          presencaPercentual,
-          attendances: attendances,
-          certificateIssued: d.certificateIssued || false,
-        });
-      }
-    });
-    
+  snap.forEach((docSnap) => {
+    const d = docSnap.data();
+    const attendances = d.attendances || [];
+
+    // calcula percentual de presença
+    const presencaPercentual = totalSessoes > 0 
+      ? Math.round((attendances.length / totalSessoes) * 100) 
+      : 0;
+
+    // verifica se atingiu a frequência mínima
+    const atingiuFrequenciaMinima = presencaPercentual >= minPercentual;
+
+    // verifica se o evento requer atividade final
+    const requerAtividadeFinal = eventoData?.requer_atividade_final === true;
+
+    // verifica se enviou a atividade final (se for requerido)
+    const enviouAtividadeFinal = Boolean(d.enviou_atividade_final);
+
+    // adiciona à lista somente se:
+    // - Frequência mínima foi atingida
+    // - Se o evento requer atividade final, então ela precisa ter sido enviada
+    if (atingiuFrequenciaMinima && (!requerAtividadeFinal || enviouAtividadeFinal)) {
+      list.push({
+        id: docSnap.id,
+        cpf: docSnap.id,
+        nome: d.nome || "",
+        email: d.email || "",
+        telefone: d.telefone || "",
+        institution: d.institution || "",
+        dataInscricao: d.dataInscricao?.toDate?.() ?? null,
+        presencaPercentual,
+        attendances: attendances,
+        certificateIssued: d.certificateIssued || false,
+      });
+    }
+  });
+
     setParticipantes(list);
   }
 

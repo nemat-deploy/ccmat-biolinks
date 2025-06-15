@@ -12,6 +12,8 @@ import { db } from '@/lib/firebase';
 import { getDoc } from 'firebase/firestore';
 import type { Evento } from "@/types";
 import { EventoSemId } from "@/types";
+import type { Participante } from "@/types";
+import { parseTimestamp } from '@/lib/utils';
 
 export interface Inscrito {
   id: string;
@@ -41,7 +43,14 @@ export async function getInscritos(eventoId: string): Promise<Inscrito[]> {
           timestamp: a.timestamp?.toDate?.() || new Date(a.timestamp),
           registradoPor: a.registradoPor,
           registradoEm: a.registradoEm
-        }))
+        })),
+        
+        // campos compatíveis com o tipo 'Participante'
+        // telefone: data.telefone || '', 
+        // institution: data.institution || '', 
+        // certificateIssued: Boolean(data.certificateIssued), 
+        // dataInscricao: data.dataInscricao ? data.dataInscricao.toDate() : null, // convertido para Date
+        // enviou_atividade_final: Boolean(data.enviou_atividade_final) 
       };
     });
   } catch (error) {
@@ -163,4 +172,34 @@ export function buildEventoSemId(params: {
     registrationsCount: params.registrationsCount ?? 0,
     sessions: params.sessions ?? [],
   };
+}
+
+/**
+ * Busca participantes com o campo 'enviou_atividade_final' para uso específico na tela de administração
+ */
+export async function getInscritosComAtividadeFinal(eventoId: string): Promise<Participante[]> {
+  try {
+    const inscricoesRef = collection(db, 'eventos', eventoId, 'inscricoes');
+    const snapshot = await getDocs(inscricoesRef);
+
+    return snapshot.docs.map(docSnap => {
+      const data = docSnap.data();
+
+      return {
+        id: docSnap.id,
+        nome: data.nome || '',
+        email: data.email || '',
+        telefone: data.telefone || '',
+        institution: data.institution || '',
+        // dataInscricao: data.dataInscricao ? toDate(data.dataInscricao) : null,
+        dataInscricao: parseTimestamp(data.dataInscricao),
+        attendances: data.attendances || [],
+        certificateIssued: Boolean(data.certificateIssued),
+        enviou_atividade_final: Boolean(data.enviou_atividade_final)
+      };
+    });
+  } catch (error) {
+    console.error("Erro ao buscar inscritos:", error);
+    throw error;
+  }
 }

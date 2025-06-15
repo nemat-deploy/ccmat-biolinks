@@ -1,3 +1,5 @@
+// src/app/eventos/components/EventoForm.tsx
+
 "use client";
 
 import { useEffect, useState, FormEvent } from "react";
@@ -103,6 +105,9 @@ export default function EventoForm({
   const [registrationDeadLineInput, setRegistrationDeadLineInput] = useState(
     registrationDeadLine ? formatDateToBrazilianDateTime(registrationDeadLine) : ""
   );
+  const [requerAtividadeFinal, setRequerAtividadeFinal] = useState<boolean>(
+    eventoData?.requer_atividade_final ?? false
+  );
 
   // start to use for Brasilian mask
   useEffect(() => {
@@ -118,12 +123,12 @@ export default function EventoForm({
     }
   }, [startDate]);
 
-  // Atualiza o estado local quando a prop eventoId muda
+  // atualiza o estado local quando a prop eventoId muda
   useEffect(() => {
     setLocalSlug(eventoId || "");
   }, [eventoId]);
 
-  // Reseta o formulário quando não estiver em modo de edição
+  // reseta o formulário quando não estiver em modo de edição
   useEffect(() => {
     if (!isEditing) {
       setName("");
@@ -133,7 +138,7 @@ export default function EventoForm({
       setRegistrationDeadLine("");
       setMaxParticipants("0");
       setTotalSessoes("0");
-      setMinAttendancePercentForCertificate("0");
+      setMinAttendancePercentForCertificate("60");
       setStatus("aberto");
     }
   }, [isEditing]);
@@ -203,7 +208,8 @@ export default function EventoForm({
       minAttendancePercentForCertificate: minAttendanceNumber,
       status,
       registrationsCount: eventoData?.registrationsCount || 0,
-      sessions: eventoData?.sessions || []
+      sessions: eventoData?.sessions || [],
+      requer_atividade_final: requerAtividadeFinal,
     };
 
     setIsSubmitting(true);
@@ -220,7 +226,7 @@ export default function EventoForm({
         await setDoc(eventoRef, { ...data, id: novoSlug });
 
         if (onEventoCriado) {
-          onEventoCriado(novoSlug); // 👈 sinaliza para o pai que o evento foi criado
+          onEventoCriado(novoSlug); // sinaliza para o pai que o evento foi criado
         }
 
         alert("Evento criado com sucesso.");
@@ -406,7 +412,7 @@ export default function EventoForm({
           // onChange={(e) => setMaxParticipants(Number(e.target.value))}
           onChange={(e) => {
             const val = e.target.value;
-            // Permitir apenas números positivos ou vazio
+            // permitir apenas números positivos ou vazio
             if (val === "" || /^[0-9\b]+$/.test(val)) {
               setMaxParticipants(val);
             }
@@ -441,7 +447,7 @@ export default function EventoForm({
           value={minAttendancePercentForCertificate}
           onChange={(e) => {
             const val = e.target.value;
-            // Permite vazio ou números entre 0 e 100
+            // permite vazio ou números entre 0 e 100
             if (val === "" || (/^\d+$/.test(val) && Number(val) >= 0 && Number(val) <= 100)) {
               setMinAttendancePercentForCertificate(val);
             }
@@ -465,6 +471,30 @@ export default function EventoForm({
           <option value="aberto">Aberto</option>
           <option value="encerrado">Encerrado</option>
         </select>
+      </div>
+
+      <div className="form-group">
+        <label>Requer atividade final?</label>
+        <div className="radio-group">
+          <label className="radio-option">
+            <input
+              type="radio"
+              name="requerAtividadeFinal"
+              checked={requerAtividadeFinal === true}
+              onChange={() => setRequerAtividadeFinal(true)}
+            />
+            Sim
+          </label>
+          <label className="radio-option">
+            <input
+              type="radio"
+              name="requerAtividadeFinal"
+              checked={requerAtividadeFinal === false}
+              onChange={() => setRequerAtividadeFinal(false)}
+            />
+            Não
+          </label>
+        </div>
       </div>
 
       <div className="form-buttons">
