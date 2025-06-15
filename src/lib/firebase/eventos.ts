@@ -46,11 +46,11 @@ export async function getInscritos(eventoId: string): Promise<Inscrito[]> {
         })),
         
         // campos compatíveis com o tipo 'Participante'
-        // telefone: data.telefone || '', 
-        // institution: data.institution || '', 
-        // certificateIssued: Boolean(data.certificateIssued), 
-        // dataInscricao: data.dataInscricao ? data.dataInscricao.toDate() : null, // convertido para Date
-        // enviou_atividade_final: Boolean(data.enviou_atividade_final) 
+        telefone: data.telefone || '', 
+        institution: data.institution || '', 
+        certificateIssued: Boolean(data.certificateIssued), 
+        dataInscricao: data.dataInscricao ? data.dataInscricao.toDate() : null, // convertido para Date
+        enviou_atividade_final: Boolean(data.enviou_atividade_final) 
       };
     });
   } catch (error) {

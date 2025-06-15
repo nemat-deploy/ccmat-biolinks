@@ -5,6 +5,6 @@ export type Inscricao = {
   telefone: string
   institution: string
   dataInscricao: Date
-  attendances: string[] // ou outro tipo se não for apenas string
+  attendances: string[] 
   certificateIssued: boolean
 }

@@ -88,7 +88,7 @@ export type PresencaResponse = {
   lastAttendance?: RegistroPresenca;
 };
 
-// Tipo compatível com dados do Firestore
+// tipo compatível com dados do Firestore
 export type FirestoreParticipante = Omit<Participante, 'id' | 'dataInscricao'> & {
   dataInscricao: FirebaseTimestamp | null;
   attendances?: Array<{
@@ -98,15 +98,15 @@ export type FirestoreParticipante = Omit<Participante, 'id' | 'dataInscricao'> &
   enviou_atividade_final?: boolean; // adiciona compatibilidade
 };
 
-// src/types/inscricao.ts
-export type Inscricao = {
-  nome: string
-  email: string
-  telefone: string
-  institution: string
-  dataInscricao: Date
-  attendances: string[] 
-  certificateIssued: boolean
+export interface Inscricao {
+  id: string;
+  nome: string;
+  email: string;
+  attendances: Array<{
+    timestamp: Date;
+    registradoPor?: string;
+    registradoEm?: Timestamp;
+  }>;
 }
 
 export interface Usuario {
