@@ -43,7 +43,10 @@
 }
 
 .eventoTitle {
+  margin-top: 0;
+  margin-bottom: 20px;
   color: blue;
+  font-weight: bold;
 }
 
 .presenca-table {
@@ -90,4 +93,32 @@
   height: 18px;
   cursor: pointer;
   background-color: #4d9950;
+}
+
+.presenca-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.presenca-header h1 {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.voltar-admin-link {
+  font-size: 1rem;
+  text-decoration: none;
+  color: #4285F4;
+  background: #e3f2fd;
+  padding: 6px 12px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+  border: 1px solid #eaeaea;
+  cursor: pointer;
+}
+
+.voltar-admin-link:hover {
+  background: #d2e3fc;
 }

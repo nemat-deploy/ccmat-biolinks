@@ -6,7 +6,8 @@ import { useParams, useRouter } from "next/navigation";
 import { getEvento } from "@/lib/firebase/eventos";
 import EventoForm from "../../../components/EventoForm";
 import { Evento } from "@/types";
-import './page.css'
+import './page.css';
+import LoadingMessage from "@/app/components/LoadingMessage"
 
 export default function EditarEventoPage() {
   const router = useRouter();
@@ -33,10 +34,14 @@ export default function EditarEventoPage() {
     fetchEvento();
   }, [id, router]);
 
-  if (loading) return <p>Carregando...</p>;
+  if (loading) {
+    return (
+      <LoadingMessage text="Carregando formulário..." fullHeight delay={0}/>
+    );
+  }
 
   return (
-    <div>
+    <div className="container">
       <h1 className="titleEditEvento">Editar evento: <span className="eventoToEdit">{evento?.name}</span></h1>
       <EventoForm
         isEditing={true}

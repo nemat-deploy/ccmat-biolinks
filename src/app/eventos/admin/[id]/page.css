@@ -152,3 +152,30 @@ button {
         margin-top: 30px;
     }
 }
+
+.usuarios-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.usuarios-header h1 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.voltar-admin-link {
+  font-size: 1rem;
+  text-decoration: none;
+  color: #4285F4;
+  background: #e3f2fd;
+  padding: 6px 12px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.voltar-admin-link:hover {
+  background: #d2e3fc;
+}

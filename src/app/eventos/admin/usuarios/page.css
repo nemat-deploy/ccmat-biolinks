@@ -1,0 +1,145 @@
+/* src/app/eventos/admin/usuarios/page.css */
+
+.usuarios-container {
+  padding: 2rem;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 960px;
+  margin: auto;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.usuarios-container h1 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.busca-input {
+  width: 100%;
+  padding: 0.7rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-bottom: 1.5rem;
+}
+
+.usuarios-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.usuarios-tabela th,
+.usuarios-tabela td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.usuarios-tabela th {
+  background-color: #f4f4f4;
+}
+
+.usuarios-tabela td:nth-child(3),
+.usuarios-tabela td:nth-child(4) {
+  text-align: center;
+}
+
+.botao-editar,
+.botao-excluir {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.title-editar-usuario {
+  font-size: 20px;
+}
+
+.botao-editar {
+  background-color: #fbbc05;
+  color: #000;
+  margin-right: 0.5rem;
+}
+
+.botao-excluir {
+  background-color: #ea4335;
+  color: #fff;
+}
+
+.form-edicao {
+  margin-top: 3rem;
+  background-color: #fafafa;
+  padding: 1.5rem;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.form-edicao input[type="text"],
+.form-edicao input[type="email"] {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.3rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.form-edicao input[type="checkbox"] {
+  transform: scale(1.2);
+  margin-right: 0.4rem;
+}
+
+.botoes-edicao button {
+  margin-top: 24px;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+}
+
+.botoes-edicao .btn-salvar {
+  background-color: #4285f4;
+  color: #fff;
+}
+
+.botoes-edicao .btn-cancelar {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #ccc;
+  margin-left: 1rem;
+}
+
+.usuarios-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.usuarios-header h1 {
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+.voltar-admin-link {
+  font-size: 1rem;
+  text-decoration: none;
+  color: #4285F4;
+  background: #e3f2fd;
+  padding: 6px 12px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.voltar-admin-link:hover {
+  background: #d2e3fc;
+}

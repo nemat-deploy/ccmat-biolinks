@@ -8,6 +8,17 @@
   max-width: 960px;
 }
 
+.loadingEvents {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh; 
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #555;
+  text-align: center;
+}
+
 .titleEventos {
   font-size: 1.75rem;
   font-weight: 700;

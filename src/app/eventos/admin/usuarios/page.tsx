@@ -14,6 +14,8 @@ import { db } from "@/lib/firebase";
 import { auth } from "@/lib/firebaseAuth";
 import { Inscricao } from "@/types";
 import { Usuario } from "@/types";
+import "./page.css";
+import LoadingMessage from "@/app/components/LoadingMessage"
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
@@ -25,27 +27,8 @@ export default function UsuariosPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [busca, setBusca] = useState("");
 
-  // Carrega dados do usuário logado e lista de usuários
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (!user) {
-        window.location.href = "/eventos/login";
-        return;
-      }
-
-      const userRef = doc(db, "users", user.uid);
-      const snap = await getDoc(userRef);
-
-      if (snap.exists() && snap.data().isAdmin === true) {
-        setUsuarioLogado({ id: snap.id, ...snap.data() } as Usuario);
-        carregarUsuarios();
-      } else {
-        window.location.href = "/eventos/login";
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
+  // spinner carregando a página
+  const [loading, setLoading] = useState(true);
 
   const carregarUsuarios = async () => {
     try {
@@ -64,6 +47,32 @@ export default function UsuariosPage() {
       console.error("Erro ao carregar usuários:", err);
     }
   };
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = "/eventos/login";
+        return;
+      }
+
+      const userRef = doc(db, "users", user.uid);
+      const snap = await getDoc(userRef);
+
+      if (snap.exists() && snap.data().isAdmin === true) {
+        setUsuarioLogado({ id: snap.id, ...snap.data() } as Usuario);
+        await carregarUsuarios();
+        setLoading(false); // só depois que os dados carregam aparece a página
+      } else {
+        window.location.href = "/eventos/login";
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <LoadingMessage text="Carregando usuários..." fullHeight />;
+  }
 
   const handleEditar = (usuario: Usuario) => {
     setEditandoUid(usuario.id);
@@ -118,189 +127,124 @@ export default function UsuariosPage() {
   );
 
   return (
-    <div
-      style={{
-        padding: "2rem",
-        fontFamily: "Arial",
-        width: "100%",
-        maxWidth: "900px",
-        margin: "auto",
-      }}
-    >
+  <div className="usuarios-container">
+    <div className="usuarios-header">
       <h1>Gestão de Usuários</h1>
-
-      {/* Campo de busca */}
-      <div style={{ marginBottom: "1.5rem" }}>
-        <input
-          type="text"
-          placeholder="Buscar por nome ou email..."
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "0.6rem",
-            fontSize: "1rem",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-          }}
-        />
-      </div>
-
-      {/* Tabela de usuários */}
-      <table
-        style={{
-          width: "100%",
-          margin: "auto",
-          borderCollapse: "collapse",
-          marginTop: "1rem",
-        }}
-      >
-        <thead>
-          <tr style={{ borderBottom: "1px solid #ccc" }}>
-            <th style={{ textAlign: "left" }}>Nome</th>
-            <th style={{ textAlign: "left" }}>Email</th>
-            <th style={{ textAlign: "center" }}>Admin</th>
-            <th style={{ textAlign: "center" }}>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtrados.map((usuario) => (
-            <tr key={usuario.id} style={{ borderBottom: "1px solid #eee" }}>
-              <td>{usuario.nome}</td>
-              <td>{usuario.email}</td>
-              <td style={{ textAlign: "center" }}>
-                {usuario.isAdmin ? "✅" : "❌"}
-              </td>
-              <td style={{ textAlign: "center" }}>
-                <button
-                  onClick={() => handleEditar(usuario)}
-                  style={{
-                    marginRight: "0.5rem",
-                    background: "#fbbc05",
-                    border: "none",
-                    padding: "0.3rem 0.6rem",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Editar
-                </button>
-                <button
-                  onClick={() => handleExcluir(usuario.id)}
-                  style={{
-                    background: "#ea4335",
-                    border: "none",
-                    padding: "0.3rem 0.6rem",
-                    borderRadius: "4px",
-                    color: "white",
-                    cursor: "pointer",
-                  }}
-                >
-                  Excluir
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Formulário de edição */}
-      {editandoUid && (
-        <div style={{ marginTop: "3rem" }}>
-          <h2>Editar Usuário</h2>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSalvar();
-            }}
-          >
-            <div>
-              <label>
-                Nome:
-                <input
-                  type="text"
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                  required
-                  style={{
-                    width: "100%",
-                    margin: "0.5rem 0 1rem",
-                    padding: "0.5rem",
-                  }}
-                />
-              </label>
-            </div>
-            <div>
-              <label>
-                Email:
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  readOnly
-                  style={{
-                    width: "100%",
-                    margin: "0.5rem 0 1rem",
-                    padding: "0.5rem",
-                    backgroundColor: "#f9f9f9",
-                  }}
-                />
-              </label>
-            </div>
-            <div>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={isAdmin}
-                  onChange={(e) => setIsAdmin(e.target.checked)}
-                  disabled={
-                    editandoUid === auth.currentUser?.uid &&
-                    usuarioLogado?.isAdmin
-                  }
-                />
-                &nbsp;É administrador?
-              </label>
-            </div>
-
-            <div style={{ marginTop: "1rem" }}>
-              <button
-                type="submit"
-                style={{
-                  background: "#4285F4",
-                  color: "white",
-                  border: "none",
-                  padding: "0.6rem 1rem",
-                  fontSize: "1rem",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                }}
-              >
-                Atualizar
-              </button>
-              <button
-                onClick={() => {
-                  setEditandoUid(null);
-                  setNome("");
-                  setEmail("");
-                  setIsAdmin(false);
-                }}
-                style={{
-                  marginLeft: "1rem",
-                  background: "#fff",
-                  border: "1px solid #ccc",
-                  padding: "0.6rem 1rem",
-                  fontSize: "1rem",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                }}
-              >
-                Cancelar
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      <a href="/eventos/admin" className="voltar-admin-link">← Voltar</a>
     </div>
-  );
+
+    {/* Campo de busca */}
+    <input
+      type="text"
+      className="busca-input"
+      placeholder="Buscar por nome ou email..."
+      value={busca}
+      onChange={(e) => setBusca(e.target.value)}
+    />
+
+    {/* Tabela de usuários */}
+    <table className="usuarios-tabela">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Admin</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {filtrados.map((usuario) => (
+          <tr key={usuario.id}>
+            <td>{usuario.nome}</td>
+            <td>{usuario.email}</td>
+            <td>{usuario.isAdmin ? "✅" : "❌"}</td>
+            <td>
+              <button
+                className="botao-editar"
+                onClick={() => handleEditar(usuario)}
+              >
+                Editar
+              </button>
+              <button
+                className="botao-excluir"
+                onClick={() => handleExcluir(usuario.id)}
+              >
+                Excluir
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    {/* Formulário de edição */}
+    {editandoUid && (
+      <div className="form-edicao">
+        <h2 className="title-editar-usuario">Editar Usuário</h2>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSalvar();
+          }}
+        >
+          <div>
+            <label>
+              Nome:
+              <input
+                type="text"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                required
+              />
+            </label>
+          </div>
+          <div>
+            <label>
+              Email:
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                readOnly
+              />
+            </label>
+          </div>
+          <div>
+            <label>
+              <input
+                type="checkbox"
+                checked={isAdmin}
+                onChange={(e) => setIsAdmin(e.target.checked)}
+                disabled={
+                  editandoUid === auth.currentUser?.uid &&
+                  usuarioLogado?.isAdmin
+                }
+              />
+              É administrador?
+            </label>
+          </div>
+
+          <div className="botoes-edicao">
+            <button type="submit" className="btn-salvar">
+              Atualizar
+            </button>
+            <button
+              type="button"
+              className="btn-cancelar"
+              onClick={() => {
+                setEditandoUid(null);
+                setNome("");
+                setEmail("");
+                setIsAdmin(false);
+              }}
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    )}
+  </div>
+);
 }

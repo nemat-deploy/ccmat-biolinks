@@ -15,11 +15,13 @@ import { parseTimestamp } from "@/lib/utils";
 import { Timestamp } from "firebase/firestore";
 import { TimestampValue } from "@/types";
 import "./page.css";
+import LoadingMessage from "@/app/components/LoadingMessage";
 
 export default function AdminPage() {
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   // redirecionar se não estiver logado
   useEffect(() => {
@@ -29,6 +31,7 @@ export default function AdminPage() {
       } else {
         setUser(currentUser);
         await fetchEventos();
+        setLoading(false);
       }
     });
 
@@ -109,6 +112,12 @@ export default function AdminPage() {
     }
   }
 
+  if (loading) {
+    return (
+      <LoadingMessage fullHeight delay={0}/>
+    );
+  }
+
   return (
     <div className="admin-container">
       <h1 className="titleAdmin">Área Administrativa</h1>
@@ -116,7 +125,8 @@ export default function AdminPage() {
       {/* barra de menu */}
       <div className="menuBar">
         <div className="userLogged">
-          Logado como: <strong>{user?.email}</strong>
+          <span className="label">Logado como: </span>
+          <span className="email">{user?.email}</span>
         </div>
 
         <div className="adminBtns">
@@ -139,7 +149,9 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <div>Clique no evento para listar os Participantes</div>
+      <div className="topMsg">
+        Clique no evento para listar os Participantes
+      </div>
 
       {/* lista de eventos */}
       <ul style={{ listStyle: "none", paddingLeft: 0 }}>

@@ -167,8 +167,8 @@ useEffect(() => {
     }
   };
 
-  if (loading) return <p>Carregando evento...</p>;
-  if (!evento) return <p>Evento não encontrado.</p>;
+  if (loading) return <p className="loadingEvents">Carregando evento...</p>;
+  if (!evento) return <p className="loadingEvents">Evento não encontrado.</p>;
 
   const hoje = new Date();
   const prazoEncerrado =

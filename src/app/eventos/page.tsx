@@ -80,7 +80,7 @@ export default function EventosPage() {
     fetchEventos();
   }, []);
 
-  if (loading) return <p>Carregando eventos...</p>;
+  if (loading) return <p className="loadingEvents">Carregando eventos...</p>;
 
   return (
     <div className="listaTodosEventos">

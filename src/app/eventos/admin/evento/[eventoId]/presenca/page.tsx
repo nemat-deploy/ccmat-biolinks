@@ -12,10 +12,14 @@ import { arrayUnion } from "firebase/firestore";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import Modal from "./components/Modal";
 import "@/app/eventos/admin/evento/[eventoId]/presenca/components/modal.css";
+import LoadingMessage from "@/app/components/LoadingMessage"
 
 export default function PresencePage() {
   const params = useParams();
   const router = useRouter();
+
+  const [pageLoading, setPageLoading] = useState(true); // usado no useEffect
+  const [actionLoading, setActionLoading] = useState(false); // usado nos botões
 
   // UI states
   const [modalOpen, setModalOpen] = useState(false);
@@ -36,8 +40,7 @@ export default function PresencePage() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
         router.push(
-          "/eventos/login?redirect=" +
-            encodeURIComponent(window.location.pathname),
+          "/eventos/login?redirect=" + encodeURIComponent(window.location.pathname)
         );
         return;
       }
@@ -46,12 +49,11 @@ export default function PresencePage() {
     });
 
     return () => unsubscribe();
-  }, [router]);
+  }, []);
 
   const loadInscritos = async () => {
     try {
       if (!eventoId) throw new Error("EventoId não definido.");
-
       const eventoRef = doc(db, "eventos", eventoId);
       const eventoSnap = await getDoc(eventoRef);
 
@@ -66,41 +68,41 @@ export default function PresencePage() {
     } catch (error) {
       console.error("Erro ao carregar inscritos:", error);
     } finally {
-      setLoading(false);
+      setPageLoading(false); // apenas no carregamento inicial
     }
   };
 
-  const handlePresenca = async (inscritoId: string) => {
-    try {
-      setLoading(true);
+const handlePresenca = async (inscritoId: string) => {
+  try {
+    setActionLoading(true);
 
-      if (!eventoId) throw new Error("EventoId não definido.");
+    if (!eventoId) throw new Error("EventoId não definido.");
 
-      await marcarPresenca(eventoId, inscritoId);
+    await marcarPresenca(eventoId, inscritoId);
 
-      setInscritos((prev) =>
-        prev.map((inscrito) =>
-          inscrito.id === inscritoId
-            ? {
-                ...inscrito,
-                attendances: [
-                  ...(inscrito.attendances || []),
-                  {
-                    timestamp: new Date(),
-                  },
-                ],
-              }
-            : inscrito,
-        ),
-      );
-    } catch (error: any) {
-      console.error("Erro completo:", error);
-      setModalMessage(error.message); // Preenche a mensagem do modal
-      setModalOpen(true); // Abre o modal
-    } finally {
-      setLoading(false);
-    }
-  };
+    setInscritos((prev) =>
+      prev.map((inscrito) =>
+        inscrito.id === inscritoId
+          ? {
+              ...inscrito,
+              attendances: [
+                ...(inscrito.attendances || []),
+                {
+                  timestamp: new Date(),
+                },
+              ],
+            }
+          : inscrito
+      )
+    );
+  } catch (error: any) {
+    console.error("Erro completo:", error);
+    setModalMessage(error.message);
+    setModalOpen(true);
+  } finally {
+    setActionLoading(false);
+  }
+};
 
   const toggleAtividadeFinal = async (participantId: string) => {
     try {
@@ -147,84 +149,90 @@ export default function PresencePage() {
     // i.id?.replace(/\D/g, '').includes(filtro.replace(/\D/g, ''))
   );
 
-  if (authChecked && nomeEvento === null) {
-    return (
-      <div className="presenca-container">
-        <p>⚠️ Acesse essa página a partir do painel de administração.</p>
-      </div>
-    );
+  if (pageLoading) {
+    return <LoadingMessage text="Carregando lista de participantes..." fullHeight />;
   }
 
   return (
     <>
-    <Modal
-      isOpen={modalOpen}
-      onClose={() => setModalOpen(false)}
-      title="Erro ao marcar presença"
-      message={modalMessage}
-    />
-    <div className="presenca-container">
-      <p className="presencaTitle">
-        Controle de Presença -{" "}
-        <span className="eventoTitle">{nomeEvento || eventoId}</span>
-      </p>
-
-      <input
-        type="text"
-        placeholder="buscar por nome..."
-        value={filtro}
-        onChange={(e) => setFiltro(e.target.value)}
-        style={{
-          marginTop: "10px",
-          marginBottom: "10px",
-          padding: "0.5rem",
-          width: "100%",
-          maxWidth: "400px",
-          borderRadius: "4px",
-          border: "1px solid #ccc",
-          fontSize: "18px",
-        }}
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title="Erro ao marcar presença"
+        message={modalMessage}
       />
+      <div className="presenca-container">
+        <div className="presenca-header">
+          <h1>Controle de Presença </h1>
+          <button
+            onClick={ () => window.close()}
+            className="voltar-admin-link"
+          >
+            ← Fechar essa aba
+          </button>
+        </div>
+        <div className="eventoTitle">
+          {nomeEvento || eventoId}
+        </div>
 
-      <table className="presenca-table">
-        <thead>
-          <tr>
-            <th style={{ textAlign: "center" }}>Nome</th>
-            <th style={{ textAlign: "center" }}>Presenças</th>
-            <th style={{ textAlign: "center" }}>Atividade Final Enviada?</th>
-            <th style={{ textAlign: "center" }}>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {inscritosFiltrados.map((inscrito) => (
-            <tr key={inscrito.id}>
-              <td>{inscrito.nome}</td>
-              <td style={{ textAlign: "center" }}>
-                {inscrito.attendances?.length || 0}
-              </td>
-              <td style={{ textAlign: "center" }}>
-                <input
-                  type="checkbox"
-                  checked={Boolean(inscrito.enviou_atividade_final)}
-                  onChange={() => toggleAtividadeFinal(inscrito.id)}
-                  disabled={loading}
-                  className="checkboxAtividadeFinal"
-                />
-              </td>
-              <td style={{ textAlign: "center" }}>
-                <button
-                  onClick={() => handlePresenca(inscrito.id)}
-                  disabled={loading}
-                  className="presenca-button"
-                >
-                  {loading ? "Processando..." : "Registrar Presença"}
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        <div>
+          <input
+            type="text"
+            placeholder="buscar por nome..."
+            value={filtro}
+            onChange={(e) => setFiltro(e.target.value)}
+            style={{
+              marginTop: "10px",
+              marginBottom: "10px",
+              padding: "0.5rem",
+              width: "100%",
+              maxWidth: "400px",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+              fontSize: "18px",
+            }}
+          />
+
+          <table className="presenca-table">
+            <thead>
+              <tr>
+                <th style={{ textAlign: "center", minWidth: "300px" }}>Nome</th>
+                <th style={{ textAlign: "center" }}>Presenças</th>
+                <th style={{ textAlign: "center" }}>Atividade Final Enviada?</th>
+                <th style={{ textAlign: "center" }}>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {inscritosFiltrados.map((inscrito) => (
+                <tr key={inscrito.id}>
+                  <td>{inscrito.nome}</td>
+                  <td style={{ textAlign: "center" }}>
+                    {inscrito.attendances?.length || 0}
+                  </td>
+                  <td style={{ textAlign: "center" }}>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(inscrito.enviou_atividade_final)}
+                      onChange={() => toggleAtividadeFinal(inscrito.id)}
+                      disabled={actionLoading}
+                      className="checkboxAtividadeFinal"
+                    />
+                  </td>
+                  <td style={{ textAlign: "center" }}>
+                    <button
+                      onClick={() => handlePresenca(inscrito.id)}
+                      disabled={actionLoading}
+                      className="presenca-button"
+                    >
+                      {actionLoading ? "Processando..." : "Registrar Presença"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </>
   );
 }

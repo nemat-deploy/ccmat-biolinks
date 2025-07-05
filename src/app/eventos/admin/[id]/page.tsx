@@ -23,6 +23,7 @@ import Link from "next/link";
 import "./page.css";
 import { ParticipanteData } from "@/types";
 import React from "react";
+import LoadingMessage from "@/app/components/LoadingMessage"
 
 export default function AdminEventoPage() {
   const params = useParams();
@@ -195,13 +196,20 @@ export default function AdminEventoPage() {
     }
   }
 
-  if (loading) return <p>Carregando...</p>;
+  if (loading) {
+    return (
+      <LoadingMessage text="Carregando paǵina do evento" fullHeight delay={0}/>
+    );
+  }
   if (erro) return <p>{erro}</p>;
 
   return (
     <div style={{ padding: "1rem" }}>
       <div className="topContent">
-        <h1 className="titleCourse">Admin - <span className="titleNameEvento">{evento?.name || id}</span> ({participantes.length} participantes inscritos)</h1>
+        <div className="usuarios-header">
+          <h1 className="titleCourse"><span className="titleNameEvento">{evento?.name || id}</span> ({participantes.length} participantes inscritos)</h1>
+          <a href="/eventos/admin" className="voltar-admin-link">← Voltar</a>
+        </div>
 
         {/* exibir a URL aqui */}
         {id && (
