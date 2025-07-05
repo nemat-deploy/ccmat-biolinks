@@ -1,60 +1,89 @@
-body {
-    margin: 0;
-    padding: 0;
-    background-color: #fcfcfc;
+.listaTodosEventos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  margin: auto;
+  width: 100%;
+  max-width: 960px;
 }
 
 .titleEventos {
-    font-size: 22px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: #3d3d3d;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  text-align: center;
 }
 
-h1 {
-    font-size: 18px;
+.eventosGrid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+  padding-left: 0;
+  list-style: none;
+  width: 100%;
 }
 
-.listaTodosEventos {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
-    margin: auto;
-    width: 100%;
-    max-width: 900px;
-    height: 100%;
+.eventoCard {
+  background-color: #ffffff;
+  border: 1px solid #d5e5e5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  padding: 16px;
+  width: 100%;
+  max-width: 340px;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.center-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: calc(100vh - 60px);
-    text-align: center;
-    padding: 10px;
-    background-color: #f5f5f5; /* bg-gray-50 */
+.eventoCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
-.availableEvents {
-    font-size: 2rem; /* text-2xl */
-    font-weight: bold;
-    margin-bottom: 1rem;
+.eventoLink {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0060aa;
+  text-decoration: none;
+  margin-bottom: 0.5rem;
 }
 
-.event-link {
-    font-size: 1.25rem; /* text-xl */
-    color: #0080d3; /* text-blue-600 */
-    text-decoration: none;
-    margin: 10px;
-    border: 1px solid #0080d3;
-    width: 300px;
-    border-radius: 8px;
-    padding: 4px;
+.eventoLink:hover {
+  text-decoration: underline;
 }
 
-.event-link:hover {
-    text-decoration: underline;
+.eventoDescription {
+  font-size: 0.95rem;
+  color: #444;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.eventoDatas {
+  font-size: 0.9rem;
+  color: #2d7a46;
+  font-weight: 500;
+}
+
+.eventoStatus {
+  font-size: 0.88rem;
+  color: #5c5c5c;
+  margin-top: 6px;
+}
+
+/* Responsivo */
+@media (max-width: 480px) {
+  .eventoCard {
+    max-width: 100%;
+  }
+
+  .titleEventos {
+    font-size: 1.4rem;
+  }
 }

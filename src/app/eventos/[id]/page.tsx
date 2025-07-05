@@ -1,3 +1,4 @@
+// src/app/eventos/[id]/page.tsx
 "use client";
 
 import {
@@ -18,6 +19,7 @@ import { db } from "@/lib/firebase";
 import { useParams } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { parseTimestamp, formatarData } from "@/lib/utils";
+import { onSnapshot } from "firebase/firestore"; 
 
 type Evento = {
   id: string;
@@ -79,14 +81,14 @@ export default function EventoPage() {
   }
 
 useEffect(() => {
-  async function fetchEvento() {
-    if (!id) return;
-    const eventoRef = doc(db, "eventos", id);
-    const eventoSnap = await getDoc(eventoRef);
+  if (!id) return;
+
+  const eventoRef = doc(db, "eventos", id);
+
+  const unsubscribe = onSnapshot(eventoRef, (eventoSnap) => {
     if (eventoSnap.exists()) {
       const data = eventoSnap.data();
 
-      // Parse das datas com fallback para new Date(0)
       const startDate = parseTimestamp(data.startDate) ?? new Date(0);
       const endDate = parseTimestamp(data.endDate) ?? new Date(0);
       const registrationDeadLine = parseTimestamp(data.registrationDeadLine) ?? new Date(0);
@@ -105,10 +107,11 @@ useEffect(() => {
       });
     }
     setLoading(false);
-  }
-  fetchEvento();
-}, [id]);
+  });
 
+  // Limpa o listener quando o componente for desmontado ou o id mudar
+  return () => unsubscribe();
+}, [id]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -170,6 +173,8 @@ useEffect(() => {
   const hoje = new Date();
   const prazoEncerrado =
     evento.registrationDeadLine && evento.registrationDeadLine < hoje;
+  const eventoLotado = 
+    evento.maxParticipants > 0 && evento.registrationsCount >= evento.maxParticipants;
 
   return (
     <div className="container">
@@ -183,9 +188,17 @@ useEffect(() => {
         <p className="mensagem">⚠️ Inscrições encerradas para esse evento.</p>
       )}
 
-      <h1 style={{ fontSize: "22px", color: "#0070f3" }}>Faça sua inscrição</h1>
+      {eventoLotado && (
+        <p className="mensagem">⚠️ Evento com vagas esgotadas.</p>
+      )}
 
-      {!formEnviado && !prazoEncerrado ? (
+      {(prazoEncerrado || eventoLotado) ? (
+        <h3 className="section-title">Inscrições indisponíveis</h3>
+      ) : (
+        <h3 className="section-title">Faça sua inscrição</h3>
+      )}
+
+      {!formEnviado && !prazoEncerrado && !eventoLotado ? (
         <form onSubmit={handleSubmit} className="form">
           <div className="form-floating">
             <input

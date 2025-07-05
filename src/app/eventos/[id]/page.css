@@ -1,43 +1,70 @@
 body {
-  background-color: whitesmoke;
+  background-color: transparent;
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
 }
 
 .container {
-  padding: 2rem;
-  max-width: 600px;
-  margin: 0 auto;
+  padding: 2rem 1rem;
+  max-width: 680px;
+  margin: auto;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  background-color: #ffffffc5;
+  border-radius: 10px;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
 }
 
+/* Títulos e descrições */
+.container h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #2c3e50;
+}
+
+.container p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #444;
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #0070f3;
+  text-align: left;
+}
+
+/* Formulário */
 form.form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  margin-top: 0.5rem;
-  margin-bottom: 1rem;
-  padding: 1.5rem;
-  border: 1px solid #ccc;
+  gap: 1.2rem;
+  padding: 1.5rem 1rem; /* padding mais uniforme */
+  border: 1px solid #ddd;
   border-radius: 8px;
-  background-color: white;
+  background-color: #ffffff;
+  box-sizing: border-box;
 }
 
+/* Campo com label flutuante */
 .form-floating {
   position: relative;
   width: 100%;
 }
 
-.error-message {
-  color: orangered;
-  font-size: 16px;
-  font-weight: bold;
-}
-
+/* Campos de input */
 .form-floating input {
-  width: 96%;
-  padding: 8px;
-  padding-top: 12px;
+  display: block;
+  width: 100%;
+  box-sizing: border-box; /* essencial para incluir padding dentro da largura */
+  padding: 12px;
+  padding-top: 16px; /* espaço extra pro label flutuante */
   font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -45,10 +72,11 @@ form.form {
   outline: none;
 }
 
+/* Label do campo */
 .form-floating label {
   position: absolute;
-  top: 0.6rem;
-  left: 0.4rem;
+  top: 0.8rem;
+  left: 0.75rem;
   color: #777;
   font-size: 1rem;
   background-color: white;
@@ -57,7 +85,7 @@ form.form {
   transition: all 0.2s ease;
 }
 
-/* Efeito ao focar/preencher */
+/* Efeito flutuante do label */
 .form-floating input:focus + label,
 .form-floating input:not(:placeholder-shown) + label,
 .form-floating input:valid + label {
@@ -67,16 +95,17 @@ form.form {
   color: #0070f3;
 }
 
-/* Botão com a mesma largura dos campos */
+/* Botão */
 form.form button {
   width: 100%;
   background-color: #0070f3;
   color: white;
   border: none;
-  padding: 0.8rem;
+  padding: 0.9rem;
   border-radius: 6px;
-  cursor: pointer;
   font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
@@ -84,50 +113,96 @@ form.form button:hover {
   background-color: #005ac1;
 }
 
-/* ===== Outros elementos ===== */
-p {
-  margin-top: 0.5rem;
-}
-
-.eventNoFound {
-  margin-top: 20px;
-}
-
-.datesStatus {
-  border: 1px solid slategray;
-  border-radius: 8px;
-  padding: 0 8px;
-  margin-bottom: 30px;
-}
-
-.inicioFimStatus {
-  display: inline-block;
-  width: 55px;
-}
-
-.success-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
+/* Mensagens */
 .success-message {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: bold;
   color: green;
   margin: 1rem 0;
 }
 
-.new-registration-btn {
+.error-message {
+  color: orangered;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.mensagem {
   margin-top: 1rem;
-  margin-bottom: 1.5rem;
-  padding: 0.5rem 1rem;
-  height: 40px;
+  font-size: 1rem;
+  color: #d35400;
+  font-weight: bold;
+}
+
+/* Bloco de datas/status */
+.datesStatus {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #b0b0b0;
+  border-radius: 6px;
+  background-color: #f8f8f8;
+}
+
+.datesStatus p::before {
+  content: "📅 ";
+}
+
+/* Sucesso */
+.success-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Botão nova inscrição */
+.new-registration-btn {
   background-color: #37a9d1;
   color: white;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: bold;
+  padding: 0.6rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.new-registration-btn:hover {
+  background-color: #2d90b5;
+}
+
+/* Link voltar */
+.back-link {
+  display: inline-block;
+  margin-top: 2rem;
+  color: #0070f3;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsividade */
+@media (max-width: 480px) {
+  .container {
+    padding: 1rem 1.2rem;
+    padding-bottom: 20px;
+  }
+
+  .form-floating input {
+    font-size: 1rem;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  .back-link {
+    display: block;
+    text-align: center;
+    margin-top: 1.5rem;
+  }
 }

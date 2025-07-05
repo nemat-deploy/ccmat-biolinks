@@ -84,60 +84,30 @@ export default function EventosPage() {
 
   return (
     <div className="listaTodosEventos">
-
-      <div>
       <p className="titleEventos">Eventos disponíveis</p>
-      </div>
 
       {eventos.length === 0 ? (
         <p>Nenhum evento encontrado.</p>
       ) : (
-        <ul style={{
-          display: "flex", 
-          justifyContent: "center", 
-          alignItems: "center", 
-          listStyle: "none",
-          paddingLeft: 0,
-          flexWrap: "wrap",
-          gap: "30px"
-        }}>
+        <ul className="eventosGrid">
           {eventos.map((evento) => (
-            <li key={evento.id} style={{
-              border: "2px solid gray",
-              backgroundColor: "#ffffff",
-              padding: "12px",
-              borderRadius: "8px",
-              width: "100%",
-              maxWidth: "360px",
-              height: "180px",
-              minHeight: "150px"
-            }}>
-              <Link
-                href={`/eventos/${evento.id}`}
-                style={{
-                  fontSize: "1.2rem",
-                  fontWeight: "bold",
-                  color: "#0070f3",
-                  textDecoration: "none"
-                }}
-              >
+            <li key={evento.id} className="eventoCard">
+              <Link href={`/eventos/${evento.id}`} className="eventoLink">
                 {evento.name}
               </Link>
               <p className="eventoDescription">{evento.description}</p>
-              <p style={{ color: "green", fontWeight: "bold" }}>
-                De {evento.startDate?.toLocaleDateString('pt-BR') || "sem data"} até{" "}
-                {evento.endDate?.toLocaleDateString('pt-BR') || "sem data"}
+              <p className="eventoDatas">
+                De {evento.startDate?.toLocaleDateString("pt-BR") || "sem data"} até{" "}
+                {evento.endDate?.toLocaleDateString("pt-BR") || "sem data"}
               </p>
-              <p>Status: {evento.status}</p>
+              <p className="eventoStatus">Status: {evento.status}</p>
             </li>
           ))}
         </ul>
       )}
-
-      <br />
-{/*      <Link href="/eventos/admin" style={{ color: "#0070f3" }}>
-        → Área administrativa
-      </Link>*/}
     </div>
   );
 }
+{/*      <Link href="/eventos/admin" style={{ color: "#0070f3" }}>
+        → Área administrativa
+      </Link>*/}
