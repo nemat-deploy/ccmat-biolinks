@@ -12,12 +12,12 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { auth } from "@/lib/firebaseAuth";
-import { Inscricao } from "@/types"
-import { Usuario } from "@/types"
+import { Inscricao } from "@/types";
+import { Usuario } from "@/types";
 
 export default function UsuariosPage() {
-  const [usuarios, setUsuarios] = useState<Usuario[]>([])
-  const [usuarioLogado, setUsuarioLogado] = useState<Usuario | null>(null)
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [usuarioLogado, setUsuarioLogado] = useState<Usuario | null>(null);
 
   const [editandoUid, setEditandoUid] = useState<string | null>(null);
   const [nome, setNome] = useState("");
@@ -56,7 +56,7 @@ export default function UsuariosPage() {
         lista.push({
           id: doc.id,
           ...doc.data(),
-        } as Usuario)
+        } as Usuario),
       );
 
       setUsuarios(lista);
@@ -86,8 +86,8 @@ export default function UsuariosPage() {
 
       setUsuarios(
         usuarios.map((u) =>
-          u.id === editandoUid ? { ...u, nome, email, isAdmin } : u
-        )
+          u.id === editandoUid ? { ...u, nome, email, isAdmin } : u,
+        ),
       );
 
       alert("✅ Usuário atualizado!");
@@ -114,11 +114,19 @@ export default function UsuariosPage() {
   const filtrados = usuarios.filter(
     (u) =>
       u.nome.toLowerCase().includes(busca.toLowerCase()) ||
-      u.email.toLowerCase().includes(busca.toLowerCase())
+      u.email.toLowerCase().includes(busca.toLowerCase()),
   );
 
   return (
-    <div style={{ padding: "2rem", fontFamily: "Arial" }}>
+    <div
+      style={{
+        padding: "2rem",
+        fontFamily: "Arial",
+        width: "100%",
+        maxWidth: "900px",
+        margin: "auto",
+      }}
+    >
       <h1>Gestão de Usuários</h1>
 
       {/* Campo de busca */}
@@ -140,7 +148,12 @@ export default function UsuariosPage() {
 
       {/* Tabela de usuários */}
       <table
-        style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}
+        style={{
+          width: "100%",
+          margin: "auto",
+          borderCollapse: "collapse",
+          marginTop: "1rem",
+        }}
       >
         <thead>
           <tr style={{ borderBottom: "1px solid #ccc" }}>

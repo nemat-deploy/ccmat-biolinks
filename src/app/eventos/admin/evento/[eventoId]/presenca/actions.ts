@@ -1,8 +1,8 @@
 // src/app/eventos/admin/evento/[eventoId]/presenca/actions.ts
-'use server';
+"use server";
 
-import { db } from '@/lib/firebase';
-import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { db } from "@/lib/firebase";
+import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
 
 /**
  * Busca participantes do evento no Firestore
@@ -12,13 +12,15 @@ import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 //   return snapshot.exists() ? snapshot.data().participants : [];
 // }
 export async function getParticipants(eventoId: string) {
-  const snapshot = await getDoc(doc(db, 'eventos', eventoId, 'inscricoes', 'dados'));
+  const snapshot = await getDoc(
+    doc(db, "eventos", eventoId, "inscricoes", "dados"),
+  );
   if (!snapshot.exists()) return [];
 
   const data = snapshot.data();
   return data.participants.map((p: any) => ({
     ...p,
-    enviou_atividade_final: Boolean(p.enviou_atividade_final) // garantir valor booleano
+    enviou_atividade_final: Boolean(p.enviou_atividade_final), // garantir valor booleano
   }));
 }
 
@@ -28,20 +30,26 @@ export async function getParticipants(eventoId: string) {
 export async function registerPresence(
   eventoId: string,
   participantId: string,
-  session: 'manha' | 'tarde'
+  session: "manha" | "tarde",
 ) {
   try {
-    const participantRef = doc(db, 'eventos', eventoId, 'inscricoes', participantId);
-    
+    const participantRef = doc(
+      db,
+      "eventos",
+      eventoId,
+      "inscricoes",
+      participantId,
+    );
+
     await updateDoc(participantRef, {
       attendances: arrayUnion({
         session,
-        timestamp: new Date().toISOString()
-      })
+        timestamp: new Date().toISOString(),
+      }),
     });
-    
+
     return { success: true };
   } catch (error) {
-    return { error: 'Falha ao registrar presença' };
+    return { error: "Falha ao registrar presença" };
   }
 }

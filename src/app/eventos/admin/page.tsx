@@ -14,7 +14,7 @@ import { Evento } from "@/types";
 import { parseTimestamp } from "@/lib/utils";
 import { Timestamp } from "firebase/firestore";
 import { TimestampValue } from "@/types";
-import './page.css'
+import "./page.css";
 
 export default function AdminPage() {
   const [eventos, setEventos] = useState<Evento[]>([]);
@@ -41,7 +41,7 @@ export default function AdminPage() {
    * @returns Date | null
    */
   function parseTimestamp(
-    value: Date | Timestamp | string | TimestampValue | null | undefined
+    value: Date | Timestamp | string | TimestampValue | null | undefined,
   ): Date | null {
     if (!value) return null;
 
@@ -51,12 +51,19 @@ export default function AdminPage() {
     }
 
     //se for Timestamp do Firebase
-    if ((value as Timestamp)?.toDate && typeof (value as Timestamp).toDate === "function") {
+    if (
+      (value as Timestamp)?.toDate &&
+      typeof (value as Timestamp).toDate === "function"
+    ) {
       return (value as Timestamp).toDate();
     }
 
     // se for objeto com timestampValue (ex: API REST)
-    if (typeof value === "object" && "timestampValue" in value && value.timestampValue) {
+    if (
+      typeof value === "object" &&
+      "timestampValue" in value &&
+      value.timestampValue
+    ) {
       const date = new Date(value.timestampValue);
       return isNaN(date.getTime()) ? null : date;
     }
@@ -90,7 +97,8 @@ export default function AdminPage() {
           maxParticipants: Number(data.maxParticipants) || 0,
           registrationsCount: Number(data.registrationsCount) || 0,
           status: data.status || "aberto",
-          minAttendancePercentForCertificate: Number(data.minAttendancePercentForCertificate) || 80
+          minAttendancePercentForCertificate:
+            Number(data.minAttendancePercentForCertificate) || 80,
         });
       });
 
@@ -112,15 +120,15 @@ export default function AdminPage() {
         </div>
 
         <div className="adminBtns">
-          <Link href="/eventos/admin/gerenciar/novo/">
-            <button 
-              className="btnNewEvent"
-            >
-              novo evento
-            </button>
+          <Link href="/eventos/admin/usuarios/">
+            <button className="btnUsers">usuários</button>
           </Link>
 
-          <button 
+          <Link href="/eventos/admin/gerenciar/novo/">
+            <button className="btnNewEvent">novo evento</button>
+          </Link>
+
+          <button
             className="btnSair"
             onClick={() => {
               auth.signOut().then(() => router.push("/eventos/login"));
@@ -131,9 +139,7 @@ export default function AdminPage() {
         </div>
       </div>
 
-        <div>
-          Clique no evento para listar os Participantes
-        </div>
+      <div>Clique no evento para listar os Participantes</div>
 
       {/* lista de eventos */}
       <ul style={{ listStyle: "none", paddingLeft: 0 }}>
@@ -143,10 +149,7 @@ export default function AdminPage() {
           </li>
         )}
         {eventos.map((evento) => (
-          <li 
-            className="eventoItems"
-            key={evento.id}
-          >
+          <li className="eventoItems" key={evento.id}>
             <Link
               href={`/eventos/admin/${evento.id}`}
               style={{
@@ -164,7 +167,9 @@ export default function AdminPage() {
             <div className="actionsBtn">
               <button
                 className="btnEditar"
-                onClick={() => router.push(`/eventos/admin/gerenciar/${evento.id}`)}
+                onClick={() =>
+                  router.push(`/eventos/admin/gerenciar/${evento.id}`)
+                }
                 style={{
                   backgroundColor: "#37a9d1",
                   color: "#fff",
@@ -172,7 +177,7 @@ export default function AdminPage() {
                   padding: "0.3rem 0.7rem",
                   borderRadius: "4px",
                   cursor: "pointer",
-                  width: "80px"
+                  width: "80px",
                 }}
               >
                 Editar
@@ -181,19 +186,33 @@ export default function AdminPage() {
               <button
                 className="btnExcluir"
                 onClick={async () => {
-                  if (confirm(`Tem certeza que deseja excluir o evento "${evento.name}"?`)) {
+                  if (
+                    confirm(
+                      `Tem certeza que deseja excluir o evento "${evento.name}"?`,
+                    )
+                  ) {
                     try {
-                      await import("firebase/firestore").then(async ({ doc, deleteDoc }) => {
-                        await deleteDoc(doc(db, "eventos", evento.id));
-                        setEventos(eventos.filter(e => e.id !== evento.id));
-                      });
+                      await import("firebase/firestore").then(
+                        async ({ doc, deleteDoc }) => {
+                          await deleteDoc(doc(db, "eventos", evento.id));
+                          setEventos(eventos.filter((e) => e.id !== evento.id));
+                        },
+                      );
                     } catch (error) {
                       console.error("Erro ao excluir evento:", error);
                       alert("❌ Erro ao excluir evento.");
                     }
                   }
                 }}
-                style={{ backgroundColor: "#d9534f", color: "#fff", border: "none", padding: "0.3rem 0.7rem", borderRadius: "4px", cursor: "pointer", width: "80px" }}
+                style={{
+                  backgroundColor: "#d9534f",
+                  color: "#fff",
+                  border: "none",
+                  padding: "0.3rem 0.7rem",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  width: "80px",
+                }}
               >
                 Excluir
               </button>

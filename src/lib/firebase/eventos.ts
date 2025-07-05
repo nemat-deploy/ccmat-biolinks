@@ -84,11 +84,12 @@ export async function marcarPresenca(
     const ultima = attendances[attendances.length - 1];
     const ultimaHora = ultima.timestamp?.toDate?.() || new Date(ultima.timestamp);
     const agora = new Date();
-    // const diferencaHoras = (agora.getTime() - ultimaHora.getTime()) / (1000 * 60 * 60);
+    // a próxima presença somente depois de 4 horas
+    const diferencaHoras = (agora.getTime() - ultimaHora.getTime()) / (1000 * 60 * 60);
 
-    // if (diferencaHoras < 4) {
-    //   throw new Error("Presenças válidas com intervalo mínimo de 4 horas.");
-    // }
+    if (diferencaHoras < 4) {
+      throw new Error("Aguarde 4 horas antes de marcar novamente.");
+    }
   }
 
   await updateDoc(inscritoRef, {
