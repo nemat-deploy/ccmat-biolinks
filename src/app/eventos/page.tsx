@@ -12,7 +12,7 @@ import { updateDoc, doc } from "firebase/firestore";
 
 // Função para converter vários formatos de timestamp em Date
 function parseTimestamp(
-  value: Date | Timestamp | { toDate?: () => Date } | string | { timestampValue?: string } | null | undefined
+  value: Date | Timestamp | { toDate?: () => Date } | string | { timestampVFalue?: string } | null | undefined
 ): Date | null {
   if (!value) return null;
   if (value instanceof Date) return value;
@@ -43,10 +43,10 @@ export default function EventosPage() {
           let novoStatus = statusAtual;
 
           // Atualiza status se evento terminou
-          if (endDate && endDate < agora && statusAtual !== "terminado") {
+          if (endDate && endDate < agora && statusAtual !== "encerrado") {
             try {
-              await updateDoc(doc(db, "eventos", docSnap.id), { status: "terminado" });
-              novoStatus = "terminado";
+              await updateDoc(doc(db, "eventos", docSnap.id), { status: "encerrado" });
+              novoStatus = "encerrado";
             } catch (error) {
               console.error(`Erro ao atualizar status do evento ${docSnap.id}`, error);
             }
