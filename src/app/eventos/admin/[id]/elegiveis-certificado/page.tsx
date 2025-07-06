@@ -14,6 +14,7 @@ import "./page.css";
 import { parseTimestamp } from "@/lib/utils";
 import Image from "next/image";
 import type { ParticipanteComCertificado } from '@/types'; // tipo usado somente nessa página
+import LoadingMessage from "@/app/components/LoadingMessage"; // o spinner
 
 export default function CertificadosPage() {
   const params = useParams();
@@ -114,7 +115,7 @@ async function loadParticipantesComCertificado(eventoId: string) {
     // verifica se enviou a atividade final (se for requerido)
     const enviouAtividadeFinal = Boolean(d.enviou_atividade_final);
 
-    // adiciona à lista somente se:
+    // adicionar à lista somente se:
     // - Frequência mínima foi atingida
     // - Se o evento requer atividade final, então ela precisa ter sido enviada
     if (atingiuFrequenciaMinima && (!requerAtividadeFinal || enviouAtividadeFinal)) {
@@ -168,7 +169,9 @@ function exportToCSV() {
   document.body.removeChild(link);
 }
 
-  if (loading) return <p>Carregando...</p>;
+  if (loading) {
+    return <LoadingMessage fullHeight delay={0} />;
+  }
   if (erro) return <p>{erro}</p>;
 
   function formatCPF(cpf: string) {

@@ -52,34 +52,58 @@ td {
 }
 
 @media print {
+  @page {
+    margin-top: 1cm;
+    margin-right: 1cm;
+    margin-bottom: 1cm;
+    margin-left: 1cm;
+  }
+
   body {
+    margin: 0; /* remove margens do body para não acumular com @page */
+    padding: 0;
     font-size: 14px;
     background: none;
+    min-height: auto;
+    display: block; /* remove flex para evitar interferências */
   }
-  .eventos-top-header{
-    visibility: hidden;
+
+  .eventos-top-header {
+    display: none !important;
   }
+
   .titleFolhaAssinaturas {
-    margin-top: -100px;
+    margin-top: 0; /* nada além da margem da página */
+    margin-bottom: 10px; /* só se quiser espaçar do conteúdo */
   }
+
+  /* Outros ajustes que você já tem */
   table {
     width: 100%;
-    margin-top: 10px;
+    margin-top: 0;
     border-collapse: collapse;
     background-color: #ffffff;
   }
+
   th, td {
     border: 1px solid #000;
   }
+
   th {
     padding: 8px;
     background-color: #dfdfdf;
   }
+
   td {
     height: 20px;
     padding: 4px;
   }
+
   .names {
     width: 350px;
+  }
+
+  .footer-eventos {
+    display: none !important;
   }
 }

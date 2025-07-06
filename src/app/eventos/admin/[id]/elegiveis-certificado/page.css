@@ -120,6 +120,11 @@ table tr:hover {
 
 /* Print Styles */
 @media print {
+    @page {
+    margin: 1cm;
+    margin-top: 0;
+  }
+
   /* Hide unnecessary elements */
   .topContent,
   .search-container,
@@ -136,7 +141,7 @@ table tr:hover {
     justify-content: space-between;
     width: 100%;
     max-width: 900px;
-    margin: 10px auto;
+    margin: 0 auto;
     page-break-after: avoid;
     visibility: visible !important;
     position: static !important;
@@ -163,9 +168,9 @@ table tr:hover {
 
   /* Reset body styles for printing */
   body {
-    background: none;
-    margin: 0;
+    margin: 0; /* sem margem extra para não somar ao @page */
     padding: 0;
+    background: none;
     color: #000;
   }
 
@@ -206,5 +211,9 @@ table tr:hover {
   /* Prevent page breaks inside important elements */
   table, .titleFolhaAssinaturas {
     page-break-inside: avoid;
+  }
+
+  .footer-eventos {
+    display: none !important;
   }
 }

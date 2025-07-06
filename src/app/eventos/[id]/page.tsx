@@ -20,6 +20,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { parseTimestamp, formatarData } from "@/lib/utils";
 import { onSnapshot } from "firebase/firestore"; 
+import LoadingMessage from "@/app/components/LoadingMessage";
 
 type Evento = {
   id: string;
@@ -167,7 +168,11 @@ useEffect(() => {
     }
   };
 
-  if (loading) return <p className="loadingEvents">Carregando evento...</p>;
+  if (loading) {
+    return (
+      <LoadingMessage text="Carregando página do evento..." fullHeight delay={0}/>
+    );
+  }
   if (!evento) return <p className="loadingEvents">Evento não encontrado.</p>;
 
   const hoje = new Date();
@@ -185,16 +190,19 @@ useEffect(() => {
       <p>Status: {evento.status}</p>
 
       {prazoEncerrado && (
-        <p className="mensagem">⚠️ Inscrições encerradas para esse evento.</p>
+        <p className="mensagem">⚠️ Inscrições encerradas.</p>
       )}
 
       {eventoLotado && (
-        <p className="mensagem">⚠️ Evento com vagas esgotadas.</p>
+        <p className="mensagem">⚠️ Vagas esgotadas.</p>
       )}
 
-      {(prazoEncerrado || eventoLotado) ? (
+{/*      {(prazoEncerrado || eventoLotado) ? (
         <h3 className="section-title">Inscrições indisponíveis</h3>
       ) : (
+        <h3 className="section-title">Faça sua inscrição</h3>
+      )}*/}
+      {!(prazoEncerrado || eventoLotado) && (
         <h3 className="section-title">Faça sua inscrição</h3>
       )}
 
@@ -268,19 +276,21 @@ useEffect(() => {
       ) : formEnviado ? (
         <div className="success-container">
           <p className="success-message">✅ Inscrição realizada com sucesso!</p>
-          <button 
-            className="new-registration-btn"
-            onClick={() => {
-              setFormEnviado(false);
-              setMensagem("");
-              setCpf("");
-              setNome("");
-              // setEmail("");
-              setTelefone("");
-            }}
-          >
-            Nova Inscrição
-          </button>
+          {!eventoLotado && (
+            <button 
+              className="new-registration-btn"
+              onClick={() => {
+                setFormEnviado(false);
+                setMensagem("");
+                setCpf("");
+                setNome("");
+                // setEmail("");
+                setTelefone("");
+              }}
+            >
+              Nova Inscrição
+            </button>
+          )}
         </div>
       ) : (
         <p className="error-message">{mensagem}</p>

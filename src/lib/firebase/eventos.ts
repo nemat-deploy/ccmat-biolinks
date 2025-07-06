@@ -144,6 +144,7 @@ export async function getEvento(id: string): Promise<Evento | null> {
     maxParticipants: data.maxParticipants || 0,
     totalSessoes: data.totalSessoes || 0,
     minAttendancePercentForCertificate: data.minAttendancePercentForCertificate || 0,
+    requer_atividade_final: data.requer_atividade_final === true,
   };
 }
 

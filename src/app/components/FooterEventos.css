@@ -1,0 +1,66 @@
+.footer-eventos {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #313131;
+  color: #f0f0f0;
+  text-align: center;
+  font-size: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: inset 0 1px 3px rgba(255, 255, 255, 0.05);
+  border-top: 1px solid #333;
+}
+
+.footer-nav {
+  margin-bottom: 0;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.footer-nav a {
+  position: relative;
+  color: #f0f0f0;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  padding: 4px 0;
+  z-index: 1; /* texto acima do traço */
+  transition: color 0.3s ease;
+}
+
+/* Sublinhado animado */
+.footer-nav a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 8px;
+  background-color: rgba(241, 241, 241, 0.4);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.3s ease;
+  z-index: -1; /* traço fica atrás do texto */
+  color: #fff;
+}
+
+.footer-nav a:hover,
+.footer-nav a:focus {
+  color: #1a1a1a; /* escurece o texto no hover */
+  color: #fff;
+}
+
+.footer-nav a:hover::after,
+.footer-nav a:focus::after {
+  transform: scaleY(1.3); /* sobe o traço por trás */
+  color: #fff;
+}
+
+.footer-copy {
+  font-size: 0.85rem;
+  color: #fff;
+  letter-spacing: 0.05em;
+  user-select: none;
+}

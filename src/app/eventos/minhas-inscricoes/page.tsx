@@ -43,6 +43,7 @@ export default function CertificadosPage() {
   const [error, setError] = useState("");
 
   const buscarCertificados = async () => {
+
     const rawCpf = cpf.replace(/\D/g, "");
     if (!validarCPF(rawCpf)) {
       setError("CPF inválido");
@@ -54,11 +55,11 @@ export default function CertificadosPage() {
     setResult(null);
 
     try {
-      // 1. Busca todos os eventos
+      // busca todos os eventos
       const eventosSnapshot = await getDocs(collection(db, "eventos"));
       const eventosComInscricao = [];
 
-      // 2. Para cada evento, verifica se o CPF está inscrito
+      // pra cada evento, verifica se o CPF está inscrito
       for (const eventoDoc of eventosSnapshot.docs) {
         const inscricaoRef = doc(db, "eventos", eventoDoc.id, "inscricoes", rawCpf);
         const inscricaoSnap = await getDoc(inscricaoRef);
@@ -72,16 +73,20 @@ export default function CertificadosPage() {
           const presencas = inscricaoData.attendances?.length || 0;
           const percentual = Math.round((presencas / totalSessoes) * 100);
 
+        // verifica se o evento requer atividade final, se sim verifica se o participante enviou
+        const requerAtividadeFinal = eventoData?.requer_atividade_final === true;
+        const enviouAtividadeFinal = Boolean(inscricaoData.enviou_atividade_final);
+
           eventosComInscricao.push({
             id: eventoDoc.id,
             nome: eventoData.name,
-            nomeInscrito: inscricaoData.nome, // Nome digitado na inscrição
-            emailInscrito: inscricaoData.email, // Email digitado
+            nomeInscrito: inscricaoData.nome, 
+            emailInscrito: inscricaoData.email,
             presencas,
             totalSessoes,
             percentual,
-            certificado: percentual >= minPresenca,
-            dataInscricao: inscricaoData.dataInscricao?.toDate?.() || null // Data formatada
+            certificado: percentual >= minPresenca && (!requerAtividadeFinal || enviouAtividadeFinal),
+            dataInscricao: inscricaoData.dataInscricao?.toDate?.() || null // data formatada
           });
         }
       }
@@ -89,7 +94,7 @@ export default function CertificadosPage() {
       if (eventosComInscricao.length === 0) {
         setError("Nenhuma inscrição encontrada para este CPF");
       } else {
-        // obtendo o nome do primeiro documento de inscrição (todos devem ter o mesmo nome)
+        // obtendo o nome do primeiro documento de inscrição
         const primeiroInscricao = await getDoc(doc(db, "eventos", eventosComInscricao[0].id, "inscricoes", rawCpf));
         setResult({
           nome: primeiroInscricao.data()?.nome || "Participante",
@@ -106,7 +111,7 @@ export default function CertificadosPage() {
 
   return (
     <div className="container">
-      <h1>Consulte se você receberá certificado</h1>
+      <h1>Consulte suas inscrições</h1>
       
       <div className="input-group">
         <input

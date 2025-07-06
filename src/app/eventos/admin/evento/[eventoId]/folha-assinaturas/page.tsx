@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { getInscritos, getEvento } from '@/lib/firebase/eventos'; // Importa também getEvento
+import { getInscritos, getEvento } from '@/lib/firebase/eventos';
 import Image from 'next/image';
+import LoadingMessage from '@/app/components/LoadingMessage'; 
 import './page.css';
 
 export default function FolhaAssinaturasPage() {
@@ -19,16 +20,12 @@ export default function FolhaAssinaturasPage() {
       if (!eventoId) return;
 
       try {
-        // busca evento e inscritos em paralelo
         const [eventoData, inscritosData] = await Promise.all([
           getEvento(eventoId),
           getInscritos(eventoId),
         ]);
 
-        // salvando o nome do evento
         setNomeEvento(eventoData?.name || 'Evento sem nome');
-
-        // ordena os inscritos por nome
         const ordenados = [...inscritosData].sort((a, b) => a.nome.localeCompare(b.nome));
         setInscritos(ordenados);
       } catch (error) {
@@ -40,6 +37,10 @@ export default function FolhaAssinaturasPage() {
 
     carregarDados();
   }, [eventoId]);
+
+  if (loading) {
+    return <LoadingMessage text="Carregando nomes..." fullHeight delay={0} />;
+  }
 
   return (
     <div className="p-6">
@@ -59,25 +60,21 @@ export default function FolhaAssinaturasPage() {
         </div>
       </div>
 
-      {loading ? (
-        <p>Carregando...</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th colSpan={2}>Frequência - {nomeEvento}</th>
+      <table>
+        <thead>
+          <tr>
+            <th colSpan={2}>Frequência - {nomeEvento}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {inscritos.map((inscrito) => (
+            <tr key={inscrito.id}>
+              <td className="names">{inscrito.nome}</td>
+              <td></td>
             </tr>
-          </thead>
-          <tbody>
-            {inscritos.map((inscrito) => (
-              <tr key={inscrito.id}>
-                <td className="names">{inscrito.nome}</td>
-                <td></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

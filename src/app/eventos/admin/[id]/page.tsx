@@ -198,7 +198,7 @@ export default function AdminEventoPage() {
 
   if (loading) {
     return (
-      <LoadingMessage text="Carregando paǵina do evento" fullHeight delay={0}/>
+      <LoadingMessage text="Carregando página do evento" fullHeight delay={0}/>
     );
   }
   if (erro) return <p>{erro}</p>;

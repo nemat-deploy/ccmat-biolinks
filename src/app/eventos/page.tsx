@@ -1,43 +1,27 @@
+// src/app/eventos/page.tsx
 "use client";
 
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { collection, getDocs, doc, DocumentData } from "firebase/firestore";
+import { collection, getDocs, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Timestamp } from "firebase/firestore";
 import { Evento } from "@/types";
 import Link from "next/link";
-import './page.css'
+import "./page.css";
+import LoadingMessage from "@/app/components/LoadingMessage";
+import { updateDoc, doc } from "firebase/firestore";
 
-// função pra converter Timestamp, Date ou string em Date
+// Função para converter vários formatos de timestamp em Date
 function parseTimestamp(
   value: Date | Timestamp | { toDate?: () => Date } | string | { timestampValue?: string } | null | undefined
 ): Date | null {
   if (!value) return null;
-
-  if (value instanceof Date) {
-    return value;
-  }
-
-  if ((value as any)?.toDate && typeof (value as any).toDate === "function") {
-    return (value as any).toDate();
-  }
-
-  if (typeof value === "object" && "timestampValue" in value && value.timestampValue) {
-    return new Date(value.timestampValue);
-  }
-
+  if (value instanceof Date) return value;
+  if ((value as any)?.toDate && typeof (value as any).toDate === "function") return (value as any).toDate();
+  if (typeof value === "object" && "timestampValue" in value && value.timestampValue) return new Date(value.timestampValue);
   if (typeof value === "string") {
     const parsed = new Date(value);
     return isNaN(parsed.getTime()) ? null : parsed;
   }
-
-  if (typeof value === "string") {
-    const parsed = new Date(value);
-    return isNaN(parsed.getTime()) ? null : parsed;
-  }
-
   return null;
 }
 
@@ -50,25 +34,53 @@ export default function EventosPage() {
       try {
         const querySnapshot = await getDocs(collection(db, "eventos"));
         const lista: Evento[] = [];
+        const agora = new Date();
 
-        querySnapshot.forEach((docSnap) => {
+        for (const docSnap of querySnapshot.docs) {
           const data = docSnap.data();
+          const endDate = parseTimestamp(data.endDate);
+          const statusAtual = data.status || "aberto";
+          let novoStatus = statusAtual;
+
+          // Atualiza status se evento terminou
+          if (endDate && endDate < agora && statusAtual !== "terminado") {
+            try {
+              await updateDoc(doc(db, "eventos", docSnap.id), { status: "terminado" });
+              novoStatus = "terminado";
+            } catch (error) {
+              console.error(`Erro ao atualizar status do evento ${docSnap.id}`, error);
+            }
+          }
 
           lista.push({
             id: docSnap.id,
             name: data.name || "Sem título",
             description: data.description || "",
             startDate: parseTimestamp(data.startDate),
-            endDate: parseTimestamp(data.endDate),
+            endDate,
             registrationDeadLine: parseTimestamp(data.registrationDeadLine),
             maxParticipants: Number(data.maxParticipants) || 0,
             registrationsCount: Number(data.registrationsCount) || 0,
-            status: data.status || "aberto",
+            status: novoStatus,
             minAttendancePercentForCertificate: Number(data.minAttendancePercentForCertificate) || 80
           });
+        }
+
+        // Ordenação personalizada: eventos em andamento primeiro
+        lista.sort((a, b) => {
+          const aTerminou = a.endDate ? a.endDate < agora : false;
+          const bTerminou = b.endDate ? b.endDate < agora : false;
+
+          if (aTerminou !== bTerminou) {
+            return aTerminou ? 1 : -1;
+          }
+
+          const aDeadline = a.registrationDeadLine?.getTime() ?? Infinity;
+          const bDeadline = b.registrationDeadLine?.getTime() ?? Infinity;
+
+          return aDeadline - bDeadline;
         });
 
-        // console.log("Eventos carregados:", lista);
         setEventos(lista);
       } catch (err) {
         console.error("Erro ao carregar eventos:", err);
@@ -80,7 +92,9 @@ export default function EventosPage() {
     fetchEventos();
   }, []);
 
-  if (loading) return <p className="loadingEvents">Carregando eventos...</p>;
+  if (loading) {
+    return <LoadingMessage text="Carregando eventos..." fullHeight delay={0} />;
+  }
 
   return (
     <div className="listaTodosEventos">
@@ -108,6 +122,3 @@ export default function EventosPage() {
     </div>
   );
 }
-{/*      <Link href="/eventos/admin" style={{ color: "#0070f3" }}>
-        → Área administrativa
-      </Link>*/}

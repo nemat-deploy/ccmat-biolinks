@@ -1,4 +1,8 @@
 /* layout.css */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -9,12 +13,18 @@ body {
   background: linear-gradient(to top, #b4e3e3, #ffffff);
   display: flex;
   flex-direction: column;
+  overflow-x: hidden; /* evitar scroll horizontal */
 }
 
-section {
+.eventos-layout {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+}
+
+.eventos-layout > main {
+  flex: 1;
 }
 
 .eventos-top-header {
@@ -38,6 +48,5 @@ h2 {
 @media (max-width: 767px) {
   .eventos-top-header {
     width: 100%;
-    margin: auto;
   }
 }

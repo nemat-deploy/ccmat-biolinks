@@ -3,9 +3,10 @@
 }
 
 .titleEditEvento {
-    width: 620px;
+    width: 600px;
     text-align: left;
     font-size: 18px;
+    margin: auto;
     margin-top: 30px;
     margin-bottom: 0;
 }

@@ -108,6 +108,7 @@ export default function EventoForm({
   const [requerAtividadeFinal, setRequerAtividadeFinal] = useState<boolean>(
     eventoData?.requer_atividade_final ?? false
   );
+  // const [requerAtividadeFinal, setRequerAtividadeFinal] = useState<boolean>(false);
 
   // start to use for Brasilian mask
   useEffect(() => {
@@ -127,6 +128,22 @@ export default function EventoForm({
   useEffect(() => {
     setLocalSlug(eventoId || "");
   }, [eventoId]);
+
+  useEffect(() => {
+    if (
+      isEditing &&
+      eventoData &&
+      typeof eventoData.requer_atividade_final === "boolean"
+    ) {
+      setRequerAtividadeFinal(eventoData.requer_atividade_final);
+    }
+  }, [isEditing, eventoData?.requer_atividade_final]);
+
+// debuging
+useEffect(() => {
+  console.log("eventoData.requer_atividade_final:", eventoData?.requer_atividade_final);
+  console.log("requerAtividadeFinal (state):", requerAtividadeFinal);
+}, [eventoData, requerAtividadeFinal]);
 
   // reseta o formulário quando não estiver em modo de edição
   useEffect(() => {
@@ -318,7 +335,7 @@ export default function EventoForm({
                   setStartDate(null);
                 }
               }}
-              className="form-input"
+              className="form-input-date"
               required
               lazy={false}
             />
@@ -357,7 +374,7 @@ export default function EventoForm({
                   setEndDate(null);
                 }
               }}
-              className="form-input"
+              className="form-input-date"
               required
               lazy={false}
             />
@@ -396,7 +413,7 @@ export default function EventoForm({
                   setRegistrationDeadLine(null);
                 }
               }}
-              className="form-input"
+              className="form-input-date"
               required
               lazy={false}
             />
@@ -474,27 +491,14 @@ export default function EventoForm({
       </div>
 
       <div className="form-group">
-        <label>Requer atividade final?</label>
-        <div className="radio-group">
-          <label className="radio-option">
-            <input
-              type="radio"
-              name="requerAtividadeFinal"
-              checked={requerAtividadeFinal === true}
-              onChange={() => setRequerAtividadeFinal(true)}
-            />
-            Sim
-          </label>
-          <label className="radio-option">
-            <input
-              type="radio"
-              name="requerAtividadeFinal"
-              checked={requerAtividadeFinal === false}
-              onChange={() => setRequerAtividadeFinal(false)}
-            />
-            Não
-          </label>
-        </div>
+        <label>
+          <input
+            type="checkbox"
+            checked={requerAtividadeFinal}
+            onChange={(e) => setRequerAtividadeFinal(e.target.checked)}
+          />
+          Requer atividade final
+        </label>
       </div>
 
       <div className="form-buttons">

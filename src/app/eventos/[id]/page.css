@@ -56,7 +56,7 @@ form.form {
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
-  padding: 1.5rem 1rem; /* padding mais uniforme */
+  padding: 1rem 1rem; /* padding mais uniforme */
   border: 1px solid #ddd;
   border-radius: 8px;
   background-color: #ffffff;

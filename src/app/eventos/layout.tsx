@@ -1,24 +1,29 @@
 // src/app/eventos/layout.tsx
-"use client"
+"use client";
 
-import './layout.css'
+import './layout.css';
 import { ReactNode } from "react";
-import { Toaster } from "react-hot-toast";
 import Image from 'next/image';
+import FooterEventos from '../components/FooterEventos';
 
 export default function EventosLayout({ children }: { children: ReactNode }) {
   return (
-    <section>
+    <section className="eventos-layout">
       <div className="eventos-top-header">
-          <Image
-            src="/images/logo-eventos-nemat.png" 
-            alt="Descrição da imagem"
-            width={280} 
-            height={80} 
-            priority
-          />
+        <Image
+          src="/images/logo-eventos-nemat.png"
+          alt="Descrição da imagem"
+          width={280}
+          height={80}
+          priority
+        />
       </div>
-      {children}
+
+      <main>
+        {children}
+      </main>
+
+      <FooterEventos />
     </section>
   );
 }
