@@ -82,6 +82,20 @@ export default function AdminPage() {
         lista.push(evento);
       }
 
+      lista.sort((a, b) => {
+        const statusA = a.status === "encerrado" ? 1 : 0;
+        const statusB = b.status === "encerrado" ? 1 : 0;
+
+        // Se um for encerrado e outro não, o encerrado vai depois
+        if (statusA !== statusB) return statusA - statusB;
+
+        // Se os dois têm o mesmo status, ordena por data mais recente primeiro
+        const dateA = a.startDate || new Date(0);
+        const dateB = b.startDate || new Date(0);
+
+        return dateB.getTime() - dateA.getTime();
+      });
+
       setEventos(lista);
     } catch (err) {
       console.error("Erro ao carregar eventos:", err);

@@ -10,18 +10,34 @@ import "./page.css";
 import LoadingMessage from "@/app/components/LoadingMessage";
 import { updateDoc, doc } from "firebase/firestore";
 
-// Função para converter vários formatos de timestamp em Date
+// converter vários formatos de timestamp em Date
 function parseTimestamp(
-  value: Date | Timestamp | { toDate?: () => Date } | string | { timestampVFalue?: string } | null | undefined
+  value: Date | Timestamp | string | { timestampValue?: string | number } | null | undefined
 ): Date | null {
   if (!value) return null;
+
   if (value instanceof Date) return value;
-  if ((value as any)?.toDate && typeof (value as any).toDate === "function") return (value as any).toDate();
-  if (typeof value === "object" && "timestampValue" in value && value.timestampValue) return new Date(value.timestampValue);
+
+  if ((value as Timestamp)?.toDate && typeof (value as Timestamp).toDate === "function") {
+    return (value as Timestamp).toDate();
+  }
+
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "timestampValue" in value
+  ) {
+    const raw = (value as { timestampValue?: string | number }).timestampValue;
+    if (typeof raw === "string" || typeof raw === "number") {
+      return new Date(raw);
+    }
+  }
+
   if (typeof value === "string") {
     const parsed = new Date(value);
     return isNaN(parsed.getTime()) ? null : parsed;
   }
+
   return null;
 }
 
@@ -66,19 +82,17 @@ export default function EventosPage() {
           });
         }
 
-        // Ordenação personalizada: eventos em andamento primeiro
+        // ordenação do mais novo pro mais antigo
         lista.sort((a, b) => {
-          const aTerminou = a.endDate ? a.endDate < agora : false;
-          const bTerminou = b.endDate ? b.endDate < agora : false;
+          const statusA = a.status === "encerrado" ? 1 : 0;
+          const statusB = b.status === "encerrado" ? 1 : 0;
 
-          if (aTerminou !== bTerminou) {
-            return aTerminou ? 1 : -1;
-          }
+          if (statusA !== statusB) return statusA - statusB;
 
-          const aDeadline = a.registrationDeadLine?.getTime() ?? Infinity;
-          const bDeadline = b.registrationDeadLine?.getTime() ?? Infinity;
+          const dateA = a.startDate || new Date(0);
+          const dateB = b.startDate || new Date(0);
 
-          return aDeadline - bDeadline;
+          return dateB.getTime() - dateA.getTime();
         });
 
         setEventos(lista);
