@@ -14,7 +14,7 @@ import { Timestamp } from "firebase/firestore";
 import { TimestampValue } from "@/types";
 import "./page.css";
 import LoadingMessage from "@/app/components/LoadingMessage";
-// import ConfirmationModal from "@/app/components/ConfirmationModal";
+import { doc, updateDoc } from "firebase/firestore";
 import ConfirmationModal from "@/app/components/ConfirmationModal";
 
 export default function AdminPage() {
@@ -40,17 +40,16 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, []);
 
-  // busca todos os eventos
   async function fetchEventos() {
     try {
       const querySnapshot = await getDocs(collection(db, "eventos"));
-
       const lista: Evento[] = [];
+      const agora = new Date();
 
-      querySnapshot.forEach((docSnap: QueryDocumentSnapshot) => {
+      for (const docSnap of querySnapshot.docs) {
         const data = docSnap.data();
 
-        lista.push({
+        const evento: Evento = {
           id: docSnap.id,
           name: data.name || "Evento sem nome",
           description: data.description || "",
@@ -60,29 +59,28 @@ export default function AdminPage() {
           maxParticipants: Number(data.maxParticipants) || 0,
           registrationsCount: Number(data.registrationsCount) || 0,
           status: data.status || "aberto",
-          minAttendancePercentForCertificate:
-            Number(data.minAttendancePercentForCertificate) || 80,
-        });
-      });
+          minAttendancePercentForCertificate: Number(data.minAttendancePercentForCertificate) || 80,
+        };
 
-      // eventos em andamento primeiro
-      const agora = new Date();
-
-      lista.sort((a, b) => {
-        const aTerminou = a.endDate ? a.endDate < agora : false;
-        const bTerminou = b.endDate ? b.endDate < agora : false;
-
-        // eventos em andamento antes
-        if (aTerminou !== bTerminou) {
-          return aTerminou ? 1 : -1;
+        // Atualiza o status no banco se o evento terminou
+        if (
+          evento.endDate &&
+          evento.endDate < agora &&
+          evento.status !== "encerrado"
+        ) {
+          try {
+            await updateDoc(doc(db, "eventos", evento.id), {
+              status: "encerrado",
+            });
+            evento.status = "encerrado";
+            console.log(`Status atualizado: ${evento.name}`);
+          } catch (error) {
+            console.error(`Erro ao atualizar status de ${evento.name}:`, error);
+          }
         }
 
-        // ordenado por registrationDeadLine
-        const aDeadline = a.registrationDeadLine?.getTime() ?? Infinity;
-        const bDeadline = b.registrationDeadLine?.getTime() ?? Infinity;
-
-        return aDeadline - bDeadline;
-      });
+        lista.push(evento);
+      }
 
       setEventos(lista);
     } catch (err) {
@@ -90,6 +88,7 @@ export default function AdminPage() {
       alert("⚠️ Erro ao carregar lista de eventos.");
     }
   }
+
 
   /**
    * Converte diferentes formatos de data em Date ou null
