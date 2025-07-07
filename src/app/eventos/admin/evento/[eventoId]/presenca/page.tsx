@@ -12,7 +12,7 @@ import { arrayUnion } from "firebase/firestore";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import Modal from "./components/Modal";
 import "@/app/eventos/admin/evento/[eventoId]/presenca/components/modal.css";
-import LoadingMessage from "@/app/components/LoadingMessage"
+import LoadingMessage from "@/app/components/LoadingMessage";
 
 export default function PresencePage() {
   const params = useParams();
@@ -40,7 +40,8 @@ export default function PresencePage() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
         router.push(
-          "/eventos/login?redirect=" + encodeURIComponent(window.location.pathname)
+          "/eventos/login?redirect=" +
+            encodeURIComponent(window.location.pathname),
         );
         return;
       }
@@ -72,37 +73,37 @@ export default function PresencePage() {
     }
   };
 
-const handlePresenca = async (inscritoId: string) => {
-  try {
-    setActionLoading(true);
+  const handlePresenca = async (inscritoId: string) => {
+    try {
+      setActionLoading(true);
 
-    if (!eventoId) throw new Error("EventoId não definido.");
+      if (!eventoId) throw new Error("EventoId não definido.");
 
-    await marcarPresenca(eventoId, inscritoId);
+      await marcarPresenca(eventoId, inscritoId);
 
-    setInscritos((prev) =>
-      prev.map((inscrito) =>
-        inscrito.id === inscritoId
-          ? {
-              ...inscrito,
-              attendances: [
-                ...(inscrito.attendances || []),
-                {
-                  timestamp: new Date(),
-                },
-              ],
-            }
-          : inscrito
-      )
-    );
-  } catch (error: any) {
-    console.error("Erro completo:", error);
-    setModalMessage(error.message);
-    setModalOpen(true);
-  } finally {
-    setActionLoading(false);
-  }
-};
+      setInscritos((prev) =>
+        prev.map((inscrito) =>
+          inscrito.id === inscritoId
+            ? {
+                ...inscrito,
+                attendances: [
+                  ...(inscrito.attendances || []),
+                  {
+                    timestamp: new Date(),
+                  },
+                ],
+              }
+            : inscrito,
+        ),
+      );
+    } catch (error: any) {
+      console.error("Erro completo:", error);
+      setModalMessage(error.message);
+      setModalOpen(true);
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   const toggleAtividadeFinal = async (participantId: string) => {
     try {
@@ -150,7 +151,9 @@ const handlePresenca = async (inscritoId: string) => {
   );
 
   if (pageLoading) {
-    return <LoadingMessage text="Carregando lista de participantes..." fullHeight />;
+    return (
+      <LoadingMessage text="Carregando lista de participantes..." fullHeight />
+    );
   }
 
   return (
@@ -164,16 +167,11 @@ const handlePresenca = async (inscritoId: string) => {
       <div className="presenca-container">
         <div className="presenca-header">
           <h1>Controle de Presença </h1>
-          <button
-            onClick={ () => window.close()}
-            className="voltar-admin-link"
-          >
-            ← Fechar essa aba
+          <button onClick={() => window.close()} className="voltar-admin-link">
+            ← voltar
           </button>
         </div>
-        <div className="eventoTitle">
-          {nomeEvento || eventoId}
-        </div>
+        <div className="eventoTitle">{nomeEvento || eventoId}</div>
 
         <div>
           <input
@@ -181,35 +179,31 @@ const handlePresenca = async (inscritoId: string) => {
             placeholder="buscar por nome..."
             value={filtro}
             onChange={(e) => setFiltro(e.target.value)}
-            style={{
-              marginTop: "10px",
-              marginBottom: "10px",
-              padding: "0.5rem",
-              width: "100%",
-              maxWidth: "400px",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-              fontSize: "18px",
-            }}
+            className="input-search"
           />
 
           <table className="presenca-table">
             <thead>
               <tr>
-                <th style={{ textAlign: "center", minWidth: "300px" }}>Nome</th>
-                <th style={{ textAlign: "center" }}>Presenças</th>
-                <th style={{ textAlign: "center" }}>Atividade Final Enviada?</th>
-                <th style={{ textAlign: "center" }}>Ações</th>
+                <th className="th-nome">Nome</th>
+                <th className="th-centro">Presenças</th>
+                <th className="th-centro">Atividade Final Enviada?</th>
+                <th className="th-centro">Ações</th>
               </tr>
             </thead>
             <tbody>
               {inscritosFiltrados.map((inscrito) => (
                 <tr key={inscrito.id}>
-                  <td>{inscrito.nome}</td>
-                  <td style={{ textAlign: "center" }}>
+                  <td className="td-nome">
+                    <span className="inscritoNome">{inscrito.nome}</span>
+                  </td>
+                  <td data-label="Presenças:" className="td-presencas">
                     {inscrito.attendances?.length || 0}
                   </td>
-                  <td style={{ textAlign: "center" }}>
+                  <td
+                    data-label="Atividade Final Entregue?"
+                    className="td-checkbox"
+                  >
                     <input
                       type="checkbox"
                       checked={Boolean(inscrito.enviou_atividade_final)}
@@ -218,13 +212,14 @@ const handlePresenca = async (inscritoId: string) => {
                       className="checkboxAtividadeFinal"
                     />
                   </td>
-                  <td style={{ textAlign: "center" }}>
+
+                  <td data-label="Ações:" className="td-checkbox">
                     <button
                       onClick={() => handlePresenca(inscrito.id)}
                       disabled={actionLoading}
                       className="presenca-button"
                     >
-                      {actionLoading ? "Processando..." : "Registrar Presença"}
+                      {actionLoading ? "Processando..." : "Marcar Presença"}
                     </button>
                   </td>
                 </tr>

@@ -59,7 +59,8 @@ export default function AdminPage() {
           maxParticipants: Number(data.maxParticipants) || 0,
           registrationsCount: Number(data.registrationsCount) || 0,
           status: data.status || "aberto",
-          minAttendancePercentForCertificate: Number(data.minAttendancePercentForCertificate) || 80,
+          minAttendancePercentForCertificate:
+            Number(data.minAttendancePercentForCertificate) || 80,
         };
 
         // Atualiza o status no banco se o evento terminou
@@ -102,7 +103,6 @@ export default function AdminPage() {
       alert("⚠️ Erro ao carregar lista de eventos.");
     }
   }
-
 
   /**
    * Converte diferentes formatos de data em Date ou null
@@ -151,14 +151,12 @@ export default function AdminPage() {
 
   const handleConfirmDelete = async () => {
     if (!eventoToDelete) return;
-    
+
     try {
-      await import("firebase/firestore").then(
-        async ({ doc, deleteDoc }) => {
-          await deleteDoc(doc(db, "eventos", eventoToDelete.id));
-          setEventos(eventos.filter((e) => e.id !== eventoToDelete.id));
-        }
-      );
+      await import("firebase/firestore").then(async ({ doc, deleteDoc }) => {
+        await deleteDoc(doc(db, "eventos", eventoToDelete.id));
+        setEventos(eventos.filter((e) => e.id !== eventoToDelete.id));
+      });
     } catch (error) {
       console.error("Erro ao excluir evento:", error);
       alert("❌ Erro ao excluir evento.");
@@ -198,7 +196,7 @@ export default function AdminPage() {
               auth.signOut().then(() => router.push("/eventos/login"));
             }}
           >
-            sair
+            sair ➔
           </button>
         </div>
       </div>
@@ -218,14 +216,7 @@ export default function AdminPage() {
           <li className="eventoItems" key={evento.id}>
             <Link
               href={`/eventos/admin/${evento.id}`}
-              style={{
-                width: "auto",
-                textAlign: "left",
-                fontSize: "1.2rem",
-                fontWeight: "bold",
-                color: "#0070f3",
-                textDecoration: "none",
-              }}
+              style={{ textDecoration: "none" }}
             >
               {evento.name || evento.id}
             </Link>
@@ -236,33 +227,15 @@ export default function AdminPage() {
                 onClick={() =>
                   router.push(`/eventos/admin/gerenciar/${evento.id}`)
                 }
-                style={{
-                  backgroundColor: "#37a9d1",
-                  color: "#fff",
-                  border: "none",
-                  padding: "0.3rem 0.7rem",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  width: "80px",
-                }}
               >
-                Editar
+                ✏️ editar
               </button>
 
               <button
                 className="btnExcluir"
                 onClick={() => handleDeleteClick(evento)}
-                style={{
-                  backgroundColor: "#d9534f",
-                  color: "#fff",
-                  border: "none",
-                  padding: "0.3rem 0.7rem",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  width: "80px",
-                }}
               >
-                Excluir
+                ❌ excluir
               </button>
             </div>
           </li>
@@ -276,12 +249,17 @@ export default function AdminPage() {
         title="Confirmar exclusão"
         message={
           <>
-            Você confirma a exclusão do evento<br/>
-            <span style={{ color: '#0070f3', fontWeight: '500' }}>
+            Tem certeza que deseja excluir o evento
+            <br />
+            <span style={{ color: "#0070f3", fontWeight: "500" }}>
               "{eventoToDelete?.name}"
-            </span>?
-            <br /><br />
-            <span style={{ color: '#d32f2f', fontWeight: 800, fontSize: '18px' }}>
+            </span>
+            ?
+            <br />
+            <br />
+            <span
+              style={{ color: "#d32f2f", fontWeight: 800, fontSize: "18px" }}
+            >
               Esta ação não pode ser desfeita!
             </span>
           </>

@@ -16,14 +16,19 @@ import { auth } from "@/lib/firebaseAuth";
 import { onAuthStateChanged } from "firebase/auth";
 import { parseTimestamp } from "@/lib/utils";
 import { debugLog } from "@/lib/logger";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faTimes, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faSearch,
+  faTimes,
+  faEdit,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
 import { Evento, Participante } from "@/types";
 import Link from "next/link";
 import "./page.css";
 import { ParticipanteData } from "@/types";
 import React from "react";
-import LoadingMessage from "@/app/components/LoadingMessage"
+import LoadingMessage from "@/app/components/LoadingMessage";
 
 export default function AdminEventoPage() {
   const params = useParams();
@@ -67,22 +72,22 @@ export default function AdminEventoPage() {
   // Adicionando o listener para a tecla Esc
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setSearchTerm('');
+      if (e.key === "Escape") {
+        setSearchTerm("");
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 
   // Ordenar participantes
   const participantesOrdenados = useMemo(() => {
     return [...filteredParticipantes].sort((a, b) =>
-      a.nome.localeCompare(b.nome)
+      a.nome.localeCompare(b.nome),
     );
   }, [filteredParticipantes]);
 
@@ -187,7 +192,7 @@ export default function AdminEventoPage() {
         institution: form.institution,
       });
       setParticipantes((prev) =>
-        prev.map((p) => (p.id === editingId ? { ...p, ...form } : p))
+        prev.map((p) => (p.id === editingId ? { ...p, ...form } : p)),
       );
       setEditingId(null);
     } catch (e) {
@@ -198,7 +203,7 @@ export default function AdminEventoPage() {
 
   if (loading) {
     return (
-      <LoadingMessage text="Carregando página do evento" fullHeight delay={0}/>
+      <LoadingMessage text="Carregando página do evento" fullHeight delay={0} />
     );
   }
   if (erro) return <p>{erro}</p>;
@@ -207,13 +212,24 @@ export default function AdminEventoPage() {
     <div style={{ padding: "1rem" }}>
       <div className="topContent">
         <div className="usuarios-header">
-          <h1 className="titleCourse"><span className="titleNameEvento">{evento?.name || id}</span> ({participantes.length} participantes inscritos)</h1>
-          <a href="/eventos/admin" className="voltar-admin-link">← Voltar</a>
+          <h1 className="titleCourse">
+            <span className="titleNameEvento">{evento?.name || id}</span> (
+            {participantes.length} participantes inscritos)
+          </h1>
+          <a href="/eventos/admin" className="voltar-admin-link">
+            ← Voltar
+          </a>
         </div>
 
         {/* exibir a URL aqui */}
         {id && (
-          <p style={{ marginTop: "0.5rem", marginBottom: "0.5rem", color: "#0070f3" }}>
+          <p
+            style={{
+              marginTop: "0.5rem",
+              marginBottom: "0.5rem",
+              color: "#0070f3",
+            }}
+          >
             <strong>Link do evento:</strong>{" "}
             <a
               href={`https://matematica-ufdpar.vercel.app/eventos/${id}`}
@@ -225,65 +241,62 @@ export default function AdminEventoPage() {
             </a>
           </p>
         )}
-        
+
         <p className="linksInscritos">
-          <Link 
-            href={`/eventos/admin/evento/${id}/presenca`} 
-            target="_blank" 
+          <Link
+            href={`/eventos/admin/evento/${id}/presenca`}
+            target="_blank"
             rel="noopener noreferrer"
             className="linkRegistrarPresenca"
           >
             registrar presenças
           </Link>
 
-          <Link 
+          <Link
             href={`/eventos/admin/evento/${id}/folha-assinaturas`}
             className="linkImprimirFolha"
-            target="_blank" 
+            target="_blank"
             rel="noopener noreferrer"
           >
-           imprimir folha de assinaturas
+            imprimir folha de assinaturas
           </Link>
 
-          <Link 
+          <Link
             href={`/eventos/admin/${id}/elegiveis-certificado`}
             className="linkImprimirElegiveis"
-            target="_blank" 
+            target="_blank"
             rel="noopener noreferrer"
           >
-           elegíveis para certificado
+            elegíveis para certificado
           </Link>
         </p>
       </div>
 
-      <div className="search-container" style={{ margin: "auto", width: "1200px" }}>
-        <div style={{ position: "relative", width: "100%", maxWidth: "400px" }}>
-          <FontAwesomeIcon 
-            icon={faSearch} 
+      <div
+        className="search-container"
+        style={{ margin: "auto", width: "1200px" }}
+      >
+        <div className="search-container">
+          <FontAwesomeIcon
+            icon={faSearch}
             style={{
               position: "absolute",
               left: "10px",
               top: "50%",
               transform: "translateY(-50%)",
               color: "#666",
-            }} 
+            }}
           />
           <input
             type="text"
+            className="search-input"
             placeholder="buscar por nome (tecle ESC para limpar)"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "8px 10px 8px 35px",
-              borderRadius: "4px",
-              border: "1px solid #ddd",
-              fontSize: "16px",
-            }}
           />
           {searchTerm && (
             <button
-              onClick={() => setSearchTerm('')}
+              onClick={() => setSearchTerm("")}
               style={{
                 position: "absolute",
                 right: "1px",
@@ -317,27 +330,32 @@ export default function AdminEventoPage() {
           {participantesOrdenados.length === 0 ? (
             <tr>
               <td colSpan={6} style={{ textAlign: "center" }}>
-                {searchTerm ? "Nenhum participante encontrado" : "Nenhum participante"}
+                {searchTerm
+                  ? "Nenhum participante encontrado"
+                  : "Nenhum participante"}
               </td>
             </tr>
           ) : (
             participantesOrdenados.map((p) => (
               <Fragment key={p.cpf}>
                 <tr>
-                  <td> { p.nome } </td>
-                  <td> { p.email } </td>
-                  <td> { p.telefone } </td>
-                  <td> { p.cpf } </td>
-                  <td> { p.institution } </td>
                   <td>
-                    <button 
-                      className="btnEditar" 
-                      title="Editar" 
+                    {" "}
+                    <strong>{p.nome}</strong>{" "}
+                  </td>
+                  <td data-label="Email:"> {p.email} </td>
+                  <td data-label="Telefone:"> {p.telefone} </td>
+                  <td data-label="CPF:"> {p.cpf} </td>
+                  <td data-label="Instituição:"> {p.institution} </td>
+                  <td data-label="Ações:">
+                    <button
+                      className="btnEditar"
+                      title="Editar"
                       onClick={() => startEdicao(p)}
                     >
                       <FontAwesomeIcon icon={faEdit} />
                     </button>
-                    <button 
+                    <button
                       className="btnExcluir"
                       title="Excluir"
                       onClick={() => excluirParticipante(p.cpf)}
@@ -390,7 +408,10 @@ export default function AdminEventoPage() {
                           <button className="save-btn" onClick={salvarEdicao}>
                             Salvar
                           </button>
-                          <button className="cancel-btn" onClick={() => setEditingId(null)}>
+                          <button
+                            className="cancel-btn"
+                            onClick={() => setEditingId(null)}
+                          >
                             Cancelar
                           </button>
                         </div>

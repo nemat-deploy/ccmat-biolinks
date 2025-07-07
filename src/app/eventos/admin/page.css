@@ -30,6 +30,9 @@
 }
 
 .userLogged {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: 0;
     width: auto;
     height: auto;
@@ -43,23 +46,6 @@
 .adminBtns {
     display: flex;
     gap: 8px;
-}
-
-.btnUsers,
-.btnNewEvent,
-.btnSair {
-    color: white;
-    border: none;
-    cursor: pointer;
-    padding: 0.5rem 1rem;
-    height: 40px;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-.btnUsers {
-    background-color: royalblue;
 }
 
 .topMsg {
@@ -76,22 +62,27 @@ ul {
 }
 
 .eventoItems {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
     background-color: white;
     width: 100%;
     max-width: 900px;
-    min-width: 300px;
+    min-width: 240px;
     height: auto;
-    gap: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    text-align: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #0070f3;
+    text-decoration: none;
+    text-align: left;
     padding-left: 0;
     border: 1px solid #ccc;
     border-radius: 8px;
-    margin: auto;
+    margin: auto 10px;
     padding: 10px 8px 10px 12px;
+    box-shadow: 2px 2px 2px #cacaca;
 }
 
 .actionsBtn {
@@ -102,12 +93,34 @@ ul {
     height: 40px;
 }
 
-.btnNewEvent {
-    background-color: royalblue;
+.btnUsers,
+.btnNewEvent,
+.btnSair,
+.btnExcluir,
+.btnEditar {
+    width: 110px;
+    border: 2px solid #bababa;
+    background-color: #fafafa;
+    color: #555;
+    cursor: pointer;
+    padding: 0.5rem 0.2rem;
+    height: 36px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
 }
 
-.btnSair {
-    background-color: red;
+.btnUsers:active,
+.btnNewEvent:active,
+.btnSair:active,
+.btnExcluir:active,
+.btnEditar:active {
+    transform: scale(0.96);
+}
+
+.btnEditar,
+.btnExcluir {
+    width: 80px;
 }
 
 @media (max-width: 767px) {
@@ -132,33 +145,37 @@ ul {
 }
 
 .loadingMessage {
-  text-align: center;
-  padding-top: 2rem;
-  font-size: 1.2rem;
-  color: #555;
-  animation: blink 1.2s infinite;
+    text-align: center;
+    padding-top: 2rem;
+    font-size: 1.2rem;
+    color: #555;
+    animation: blink 1.2s infinite;
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
 }
 
 .userLogged .email {
-  display: inline;
+    display: inline;
 }
 
 @media (max-width: 767px) {
-  .userLogged {
-    text-align: center;
-  }
+    .userLogged {
+        text-align: center;
+    }
 
-  .userLogged .email {
-    display: block;
-    margin-top: 0.25rem;
-  }
+    .userLogged .email {
+        display: block;
+        margin-top: 0.25rem;
+    }
 }
 
 /* confirmation modal */
 /* Estilos existentes... */
-
