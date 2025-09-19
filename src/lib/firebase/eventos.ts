@@ -119,7 +119,10 @@ export async function getEventos(): Promise<Evento[]> {
       maxParticipants: data.maxParticipants,
       minAttendancePercentForCertificate: data.minAttendancePercentForCertificate,
       totalSessoes: data.totalSessoes ?? 0,
-      sessions: data.sessions ?? []
+      sessions: data.sessions ?? [],
+      // Adicionando campos que podem estar faltando
+      createdBy: data.createdBy,
+      admins: data.admins || [],
     };
   });
 }
@@ -145,6 +148,9 @@ export async function getEvento(id: string): Promise<Evento | null> {
     totalSessoes: data.totalSessoes || 0,
     minAttendancePercentForCertificate: data.minAttendancePercentForCertificate || 0,
     requer_atividade_final: data.requer_atividade_final === true,
+    // ✅ AJUSTE: Adicionando os campos que faltavam
+    createdBy: data.createdBy || null,
+    admins: data.admins || [],
   };
 }
 

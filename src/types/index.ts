@@ -32,6 +32,9 @@ export type Evento = {
   totalSessoes?: number;
   sessions?: Sessao[];
   requer_atividade_final?: boolean;
+  // ✅ AJUSTE: Campos adicionados para controle de permissão
+  createdBy?: string; // UID do criador original do evento
+  admins?: string[];   // Array de UIDs dos administradores do evento
 };
 
 export interface Sessao {
@@ -113,21 +116,8 @@ export interface Usuario {
   id: string;
   nome: string;
   email: string;
-  isAdmin: boolean;
+  role: 'admin' | 'user'; // Mantém a estrutura de role
 }
-
-// export interface ParticipanteComCertificado extends ParticipanteData {
-//   id: string;
-//   cpf: string;
-//   nome: string;
-//   email: string;
-//   telefone: string;
-//   institution: string;
-//   dataInscricao: Date | null; // já como Date
-//   presencaPercentual: number;
-//   attendances: RegistroPresenca[];
-//   certificateIssued: boolean;
-// }
 
 // this is only use into 'elegiveis-certificado' page
 export interface ParticipanteDataWithDate extends Omit<ParticipanteData, 'dataInscricao'> {

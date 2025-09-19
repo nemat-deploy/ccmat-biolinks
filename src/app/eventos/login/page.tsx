@@ -1,88 +1,78 @@
-// src/app/eventos/login/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { auth, provider, signInWithPopup, signOut } from "@/lib/firebaseAuth";
+import { auth, provider, signInWithPopup } from "@/lib/firebaseAuth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { onAuthStateChanged } from "firebase/auth"; // ✅ Importe aqui
+import { onAuthStateChanged, User } from "firebase/auth";
+import { FirebaseError } from "firebase/app";
 
 export default function LoginPage() {
-  const [user, setUser] = useState(null);
   const router = useRouter();
 
-  // Verifica login automático
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (!currentUser) {
-        setUser(null);
-        return;
-      }
+  // Função centralizada para lidar com a autenticação do usuário
+  const handleUserAuth = async (currentUser: User) => {
+    if (!currentUser) return;
 
-      try {
-        const userRef = doc(db, "users", currentUser.uid);
-        const snap = await getDoc(userRef);
-
-        if (snap.exists()) {
-          const userData = snap.data();
-          if (userData.isAdmin === true) {
-            router.push("/eventos/admin");
-          } else {
-            alert("❌ Acesso negado. Somente administradores.");
-            await auth.signOut();
-          }
-        } else {
-          // Cria usuário automaticamente
-          await setDoc(userRef, {
-            nome: currentUser.displayName || "",
-            email: currentUser.email,
-            isAdmin: false,
-          });
-
-          alert("⚠️ Sua conta foi criada, mas você ainda não tem acesso à área administrativa.");
-          await auth.signOut();
-        }
-      } catch (err) {
-        console.error("Erro ao verificar permissões:", err);
-        alert("❌ Erro ao verificar permissões.");
-        await auth.signOut();
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  // Função de login
-  const handleLogin = async () => {
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      const userRef = doc(db, "users", user.uid);
+      const userRef = doc(db, "users", currentUser.uid);
       const snap = await getDoc(userRef);
 
-      if (snap.exists()) {
-        if (snap.data().isAdmin === true) {
-          router.push("/eventos/admin");
-        } else {
-          alert("❌ Acesso negado. Somente administradores.");
-          await auth.signOut();
+      if (!snap.exists()) {
+        await setDoc(userRef, {
+          nome: currentUser.displayName || "",
+          email: currentUser.email,
+          role: 'user',
+        });
+        alert("✅ Sua conta foi criada com sucesso!");
+      }
+
+      router.push("/eventos/admin");
+
+    } catch (err) {
+      console.error("Erro no processo de autenticação:", err);
+      alert("❌ Ocorreu um erro durante o login. Tente novamente.");
+      await auth.signOut();
+    }
+  };
+
+  // Efeito para verificar se o usuário já está logado
+  useEffect(() => {
+    let isHandlingAuth = false;
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user && !isHandlingAuth) {
+        isHandlingAuth = true;
+        handleUserAuth(user);
+      }
+    });
+    return () => unsubscribe();
+  }, [router]);
+
+  // Função para o clique no botão de login
+  const handleLogin = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      console.error("Erro ao fazer login com Google:", err);
+      
+      // ✅ AJUSTE: Verificamos se 'err' é uma instância de FirebaseError
+      if (err instanceof FirebaseError) {
+        // Agora o TypeScript sabe que 'err' tem a propriedade 'code'
+        if (err.code !== 'auth/popup-closed-by-user') {
+          alert("❌ Erro ao entrar com Google.");
         }
       } else {
-        alert("⚠️ Sua conta foi criada, mas você ainda não tem permissão de administrador.");
-        await auth.signOut();
+        // Caso seja um erro de outro tipo
+        alert("❌ Ocorreu um erro inesperado ao tentar fazer login.");
       }
-    } catch (err) {
-      console.error("Erro ao fazer login:", err);
-      alert("❌ Erro ao entrar com Google.");
     }
   };
 
   return (
     <div style={{ padding: "2rem" }}>
       <h1>Login Administrativo</h1>
-      <p>Seu cadastro de usuário será criado após fazer o login com sua conta Google.</p>
+      <p>Acesse com sua conta Google para gerenciar seus eventos.</p>
 
       <button
         onClick={handleLogin}

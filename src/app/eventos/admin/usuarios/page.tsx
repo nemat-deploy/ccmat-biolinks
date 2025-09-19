@@ -1,4 +1,5 @@
 // src/app/eventos/admin/usuarios/page.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -12,10 +13,12 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { auth } from "@/lib/firebaseAuth";
-import { Inscricao } from "@/types";
 import { Usuario } from "@/types";
 import "./page.css";
-import LoadingMessage from "@/app/components/LoadingMessage"
+import LoadingMessage from "@/app/components/LoadingMessage";
+// ✅ AJUSTE: Importações para usar os ícones
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
@@ -24,10 +27,8 @@ export default function UsuariosPage() {
   const [editandoUid, setEditandoUid] = useState<string | null>(null);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isEditingAdmin, setIsEditingAdmin] = useState(false);
   const [busca, setBusca] = useState("");
-
-  // spinner carregando a página
   const [loading, setLoading] = useState(true);
 
   const carregarUsuarios = async () => {
@@ -41,6 +42,12 @@ export default function UsuariosPage() {
           ...doc.data(),
         } as Usuario),
       );
+      
+      lista.sort((a, b) => {
+        if (a.role === 'admin' && b.role !== 'admin') return -1;
+        if (a.role !== 'admin' && b.role === 'admin') return 1;
+        return a.nome.localeCompare(b.nome);
+      });
 
       setUsuarios(lista);
     } catch (err) {
@@ -58,12 +65,13 @@ export default function UsuariosPage() {
       const userRef = doc(db, "users", user.uid);
       const snap = await getDoc(userRef);
 
-      if (snap.exists() && snap.data().isAdmin === true) {
+      if (snap.exists() && snap.data().role === "admin") {
         setUsuarioLogado({ id: snap.id, ...snap.data() } as Usuario);
         await carregarUsuarios();
-        setLoading(false); // só depois que os dados carregam aparece a página
+        setLoading(false);
       } else {
-        window.location.href = "/eventos/login";
+        alert("❌ Acesso negado. Esta página é restrita a administradores.");
+        window.location.href = "/eventos/admin";
       }
     });
 
@@ -78,27 +86,25 @@ export default function UsuariosPage() {
     setEditandoUid(usuario.id);
     setNome(usuario.nome);
     setEmail(usuario.email);
-    setIsAdmin(usuario.isAdmin || false);
+    setIsEditingAdmin(usuario.role === "admin");
   };
 
   const handleSalvar = async () => {
-    if (!editandoUid || !nome || !email) return;
-
+    if (!editandoUid) return;
     const userRef = doc(db, "users", editandoUid);
-
     try {
       await updateDoc(userRef, {
         nome,
         email,
-        isAdmin,
+        role: isEditingAdmin ? "admin" : "user",
       });
-
       setUsuarios(
         usuarios.map((u) =>
-          u.id === editandoUid ? { ...u, nome, email, isAdmin } : u,
+          u.id === editandoUid
+            ? { ...u, nome, email, role: isEditingAdmin ? "admin" : "user" }
+            : u,
         ),
       );
-
       alert("✅ Usuário atualizado!");
       setEditandoUid(null);
     } catch (err) {
@@ -109,7 +115,6 @@ export default function UsuariosPage() {
 
   const handleExcluir = async (id: string) => {
     if (!confirm("⚠️ Tem certeza que deseja excluir este usuário?")) return;
-
     try {
       await deleteDoc(doc(db, "users", id));
       setUsuarios(usuarios.filter((u) => u.id !== id));
@@ -127,124 +132,119 @@ export default function UsuariosPage() {
   );
 
   return (
-  <div className="usuarios-container">
-    <div className="usuarios-header">
-      <h1>Gestão de Usuários</h1>
-      <a href="/eventos/admin" className="voltar-admin-link">← Voltar</a>
-    </div>
-
-    {/* Campo de busca */}
-    <input
-      type="text"
-      className="busca-input"
-      placeholder="Buscar por nome ou email..."
-      value={busca}
-      onChange={(e) => setBusca(e.target.value)}
-    />
-
-    {/* Tabela de usuários */}
-    <table className="usuarios-tabela">
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Email</th>
-          <th>Admin</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        {filtrados.map((usuario) => (
-          <tr key={usuario.id}>
-            <td>{usuario.nome}</td>
-            <td>{usuario.email}</td>
-            <td>{usuario.isAdmin ? "✅" : "❌"}</td>
-            <td>
-              <button
-                className="botao-editar"
-                onClick={() => handleEditar(usuario)}
-              >
-                Editar
-              </button>
-              <button
-                className="botao-excluir"
-                onClick={() => handleExcluir(usuario.id)}
-              >
-                Excluir
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-
-    {/* Formulário de edição */}
-    {editandoUid && (
-      <div className="form-edicao">
-        <h2 className="title-editar-usuario">Editar Usuário</h2>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSalvar();
-          }}
-        >
-          <div>
-            <label>
-              Nome:
-              <input
-                type="text"
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                required
-              />
-            </label>
-          </div>
-          <div>
-            <label>
-              Email:
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                readOnly
-              />
-            </label>
-          </div>
-          <div>
-            <label>
-              <input
-                type="checkbox"
-                checked={isAdmin}
-                onChange={(e) => setIsAdmin(e.target.checked)}
-                disabled={
-                  editandoUid === auth.currentUser?.uid &&
-                  usuarioLogado?.isAdmin
-                }
-              />
-              É administrador?
-            </label>
-          </div>
-
-          <div className="botoes-edicao">
-            <button type="submit" className="btn-salvar">
-              Atualizar
-            </button>
-            <button
-              type="button"
-              className="btn-cancelar"
-              onClick={() => {
-                setEditandoUid(null);
-                setNome("");
-                setEmail("");
-                setIsAdmin(false);
-              }}
-            >
-              Cancelar
-            </button>
-          </div>
-        </form>
+    <div className="usuarios-container">
+      <div className="usuarios-header">
+        <h1>Usuários</h1>
+        <a href="/eventos/admin" className="voltar-admin-link">
+          ← Voltar
+        </a>
       </div>
-    )}
-  </div>
-);
+
+      <input
+        type="text"
+        className="busca-input"
+        placeholder="Buscar por nome ou email..."
+        value={busca}
+        onChange={(e) => setBusca(e.target.value)}
+      />
+
+      <table className="usuarios-tabela">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Admin</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filtrados.map((usuario) => (
+            <tr key={usuario.id}>
+              <td>{usuario.nome}</td>
+              <td>{usuario.email}</td>
+              <td>{usuario.role === "admin" ? "✅" : "❌"}</td>
+              <td className="actions-cell"> {/* Adicione uma classe se precisar de estilização específica */}
+                {/* ✅ AJUSTE: Botão de editar com ícone */}
+                <button
+                  className="botao-editar"
+                  onClick={() => handleEditar(usuario)}
+                  title="Editar usuário" // Dica para o usuário
+                >
+                  <FontAwesomeIcon icon={faEdit} />
+                </button>
+                
+                {/* ✅ AJUSTE: Botão de excluir com ícone */}
+                <button
+                  className="botao-excluir"
+                  onClick={() => handleExcluir(usuario.id)}
+                  title="Excluir usuário" // Dica para o usuário
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {editandoUid && (
+        <div className="form-edicao">
+          <h2 className="title-editar-usuario">Editar Usuário</h2>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSalvar();
+            }}
+          >
+            <div>
+              <label>
+                Nome:
+                <input
+                  type="text"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  required
+                />
+              </label>
+            </div>
+            <div>
+              <label>
+                Email:
+                <input type="email" value={email} readOnly />
+              </label>
+            </div>
+            <div>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={isEditingAdmin}
+                  onChange={(e) => setIsEditingAdmin(e.target.checked)}
+                  disabled={
+                    editandoUid === auth.currentUser?.uid &&
+                    usuarioLogado?.role === "admin"
+                  }
+                />
+                É administrador?
+              </label>
+            </div>
+
+            <div className="botoes-edicao">
+              <button type="submit" className="btn-salvar">
+                Atualizar
+              </button>
+              <button
+                type="button"
+                className="btn-cancelar"
+                onClick={() => {
+                  setEditandoUid(null);
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+    </div>
+  );
 }
