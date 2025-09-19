@@ -8,7 +8,6 @@ import {
   updateDoc,
   increment,
   collection,
-  Timestamp,
   serverTimestamp,
   DocumentReference,
 } from "firebase/firestore";
@@ -17,15 +16,17 @@ import Link from "next/link";
 import { Inscricao } from "@/types";
 import { db } from "@/lib/firebase";
 import { useParams } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { parseTimestamp, formatarData } from "@/lib/utils";
 import { onSnapshot } from "firebase/firestore"; 
 import LoadingMessage from "@/app/components/LoadingMessage";
 
+// ✅ AJUSTE: Tipo local atualizado para incluir a imagem
 type Evento = {
   id: string;
   name: string;
   description: string;
+  imageUrl?: string; // Campo opcional para a URL da imagem
   startDate: Date;
   endDate: Date;
   registrationDeadLine: Date;
@@ -81,38 +82,32 @@ export default function EventoPage() {
       .slice(0, 15);
   }
 
-useEffect(() => {
-  if (!id) return;
+  useEffect(() => {
+    if (!id) return;
 
-  const eventoRef = doc(db, "eventos", id);
-
-  const unsubscribe = onSnapshot(eventoRef, (eventoSnap) => {
-    if (eventoSnap.exists()) {
-      const data = eventoSnap.data();
-
-      const startDate = parseTimestamp(data.startDate) ?? new Date(0);
-      const endDate = parseTimestamp(data.endDate) ?? new Date(0);
-      const registrationDeadLine = parseTimestamp(data.registrationDeadLine) ?? new Date(0);
-
-      setEvento({
-        id: eventoSnap.id,
-        name: data.name,
-        description: data.description,
-        startDate,
-        endDate,
-        registrationDeadLine,
-        maxParticipants: data.maxParticipants ?? 0,
-        registrationsCount: data.registrationsCount ?? 0,
-        status: data.status || "aberto",
-        minAttendancePercentForCertificate: data.minAttendancePercentForCertificate ?? 80,
-      });
-    }
-    setLoading(false);
-  });
-
-  // Limpa o listener quando o componente for desmontado ou o id mudar
-  return () => unsubscribe();
-}, [id]);
+    const eventoRef = doc(db, "eventos", id);
+    const unsubscribe = onSnapshot(eventoRef, (eventoSnap) => {
+      if (eventoSnap.exists()) {
+        const data = eventoSnap.data();
+        setEvento({
+          id: eventoSnap.id,
+          name: data.name,
+          description: data.description,
+          // ✅ AJUSTE: Busca a URL da imagem do banco de dados
+          imageUrl: data.imageUrl,
+          startDate: parseTimestamp(data.startDate) ?? new Date(0),
+          endDate: parseTimestamp(data.endDate) ?? new Date(0),
+          registrationDeadLine: parseTimestamp(data.registrationDeadLine) ?? new Date(0),
+          maxParticipants: data.maxParticipants ?? 0,
+          registrationsCount: data.registrationsCount ?? 0,
+          status: data.status || "aberto",
+          minAttendancePercentForCertificate: data.minAttendancePercentForCertificate ?? 80,
+        });
+      }
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, [id]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -125,17 +120,15 @@ useEffect(() => {
     }
 
     const cpfNumeros = cpf.replace(/\D/g, "");
-    const telefoneNumeros = telefone.replace(/\D/g, "");
-
     if (!cpf || !validarCPF(cpfNumeros)) {
       setMensagem("⚠️ CPF inválido.");
       return;
     }
 
-    try {
-      const cpfNumeros = cpf.replace(/\D/g, ""); // Garante CPF só com números
-      const inscricaoRef = doc(collection(db, `eventos/${evento.id}/inscricoes`), cpfNumeros);
+    const telefoneNumeros = telefone.replace(/\D/g, "");
 
+    try {
+      const inscricaoRef = doc(collection(db, `eventos/${evento.id}/inscricoes`), cpfNumeros);
       const inscricaoSnap = await getDoc(inscricaoRef as DocumentReference<Inscricao>);
 
       if (inscricaoSnap.exists()) {
@@ -143,18 +136,16 @@ useEffect(() => {
         return;
       }
 
-      // Envia os dados com serverTimestamp()
       await setDoc(inscricaoRef, {
         nome,
         email,
         telefone: telefoneNumeros,
         institution: instituicao,
-        dataInscricao: serverTimestamp(), // ✅ Agora importado corretamente
-        attendances: [], // Firestore entende como array vazio de timestamps
+        dataInscricao: serverTimestamp(),
+        attendances: [],
         certificateIssued: false,
       });
 
-      // Atualiza contagem de inscritos
       const eventoRef = doc(db, "eventos", evento.id);
       await updateDoc(eventoRef, {
         registrationsCount: increment(1),
@@ -169,39 +160,30 @@ useEffect(() => {
   };
 
   if (loading) {
-    return (
-      <LoadingMessage text="Carregando página do evento..." fullHeight delay={0}/>
-    );
+    return <LoadingMessage text="Carregando página do evento..." fullHeight delay={0}/>;
   }
   if (!evento) return <p className="loadingEvents">Evento não encontrado.</p>;
 
   const hoje = new Date();
-  const prazoEncerrado =
-    evento.registrationDeadLine && evento.registrationDeadLine < hoje;
-  const eventoLotado = 
-    evento.maxParticipants > 0 && evento.registrationsCount >= evento.maxParticipants;
+  const prazoEncerrado = evento.registrationDeadLine && evento.registrationDeadLine < hoje;
+  const eventoLotado = evento.maxParticipants > 0 && evento.registrationsCount >= evento.maxParticipants;
 
   return (
     <div className="container">
+      {/* ✅ AJUSTE: Exibe a imagem se a URL existir */}
+      {evento.imageUrl && (
+        <img src={evento.imageUrl} alt={`Banner do evento ${evento.name}`} className="event-image-header" />
+      )}
+
       <h1>{evento.name}</h1>
       <p>{evento.description}</p>
       <p>Início: {formatarData(evento.startDate)}<br />
       Fim: {formatarData(evento.endDate)}</p>
       <p>Status: {evento.status}</p>
 
-      {prazoEncerrado && (
-        <p className="mensagem">⚠️ Inscrições encerradas.</p>
-      )}
+      {prazoEncerrado && <p className="mensagem">⚠️ Inscrições encerradas.</p>}
+      {eventoLotado && <p className="mensagem">⚠️ Vagas esgotadas.</p>}
 
-      {eventoLotado && (
-        <p className="mensagem">⚠️ Vagas esgotadas.</p>
-      )}
-
-{/*      {(prazoEncerrado || eventoLotado) ? (
-        <h3 className="section-title">Inscrições indisponíveis</h3>
-      ) : (
-        <h3 className="section-title">Faça sua inscrição</h3>
-      )}*/}
       {!(prazoEncerrado || eventoLotado) && (
         <h3 className="section-title">Faça sua inscrição</h3>
       )}
@@ -209,70 +191,27 @@ useEffect(() => {
       {!formEnviado && !prazoEncerrado && !eventoLotado ? (
         <form onSubmit={handleSubmit} className="form">
           <div className="form-floating">
-            <input
-              id="nome"
-              type="text"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-              required
-              placeholder=" " 
-              autoFocus
-            />
+            <input id="nome" type="text" value={nome} onChange={(e) => setNome(e.target.value)} required placeholder=" " autoFocus />
             <label htmlFor="nome">Nome</label>
           </div>
-
           <div className="form-floating">
-            <input
-              id="cpf"
-              type="text"
-              value={cpf}
-              onChange={(e) => setCpf(formatCpf(e.target.value))}
-              required
-              maxLength={14}
-              placeholder=" "
-            />
+            <input id="cpf" type="text" value={cpf} onChange={(e) => setCpf(formatCpf(e.target.value))} required maxLength={14} placeholder=" " />
             <label htmlFor="cpf">CPF</label>
           </div>
-
           <div className="form-floating">
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder=" "
-            />
+            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder=" " />
             <label htmlFor="email">Email</label>
           </div>
-
           <div className="form-floating">
-            <input
-              id="telefone"
-              type="tel"
-              value={telefone}
-              onChange={(e) => setTelefone(formatTelefone(e.target.value))}
-              required
-              maxLength={15}
-              placeholder=" "
-            />
+            <input id="telefone" type="tel" value={telefone} onChange={(e) => setTelefone(formatTelefone(e.target.value))} required maxLength={15} placeholder=" " />
             <label htmlFor="telefone">Telefone</label>
           </div>
-
           <div className="form-floating">
-            <input
-              id="instituicao"
-              type="text"
-              value={instituicao}
-              onChange={(e) => setInstituicao(e.target.value)}
-              placeholder=" "
-            />
+            <input id="instituicao" type="text" value={instituicao} onChange={(e) => setInstituicao(e.target.value)} placeholder=" " />
             <label htmlFor="instituicao">Instituição</label>
           </div>
-
           <button type="submit">Enviar Inscrição</button>
         </form>
-
       ) : formEnviado ? (
         <div className="success-container">
           <p className="success-message">✅ Inscrição realizada com sucesso!</p>
@@ -284,7 +223,6 @@ useEffect(() => {
                 setMensagem("");
                 setCpf("");
                 setNome("");
-                // setEmail("");
                 setTelefone("");
               }}
             >
@@ -302,3 +240,4 @@ useEffect(() => {
     </div>
   );
 }
+

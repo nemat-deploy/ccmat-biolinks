@@ -47,6 +47,7 @@ export default function EventoForm({
   const [localSlug, setLocalSlug] = useState(eventoId || "");
   const [name, setName] = useState<string>(eventoData?.name || "");
   const [description, setDescription] = useState<string>(eventoData?.description || "");
+  const [imageUrl, setImageUrl] = useState<string>("");
   const [startDate, setStartDate] = useState<Date | null>(eventoData?.startDate || null);
   const [endDate, setEndDate] = useState<Date | null>(eventoData?.endDate || null);
   const [registrationDeadLine, setRegistrationDeadLine] = useState<Date | null>(eventoData?.registrationDeadLine || null);
@@ -73,6 +74,7 @@ export default function EventoForm({
       setLocalSlug(eventoData.id || "");
       setName(eventoData.name);
       setDescription(eventoData.description);
+      setImageUrl(eventoData.imageUrl || "");
       setStartDate(eventoData.startDate);
       setEndDate(eventoData.endDate);
       setRegistrationDeadLine(eventoData.registrationDeadLine);
@@ -88,6 +90,7 @@ export default function EventoForm({
       // Reset para formulário de criação
       setName("");
       setDescription("");
+      setImageUrl("");
       setStartDate(null);
       setEndDate(null);
       setRegistrationDeadLine(null);
@@ -172,6 +175,7 @@ export default function EventoForm({
     const data: Omit<Evento, 'id'> = {
       name: name.trim(),
       description: description.trim(),
+      imageUrl: imageUrl.trim(),
       startDate,
       endDate,
       registrationDeadLine,
@@ -311,6 +315,18 @@ export default function EventoForm({
             <IMaskInput mask="00/00/0000 00:00" placeholder="dd/mm/aaaa hh:mm" value={registrationDeadLineInput} onAccept={(value: any) => { setRegistrationDeadLineInput(value); handleDateChange(value, setRegistrationDeadLine); }} className="form-input-date" required lazy={false} />
           </div>
         </div>
+      </div>
+      
+      <div className="form-group">
+        <label>URL da Imagem do Evento (Opcional):</label>
+        <input 
+          type="url" 
+          value={imageUrl} 
+          onChange={(e) => setImageUrl(e.target.value)} 
+          placeholder="https://exemplo.com/imagem.png"
+          className="form-input" 
+        />
+        <small>Cole o link de uma imagem para o topo da página do evento.</small>
       </div>
 
       <div className="form-group">

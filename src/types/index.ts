@@ -6,14 +6,8 @@ export const STATUS = ["aberto", "encerrado"] as const;
 export type StatusEvento = typeof STATUS[number];
 export type EventoSemId = Omit<Evento, "id">;
 
-/**
- * Tipo para campos que vêm como objeto com timestampValue (ex: API REST)
- */
 export type FirebaseTimestamp = Timestamp;
 
-/**
- * Tipo para compatibilidade com API REST
- */
 export type TimestampValue = {
   timestampValue?: string;
 } | FirebaseTimestamp;
@@ -22,6 +16,7 @@ export type Evento = {
   id: string;
   name: string;
   description: string;
+  imageUrl?: string; // ✅ ADICIONADO
   startDate: Date | null;
   endDate: Date | null;
   registrationDeadLine: Date | null;
@@ -33,7 +28,7 @@ export type Evento = {
   sessions?: Sessao[];
   requer_atividade_final?: boolean;
   createdBy?: string;
-  admins?: string[]; // Array de UIDs dos administradores
+  admins?: string[];
 };
 
 export interface Sessao {
@@ -43,19 +38,12 @@ export interface Sessao {
   horario: string;
 }
 
-
-/**
- * tipo para registro de presença
- */
 export type RegistroPresenca = {
   timestamp: Date | FirebaseTimestamp;
   session: 'manha' | 'tarde' | 'noite';
-  eventId?: string; // Opcional para registrar em qual evento/sessão
+  eventId?: string;
 };
 
-/**
- * tipo base para participantes inscritos
- */
 export type Participante = {
   id: string;
   nome: string;
@@ -68,9 +56,6 @@ export type Participante = {
   enviou_atividade_final?: boolean;
 };
 
-/**
- * tipo para formulários/API (sem campos opcionais)
- */
 export interface ParticipanteData {
   id: string;
   cpf: string;
@@ -81,23 +66,19 @@ export interface ParticipanteData {
   dataInscricao: string | null;
 }
 
-/**
- * Tipo para resposta de operações com presença
- */
 export type PresencaResponse = {
   success: boolean;
   error?: string;
   lastAttendance?: RegistroPresenca;
 };
 
-// tipo compatível com dados do Firestore
 export type FirestoreParticipante = Omit<Participante, 'id' | 'dataInscricao'> & {
   dataInscricao: FirebaseTimestamp | null;
   attendances?: Array<{
     timestamp: FirebaseTimestamp;
     session: 'manha' | 'tarde' | 'noite';
   }>;
-  enviou_atividade_final?: boolean; // adiciona compatibilidade
+  enviou_atividade_final?: boolean;
 };
 
 export interface Inscricao {
@@ -118,7 +99,6 @@ export interface Usuario {
   role: 'admin' | 'user';
 }
 
-// this is only use into 'elegiveis-certificado' page
 export interface ParticipanteDataWithDate extends Omit<ParticipanteData, 'dataInscricao'> {
   dataInscricao: Date | null;
 }
@@ -134,5 +114,3 @@ export interface ParticipanteComCertificado extends ParticipanteDataWithDate {
   attendances: Attendance[];
   certificateIssued: boolean;
 }
-
-// tipos para FontAwesome no fontawesome.d.ts
