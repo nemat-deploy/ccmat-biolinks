@@ -14,7 +14,6 @@ import { format, parseISO } from 'date-fns';
 import { IMaskInput } from 'react-imask';
 import { formatDateToBrazilianDateTime } from '@/utils/dateUtils';
 
-// Suas funções de data originais mantidas
 const parseDateString = (value: string): Date | null => {
   const [datePart, timePart] = value.split(" ");
   if (!datePart || !timePart) return null;
@@ -43,7 +42,7 @@ export default function EventoForm({
 }: EventoFormProps) {
   const router = useRouter();
   
-  // Estados do formulário original
+  // estados do form
   const [localSlug, setLocalSlug] = useState(eventoId || "");
   const [name, setName] = useState<string>(eventoData?.name || "");
   const [description, setDescription] = useState<string>(eventoData?.description || "");
@@ -58,17 +57,16 @@ export default function EventoForm({
   const [requerAtividadeFinal, setRequerAtividadeFinal] = useState<boolean>(eventoData?.requer_atividade_final ?? false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Estados para inputs com máscara
+  // useEffects para inputs com máscara
   const [startDateInput, setStartDateInput] = useState(eventoData?.startDate ? formatDateToBrazilianDateTime(eventoData.startDate) : '');
   const [endDateInput, setEndDateInput] = useState(eventoData?.endDate ? formatDateToBrazilianDateTime(eventoData.endDate) : '');
   const [registrationDeadLineInput, setRegistrationDeadLineInput] = useState(eventoData?.registrationDeadLine ? formatDateToBrazilianDateTime(eventoData.registrationDeadLine) : '');
 
-  // ✅ NOVO: Estados para gerenciar coadmins
   const [admins, setAdmins] = useState<Usuario[]>([]);
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [adminLoading, setAdminLoading] = useState(true);
 
-  // Seus useEffects originais, preservados e combinados
+  // Efeito para preencher o formulário
   useEffect(() => {
     if (isEditing && eventoData) {
       setLocalSlug(eventoData.id || "");
@@ -106,11 +104,10 @@ export default function EventoForm({
     }
   }, [isEditing, eventoData]);
 
-  // ✅ NOVO: Efeito para buscar os dados dos admins atuais do evento
+  // useEffect para buscar os dados dos admins atuais do evento
   useEffect(() => {
     const fetchAdminsData = async () => {
       setAdminLoading(true);
-      // Se estiver editando e houver admins no eventoData
       if (isEditing && eventoData?.admins && eventoData.admins.length > 0) {
         try {
           const adminPromises = eventoData.admins.map(adminId => getDoc(doc(db, "users", adminId)));
@@ -130,7 +127,7 @@ export default function EventoForm({
             id: currentUser.uid,
             email: currentUser.email || 'N/A',
             nome: currentUser.displayName || 'Criador',
-            role: 'user' // role aqui é apenas para preencher o tipo
+            role: 'user' 
           };
           setAdmins([creatorAsAdmin]);
         }
@@ -294,6 +291,19 @@ export default function EventoForm({
         <label>Título:</label>
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className="form-input" />
       </div>
+      
+      <div className="form-group">
+        <label>URL da Imagem do Evento (Opcional):</label>
+        <input 
+          type="url" 
+          value={imageUrl} 
+          onChange={(e) => setImageUrl(e.target.value)} 
+          placeholder="https://exemplo.com/imagem.png"
+          className="form-input" 
+        />
+        <small>Cole o link de uma imagem para o topo da página do evento.</small>
+      </div>
+
       <div className="form-group">
         <label>Descrição:</label>
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} required rows={4} className="form-input" />
@@ -317,18 +327,6 @@ export default function EventoForm({
         </div>
       </div>
       
-      <div className="form-group">
-        <label>URL da Imagem do Evento (Opcional):</label>
-        <input 
-          type="url" 
-          value={imageUrl} 
-          onChange={(e) => setImageUrl(e.target.value)} 
-          placeholder="https://exemplo.com/imagem.png"
-          className="form-input" 
-        />
-        <small>Cole o link de uma imagem para o topo da página do evento.</small>
-      </div>
-
       <div className="form-group">
         <label>Máximo de participantes:</label>
         <input
@@ -451,7 +449,6 @@ export default function EventoForm({
   );
 }
 
-// Suas funções auxiliares originais mantidas
 function formatDateToInput(dateStr: string): string {
   const date = parseISO(dateStr);
   return format(date, "yyyy-MM-dd'T'HH:mm");

@@ -21,12 +21,11 @@ import { parseTimestamp, formatarData } from "@/lib/utils";
 import { onSnapshot } from "firebase/firestore"; 
 import LoadingMessage from "@/app/components/LoadingMessage";
 
-// ✅ AJUSTE: Tipo local atualizado para incluir a imagem
 type Evento = {
   id: string;
   name: string;
   description: string;
-  imageUrl?: string; // Campo opcional para a URL da imagem
+  imageUrl?: string;
   startDate: Date;
   endDate: Date;
   registrationDeadLine: Date;
@@ -50,6 +49,7 @@ export default function EventoPage() {
   const [telefone, setTelefone] = useState("");
   const [instituicao, setInstituicao] = useState("UFDPar");
 
+  // Funções de validação e formatação
   function validarCPF(cpf: string) {
     cpf = cpf.replace(/\D/g, "");
     if (cpf.length !== 11 || /(\d)\1{10}/.test(cpf)) return false;
@@ -93,7 +93,6 @@ export default function EventoPage() {
           id: eventoSnap.id,
           name: data.name,
           description: data.description,
-          // ✅ AJUSTE: Busca a URL da imagem do banco de dados
           imageUrl: data.imageUrl,
           startDate: parseTimestamp(data.startDate) ?? new Date(0),
           endDate: parseTimestamp(data.endDate) ?? new Date(0),
@@ -170,12 +169,13 @@ export default function EventoPage() {
 
   return (
     <div className="container">
-      {/* ✅ AJUSTE: Exibe a imagem se a URL existir */}
-      {evento.imageUrl && (
-        <img src={evento.imageUrl} alt={`Banner do evento ${evento.name}`} className="event-image-header" />
-      )}
+      <div className="event-header">
+        {evento.imageUrl && (
+          <img src={evento.imageUrl} alt={`Banner do evento ${evento.name}`} className="event-image-header" />
+        )}
+        <h1>{evento.name}</h1>
+      </div>
 
-      <h1>{evento.name}</h1>
       <p>{evento.description}</p>
       <p>Início: {formatarData(evento.startDate)}<br />
       Fim: {formatarData(evento.endDate)}</p>
