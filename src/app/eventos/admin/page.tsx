@@ -14,6 +14,9 @@ import { TimestampValue } from "@/types";
 import "./page.css";
 import LoadingMessage from "@/app/components/LoadingMessage";
 import ConfirmationModal from "@/app/components/ConfirmationModal";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// ✅ AJUSTE: Ícones corretos importados, incluindo o 'faPenToSquare'
+import { faUsers, faPlus, faRightFromBracket, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 // Interface para o usuário da aplicação, incluindo o papel
 interface AppUser extends User {
@@ -63,12 +66,9 @@ export default function AdminPage() {
       const eventosCollection = collection(db, "eventos");
       let eventosQuery;
 
-      // ✅ AJUSTE PRINCIPAL: Lógica de busca de eventos atualizada
       if (currentUser.role === 'admin') {
-        // Se for admin global, busca todos os eventos.
         eventosQuery = query(eventosCollection);
       } else {
-        // Se for um usuário comum, busca todos os eventos onde seu UID está na lista 'admins'.
         eventosQuery = query(eventosCollection, where("admins", "array-contains", currentUser.uid));
       }
 
@@ -178,11 +178,17 @@ export default function AdminPage() {
         <div className="adminBtns">
           {isAdmin && (
             <Link href="/eventos/admin/usuarios/">
-              <button className="btnUsers">usuários</button>
+              <button className="btnUsers">
+                <FontAwesomeIcon icon={faUsers} />
+                <span>usuários</span>
+              </button>
             </Link>
           )}
           <Link href="/eventos/admin/gerenciar/novo/">
-            <button className="btnNewEvent">novo evento</button>
+            <button className="btnNewEvent">
+              <FontAwesomeIcon icon={faPlus} />
+              <span>novo evento</span>
+            </button>
           </Link>
           <button
             className="btnSair"
@@ -190,7 +196,8 @@ export default function AdminPage() {
               auth.signOut().then(() => router.push("/eventos/login"));
             }}
           >
-            sair ➔
+            <span>sair</span>
+            <FontAwesomeIcon icon={faRightFromBracket} />
           </button>
         </div>
       </div>
@@ -220,13 +227,16 @@ export default function AdminPage() {
                   router.push(`/eventos/admin/gerenciar/${evento.id}`)
                 }
               >
-                ✏️ editar
+                {/* ✅ AJUSTE: Ícone antigo 'faPencilAlt' trocado pelo novo 'faPenToSquare' */}
+                <FontAwesomeIcon icon={faPenToSquare} />
+                <span>editar</span>
               </button>
               <button
                 className="btnExcluir"
                 onClick={() => handleDeleteClick(evento)}
               >
-                ❌ excluir
+                <FontAwesomeIcon icon={faTrash} />
+                <span>excluir</span>
               </button>
             </div>
           </li>

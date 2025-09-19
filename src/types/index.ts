@@ -1,4 +1,4 @@
-// types/index.ts
+// src/types/index.ts
 
 import { Timestamp } from "firebase/firestore";
 
@@ -32,9 +32,8 @@ export type Evento = {
   totalSessoes?: number;
   sessions?: Sessao[];
   requer_atividade_final?: boolean;
-  // ✅ AJUSTE: Campos adicionados para controle de permissão
-  createdBy?: string; // UID do criador original do evento
-  admins?: string[];   // Array de UIDs dos administradores do evento
+  createdBy?: string;
+  admins?: string[]; // Array de UIDs dos administradores
 };
 
 export interface Sessao {
@@ -116,7 +115,7 @@ export interface Usuario {
   id: string;
   nome: string;
   email: string;
-  role: 'admin' | 'user'; // Mantém a estrutura de role
+  role: 'admin' | 'user';
 }
 
 // this is only use into 'elegiveis-certificado' page
@@ -135,3 +134,5 @@ export interface ParticipanteComCertificado extends ParticipanteDataWithDate {
   attendances: Attendance[];
   certificateIssued: boolean;
 }
+
+// tipos para FontAwesome no fontawesome.d.ts

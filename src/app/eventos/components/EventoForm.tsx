@@ -372,32 +372,39 @@ export default function EventoForm({
       </div>
       
       {isEditing && (
-        <div className="form-group-admins">
-          <h3>Administradores do Evento</h3>
+        <div className="form-group-admins" style={{ border: '1px solid #BDBDBD', borderRadius: '8px', padding: '8px'}}>
+          <h3 style={{ fontSize: '18px', marginTop: '4px' }}>Administradores do Evento</h3>
           {adminLoading ? (
             <p>Carregando...</p>
           ) : (
             <>
-              <ul className="admin-list">
+              <ul className="admin-list" style={{ listStyleType: 'none', paddingLeft: 0 }}>
                 {admins.map(admin => (
                   <li key={admin.id}>
                     <span>{admin.nome} ({admin.email})</span>
                     {admin.id !== eventoData?.createdBy && admins.length > 1 && (
-                       <button type="button" onClick={() => handleRemoveAdmin(admin.id)} className="remove-admin-btn">
+                       <button type="button" onClick={() => handleRemoveAdmin(admin.id)} className="remove-admin-btn" style={{ marginLeft: '4px', backgroundColor: '#FCC6BB', borderRadius: '8px', border: 'none', padding: '2px 4px', cursor: 'pointer' }}>
                          Remover
                        </button>
                     )}
                   </li>
                 ))}
               </ul>
-              <div className="add-admin-section">
-                <input type="email" value={newAdminEmail} onChange={(e) => setNewAdminEmail(e.target.value)} placeholder="Email do novo administrador" className="form-input" />
+              <div className="add-admin-section" style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+                <input 
+                  type="email" 
+                  value={newAdminEmail} 
+                  onChange={(e) => setNewAdminEmail(e.target.value)} 
+                  placeholder="Email do novo administrador" 
+                  className="form-input" 
+                  style={{ flexGrow: 1 }}
+                />
                 <button
                   type="button"
                   onClick={handleAddAdmin}
                   className="add-admin-btn"
                   style={{
-                    padding: '8px 16px',
+                    padding: '4px 8px',
                     fontSize: '14px',
                     backgroundColor: '#e7f1ff',
                     color: '#0056b3',
@@ -408,7 +415,7 @@ export default function EventoForm({
                     marginLeft: '10px'
                   }}
                 >
-                  Adicionar
+                  + Adicionar
                 </button>
               </div>
             </>

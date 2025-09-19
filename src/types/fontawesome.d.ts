@@ -13,4 +13,8 @@ declare module '@fortawesome/free-solid-svg-icons' {
   export const faTimes: any;
   export const faEdit: any;
   export const faTrash: any;
+  export const faUsers: any;
+  export const faPlus: any;
+  export const faRightFromBracket: any;
+  export const faPenToSquare: any;
 }
