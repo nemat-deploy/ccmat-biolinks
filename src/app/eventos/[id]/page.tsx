@@ -179,7 +179,7 @@ export default function EventoPage() {
       <p>{evento.description}</p>
       <p>Início: {formatarData(evento.startDate)}<br />
       Fim: {formatarData(evento.endDate)}</p>
-      <p>Status: {evento.status}</p>
+      <p><strong>Evento {evento.status}</strong></p>
 
       {prazoEncerrado && <p className="mensagem">⚠️ Inscrições encerradas.</p>}
       {eventoLotado && <p className="mensagem">⚠️ Vagas esgotadas.</p>}

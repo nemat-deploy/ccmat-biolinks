@@ -14,6 +14,7 @@ import { format, parseISO } from 'date-fns';
 import { IMaskInput } from 'react-imask';
 import { formatDateToBrazilianDateTime } from '@/utils/dateUtils';
 
+// Suas funções de data originais mantidas
 const parseDateString = (value: string): Date | null => {
   const [datePart, timePart] = value.split(" ");
   if (!datePart || !timePart) return null;
@@ -42,7 +43,7 @@ export default function EventoForm({
 }: EventoFormProps) {
   const router = useRouter();
   
-  // estados do form
+  // Estados do formulário original
   const [localSlug, setLocalSlug] = useState(eventoId || "");
   const [name, setName] = useState<string>(eventoData?.name || "");
   const [description, setDescription] = useState<string>(eventoData?.description || "");
@@ -57,7 +58,7 @@ export default function EventoForm({
   const [requerAtividadeFinal, setRequerAtividadeFinal] = useState<boolean>(eventoData?.requer_atividade_final ?? false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // useEffects para inputs com máscara
+  // Estados para inputs com máscara
   const [startDateInput, setStartDateInput] = useState(eventoData?.startDate ? formatDateToBrazilianDateTime(eventoData.startDate) : '');
   const [endDateInput, setEndDateInput] = useState(eventoData?.endDate ? formatDateToBrazilianDateTime(eventoData.endDate) : '');
   const [registrationDeadLineInput, setRegistrationDeadLineInput] = useState(eventoData?.registrationDeadLine ? formatDateToBrazilianDateTime(eventoData.registrationDeadLine) : '');
@@ -65,6 +66,8 @@ export default function EventoForm({
   const [admins, setAdmins] = useState<Usuario[]>([]);
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [adminLoading, setAdminLoading] = useState(true);
+  // ✅ NOVO: Estado para controlar a visibilidade da dica de ajuda
+  const [showImageTooltip, setShowImageTooltip] = useState(false);
 
   // Efeito para preencher o formulário
   useEffect(() => {
@@ -104,7 +107,7 @@ export default function EventoForm({
     }
   }, [isEditing, eventoData]);
 
-  // useEffect para buscar os dados dos admins atuais do evento
+  // Efeito para buscar os dados dos admins atuais do evento
   useEffect(() => {
     const fetchAdminsData = async () => {
       setAdminLoading(true);
@@ -120,14 +123,13 @@ export default function EventoForm({
           console.error("Erro ao buscar dados dos administradores:", error);
         }
       } else if (!isEditing) {
-        // Se estiver criando um novo evento, adiciona o usuário atual como primeiro admin
         const currentUser = auth.currentUser;
         if(currentUser) {
           const creatorAsAdmin: Usuario = {
             id: currentUser.uid,
             email: currentUser.email || 'N/A',
             nome: currentUser.displayName || 'Criador',
-            role: 'user' 
+            role: 'user'
           };
           setAdmins([creatorAsAdmin]);
         }
@@ -292,8 +294,63 @@ export default function EventoForm({
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className="form-input" />
       </div>
       
+      {/* ✅ AJUSTE APLICADO AQUI */}
       <div className="form-group">
-        <label>URL da Imagem do Evento (Opcional):</label>
+        <label style={{ display: 'flex', alignItems: 'center', cursor: 'default' }}>
+          URL da imagem do evento (opcional)
+          <div
+            style={{ position: 'relative', marginLeft: '8px', display: 'inline-flex' }}
+            onMouseEnter={() => setShowImageTooltip(true)}
+            onMouseLeave={() => setShowImageTooltip(false)}
+          >
+            <span style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              backgroundColor: '#e0e0e0',
+              color: '#757575',
+              fontSize: '12px',
+              fontStyle: 'italic',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              userSelect: 'none'
+            }}>
+              i
+            </span>
+            {showImageTooltip && (
+              <div style={{
+                position: 'absolute',
+                bottom: '125%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: '#333',
+                color: '#fff',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                fontSize: '12px',
+                width: 'max-content',
+                maxWidth: '250px',
+                textAlign: 'center',
+                zIndex: 10,
+                boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+              }}>
+                Você pode usar o <a href="https://postimages.org/" target="_blank" rel="noopener noreferrer" style={{ color: '#82b1ff', textDecoration: 'underline' }}>Postimage</a> para hospedar sua imagem e pegar o link direto.
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: '50%',
+                  marginLeft: '-5px',
+                  borderWidth: '5px',
+                  borderStyle: 'solid',
+                  borderColor: '#333 transparent transparent transparent'
+                }}></div>
+              </div>
+            )}
+          </div>
+        </label>
         <input 
           type="url" 
           value={imageUrl} 
@@ -301,7 +358,7 @@ export default function EventoForm({
           placeholder="https://exemplo.com/imagem.png"
           className="form-input" 
         />
-        <small>Cole o link de uma imagem para o topo da página do evento.</small>
+        <small>Tamanho ideal da imagem: 650x350px</small>
       </div>
 
       <div className="form-group">
@@ -449,6 +506,7 @@ export default function EventoForm({
   );
 }
 
+// Suas funções auxiliares originais mantidas
 function formatDateToInput(dateStr: string): string {
   const date = parseISO(dateStr);
   return format(date, "yyyy-MM-dd'T'HH:mm");

@@ -29,6 +29,7 @@
 .form-input,
 .form-input-date {
   width: 100%;
+  min-width: 160px;
   padding: 0.4rem 0.8rem;
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -38,6 +39,7 @@
 
 .form-input-date {
   width: 148px;
+  text-align: center;
   padding: 0.4rem 0.6rem;
 }
 
@@ -81,7 +83,7 @@ small {
 }
 
 .form-group-dates-item {
-  width: 140px;
+  width: 160px;
 }
 
 .input-date {
