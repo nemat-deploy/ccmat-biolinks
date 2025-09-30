@@ -66,7 +66,6 @@ export default function EventoForm({
   const [admins, setAdmins] = useState<Usuario[]>([]);
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [adminLoading, setAdminLoading] = useState(true);
-  // ✅ NOVO: Estado para controlar a visibilidade da dica de ajuda
   const [showImageTooltip, setShowImageTooltip] = useState(false);
 
   // Efeito para preencher o formulário
@@ -294,7 +293,6 @@ export default function EventoForm({
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className="form-input" />
       </div>
       
-      {/* ✅ AJUSTE APLICADO AQUI */}
       <div className="form-group">
         <label style={{ display: 'flex', alignItems: 'center', cursor: 'default' }}>
           URL da imagem do evento (opcional)
@@ -337,7 +335,7 @@ export default function EventoForm({
                 zIndex: 10,
                 boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
               }}>
-                Você pode usar o <a href="https://postimages.org/" target="_blank" rel="noopener noreferrer" style={{ color: '#82b1ff', textDecoration: 'underline' }}>Postimage</a> para hospedar sua imagem e pegar o link direto.
+                Você pode usar o <a href="https://postimages.org/" target="_blank" rel="noopener noreferrer" style={{ color: '#82b1ff', textDecoration: 'underline' }}>Postimage</a> ou <a href="https://imgbb.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#82b1ff', textDecoration: 'underline' }}>imgbb</a> para hospedar sua imagem e pegar o Link Direto.
                 <div style={{
                   position: 'absolute',
                   top: '100%',
@@ -351,13 +349,36 @@ export default function EventoForm({
             )}
           </div>
         </label>
-        <input 
-          type="url" 
-          value={imageUrl} 
-          onChange={(e) => setImageUrl(e.target.value)} 
-          placeholder="https://exemplo.com/imagem.png"
-          className="form-input" 
-        />
+        {/* ✅ AJUSTE APLICADO AQUI */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <input 
+              type="url" 
+              value={imageUrl} 
+              onChange={(e) => setImageUrl(e.target.value)} 
+              placeholder="Cole a URL da imagem aqui"
+              className="form-input"
+              style={{ flexGrow: 1 }}
+            />
+            {imageUrl && (
+              <button
+                type="button"
+                onClick={() => setImageUrl('')}
+                style={{
+                  padding: '8px 12px',
+                  backgroundColor: '#fbe9e7',
+                  color: '#c62828',
+                  border: '1px solid #ffccbc',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: '500',
+                  fontSize: '14px',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                Remover
+              </button>
+            )}
+        </div>
         <small>Tamanho ideal da imagem: 650x350px</small>
       </div>
 

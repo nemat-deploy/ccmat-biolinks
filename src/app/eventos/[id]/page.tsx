@@ -236,7 +236,7 @@ export default function EventoPage() {
 
       {!formEnviado && mensagem && !prazoEncerrado && <p className="error-message">{mensagem}</p>}
 
-      <Link href="/eventos" className="back-link">Voltar para Eventos</Link>
+      {/* <Link href="/eventos" className="back-link">Voltar para Eventos</Link> */}
     </div>
   );
 }
