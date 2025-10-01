@@ -52,7 +52,7 @@ body {
   color: #1a202c;
 }
 
-.container p {
+.container > p { /* Seletor para afetar apenas parágrafos diretos do container */
   font-size: 1.05rem;
   line-height: 1.7;
   color: #4a5568;
@@ -68,6 +68,62 @@ body {
   text-align: left;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid #e2e8f0;
+}
+
+/* --- Conteúdo da Descrição (Tiptap) --- */
+.event-description-content {
+  text-align: left;
+  line-height: 1.7;
+  margin: 2rem 0;
+  font-size: 1.05rem;
+  color: #4a5568;
+}
+
+.event-description-content h1,
+.event-description-content h2,
+.event-description-content h3 {
+  margin-top: 1.8rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #2d3748;
+  line-height: 1.3;
+}
+.event-description-content h1 { font-size: 1.6rem; }
+.event-description-content h2 { font-size: 1.4rem; }
+.event-description-content h3 { font-size: 1.2rem; }
+
+.event-description-content a {
+  color: #3182ce;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.event-description-content p {
+  margin-bottom: 1.2rem;
+}
+
+.event-description-content ul,
+.event-description-content ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.2rem;
+}
+.event-description-content li {
+  margin-bottom: 0.5rem;
+}
+
+.event-description-content blockquote {
+  border-left: 3px solid #e2e8f0;
+  margin: 1.5rem 0;
+  padding-left: 1.5rem;
+  color: #718096;
+  font-style: italic;
+}
+
+.event-description-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1.5rem 0;
 }
 
 /* --- Formulário de Inscrição --- */
@@ -208,3 +264,46 @@ button[type="submit"]:active,
   }
 }
 
+/* indicador status */
+.eventoStatus {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: capitalize;
+  font-size: 0.9rem;
+}
+
+.status-aberto {
+  background-color: #c6f6d5;
+  color: #2f855a; 
+}
+
+.status-encerrado {
+  background-color: #fed7d7;
+  color: #c53030; 
+}
+
+/* bloco de contatos */
+.event-contact-info {
+  margin-top: 2.5rem;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+}
+.event-contact-info h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2c5282;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+.event-contact-info p {
+  font-size: 1rem;
+  color: #4a5568;
+  margin: 0.25rem 0;
+  line-height: 1.6;
+}
+.event-contact-info strong {
+  color: #2d3748;
+}

@@ -8,7 +8,7 @@ export default function FooterEventos() {
   return (
     <footer className="footer-eventos">
       <nav className="footer-nav">
-        <Link href="/eventos/">Eventos</Link>
+        {/* <Link href="/eventos/">Eventos</Link> */}
         <Link href="/eventos/minhas-inscricoes/">Minhas Inscrições</Link>
         <Link href="/">CCMAT</Link>
         <a href="https://nemat-ufdpar.vercel.app" target="_blank" rel="noopener noreferrer">

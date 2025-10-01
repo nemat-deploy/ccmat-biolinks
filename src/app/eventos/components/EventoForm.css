@@ -1,7 +1,7 @@
 /* src/app/eventos/components/EventoForm.css */
 
 .evento-form {
-  max-width: 600px;
+  max-width: 700px;
   margin: 12px auto 60px auto;
   padding: 12px;
   background-color: #ffffff;
@@ -53,6 +53,9 @@
 
 small {
   color: gray;
+  font-size: 0.8rem;
+  display: block;
+  margin-top: 4px;
 }
 .form-input:focus {
   border-color: #0070f3;
@@ -90,7 +93,66 @@ small {
   text-align: center;
 }
 
-/* Estilos compartilhados */
+/* --- Estilos para o Editor Tiptap --- */
+.tiptap-container {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fff;
+  margin-top: 8px;
+}
+
+.tiptap-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ccc;
+}
+
+.tiptap-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background-color: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+  transition: background-color 0.2s;
+}
+
+.tiptap-toolbar button:hover {
+  background-color: #e9ecef;
+}
+
+.tiptap-toolbar button.is-active {
+  background-color: #dbe4ff;
+  color: #0056b3;
+}
+
+.tiptap-editor {
+  padding: 12px;
+  min-height: 150px; /* Altura mínima de aproximadamente 6 linhas */
+  outline: none;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.tiptap-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #adb5bd;
+  pointer-events: none;
+  height: 0;
+}
+
+/* --- Botões do Formulário --- */
 .button,
 .submit-button,
 .cancel-button {
@@ -104,27 +166,25 @@ small {
   transition: all 0.3s ease;
 }
 
-/* Estilos específicos */
 .submit-button.creating {
-  background-color: #1976d2; /* Verde para criação */
+  background-color: #1976d2;
 }
 
 .submit-button.creating:hover {
-  background-color: #094c8e; /* Verde mais escuro no hover */
+  background-color: #094c8e;
 }
 
 .submit-button.editing {
-  background-color: #1ec244; /* Azul para edição */
+  background-color: #1ec244;
 }
 
 .submit-button.editing:hover {
-  background-color: #12892e; /* Azul mais escuro no hover */
+  background-color: #12892e;
 }
 
 .submit-button:disabled {
   cursor: not-allowed;
   opacity: 0.6;
-  /* Mantém a cor original quando desabilitado */
 }
 
 .cancel-button {
@@ -135,31 +195,18 @@ small {
   background-color: #6f6f6f;
 }
 
-/* Container */
 .form-buttons {
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
 }
 
-.radio-group {
-  display: flex;
-  gap: 1rem;
-}
-
-.radio-option {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 14px;
-}
-
-/* start checkbox requer atividade final */
+/* --- Outros Estilos --- */
 input[type="checkbox"] {
   width: 18px;
   height: 18px;
   cursor: pointer;
-  margin-right: 6px;
+  margin-right: 8px;
   vertical-align: middle;
 }
 
@@ -170,4 +217,33 @@ input[type="checkbox"] {
   cursor: pointer;
 }
 
-/* end checkbox requer atividade final */
+.form-group-admins {
+  border: 1px solid #BDBDBD;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 1.5rem;
+}
+
+.form-group-admins h3 {
+  font-size: 18px;
+  margin-top: 4px;
+  margin-bottom: 1rem;
+}
+
+.admin-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.remove-admin-btn {
+  margin-left: 8px;
+  background-color: #FCC6BB;
+  border-radius: 8px;
+  border: none;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+}
+

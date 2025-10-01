@@ -1,4 +1,4 @@
-// src/app/eventos/certificados/page.tsx
+// src/app/eventos/minhas-inscricoes/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -23,7 +23,7 @@ function validarCPF(cpf: string) {
   return resto === Number(cpf[10]);
 }
 
-export default function CertificadosPage() {
+export default function MinhasInscricoesPage() {
   const [cpf, setCpf] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{
@@ -33,6 +33,8 @@ export default function CertificadosPage() {
       nome: string;
       nomeInscrito: string;
       emailInscrito: string;
+      contactEmail?: string; // ✅ NOVO
+      contactPhone?: string; // ✅ NOVO
       dataInscricao: Date | null;
       presencas: number;
       totalSessoes: number;
@@ -55,11 +57,9 @@ export default function CertificadosPage() {
     setResult(null);
 
     try {
-      // busca todos os eventos
       const eventosSnapshot = await getDocs(collection(db, "eventos"));
       const eventosComInscricao = [];
 
-      // pra cada evento, verifica se o CPF está inscrito
       for (const eventoDoc of eventosSnapshot.docs) {
         const inscricaoRef = doc(db, "eventos", eventoDoc.id, "inscricoes", rawCpf);
         const inscricaoSnap = await getDoc(inscricaoRef);
@@ -71,22 +71,22 @@ export default function CertificadosPage() {
           const minPresenca = eventoData.minAttendancePercentForCertificate || 80;
           const totalSessoes = eventoData.totalSessoes || 1;
           const presencas = inscricaoData.attendances?.length || 0;
-          const percentual = Math.round((presencas / totalSessoes) * 100);
-
-        // verifica se o evento requer atividade final, se sim verifica se o participante enviou
-        const requerAtividadeFinal = eventoData?.requer_atividade_final === true;
-        const enviouAtividadeFinal = Boolean(inscricaoData.enviou_atividade_final);
+          const percentual = totalSessoes > 0 ? Math.round((presencas / totalSessoes) * 100) : 0;
+          const requerAtividadeFinal = eventoData?.requer_atividade_final === true;
+          const enviouAtividadeFinal = Boolean(inscricaoData.enviou_atividade_final);
 
           eventosComInscricao.push({
             id: eventoDoc.id,
             nome: eventoData.name,
             nomeInscrito: inscricaoData.nome, 
             emailInscrito: inscricaoData.email,
+            contactEmail: eventoData.contactEmail, // ✅ NOVO
+            contactPhone: eventoData.contactPhone, // ✅ NOVO
             presencas,
             totalSessoes,
             percentual,
             certificado: percentual >= minPresenca && (!requerAtividadeFinal || enviouAtividadeFinal),
-            dataInscricao: inscricaoData.dataInscricao?.toDate?.() || null // data formatada
+            dataInscricao: inscricaoData.dataInscricao?.toDate?.() || null
           });
         }
       }
@@ -94,16 +94,15 @@ export default function CertificadosPage() {
       if (eventosComInscricao.length === 0) {
         setError("Nenhuma inscrição encontrada para este CPF");
       } else {
-        // obtendo o nome do primeiro documento de inscrição
-        const primeiroInscricao = await getDoc(doc(db, "eventos", eventosComInscricao[0].id, "inscricoes", rawCpf));
+        const primeiroNome = eventosComInscricao[0].nomeInscrito || "Participante";
         setResult({
-          nome: primeiroInscricao.data()?.nome || "Participante",
+          nome: primeiroNome,
           eventos: eventosComInscricao
         });
       }
     } catch (err) {
       console.error("Erro na consulta:", err);
-      setError("Erro ao buscar certificados. Tente novamente.");
+      setError("Erro ao buscar inscrições. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -132,47 +131,50 @@ export default function CertificadosPage() {
 
       {error && <p className="error">{error}</p>}
 
-{result && (
-  <div className="resultado">
-    <h2>Certificados que serão disponibilizados:</h2>
-    
-    <div className="eventos-grid">
-      {result.eventos.map((evento) => (
-        <div key={evento.id} className="evento-card">
-          <h3>{evento.nome}</h3>
+      {result && (
+        <div className="resultado">
+          <h2>Resultados para: {result.nome}</h2>
           
-          <div className="info-group">
-            <h4>Dados da Inscrição:</h4>
-            <p><strong>Nome:</strong> {evento.nomeInscrito}</p>
-            <p><strong>Email:</strong> {evento.emailInscrito}</p>
-            {/*<p><strong>Data de inscrição:</strong> {evento.dataInscricao?.toLocaleDateString?.() || 'Não informada'}</p>*/}
+          <div className="eventos-grid">
+            {result.eventos.map((evento) => (
+              <div key={evento.id} className="evento-card">
+                <h3>{evento.nome}</h3>
+                
+                <div className="info-group">
+                  <h4>Dados da Inscrição:</h4>
+                  <p><strong>Nome:</strong> {evento.nomeInscrito}</p>
+                  <p><strong>Email:</strong> {evento.emailInscrito}</p>
+                </div>
+
+                <div className="info-group">
+                  <h4></h4>
+                  <p>
+                    <strong>Certificado? </strong>
+                    <span className={evento.certificado ? "success" : "warning"}>
+                      {evento.certificado ? "✅ Sim" : "❌ Não"}
+                    </span>
+                  </p>
+                </div>
+
+                {evento.nomeInscrito !== result.nome && (
+                  <p className="discrepancy-warning">
+                    ⚠️ O nome nesta inscrição difere do seu nome principal.
+                  </p>
+                )}
+              </div>
+            ))}
           </div>
 
-          <div className="info-group">
-{/*            <h4>Frequência:</h4>
-            <p><strong>Presenças:</strong> {evento.presencas}/{evento.totalSessoes}</p>
-            <p><strong>Percentual:</strong> {evento.percentual}%</p>*/}
-            <strong style={{ color: 'black' }}>Certificado: </strong>
-            <span className={evento.certificado ? "success" : "warning"}>
-              {evento.certificado ? "✅ Sim" : "❌ Não"}
-            </span>
-          </div>
-
-          {evento.nomeInscrito !== result.eventos[0].nomeInscrito && (
-            <p className="discrepancy-warning">
-              ⚠️ O nome nesta inscrição difere do seu nome principal
+          {/* ✅ AJUSTE: Bloco de contato dinâmico, exibindo os dados do primeiro evento encontrado */}
+          <div className="contact-info">
+            <h3>Encontrou erros?</h3>
+            <p>
+              Entre em contato com a organização do evento.
             </p>
-          )}
+          </div>
         </div>
-      ))}
-    </div>
-
-    <div className="contact-info">
-      <h3>Encontrou erros?</h3>
-      <p>Entre em contato com a organização: <br /> <strong>nemat.ufdpar@gmail.com</strong></p>
-    </div>
-  </div>
-)}
+      )}
     </div>
   );
 }
+

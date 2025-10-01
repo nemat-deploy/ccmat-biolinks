@@ -16,7 +16,9 @@ export type Evento = {
   id: string;
   name: string;
   description: string;
-  imageUrl?: string; // ✅ ADICIONADO
+  imageUrl?: string;
+  contactEmail?: string; 
+  contactPhone?: string;
   startDate: Date | null;
   endDate: Date | null;
   registrationDeadLine: Date | null;
@@ -114,3 +116,4 @@ export interface ParticipanteComCertificado extends ParticipanteDataWithDate {
   attendances: Attendance[];
   certificateIssued: boolean;
 }
+

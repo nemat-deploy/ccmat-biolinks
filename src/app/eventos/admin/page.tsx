@@ -236,7 +236,7 @@ export default function AdminPage() {
                 onClick={() => handleDeleteClick(evento)}
               >
                 <FontAwesomeIcon icon={faTrash} />
-                <span>excluir</span>
+                {/* <span>excluir</span> */}
               </button>
             </div>
           </li>

@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState, FormEvent, useCallback } from "react";
 import { doc, setDoc, updateDoc, collection, query, where, getDocs, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
@@ -14,6 +14,23 @@ import { format, parseISO } from 'date-fns';
 import { IMaskInput } from 'react-imask';
 import { formatDateToBrazilianDateTime } from '@/utils/dateUtils';
 
+// Importações para o Tiptap e suas extensões
+import { useEditor, EditorContent, Editor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import TextAlign from '@tiptap/extension-text-align';
+import { Color } from '@tiptap/extension-color';
+import { TextStyle } from '@tiptap/extension-text-style';
+import Link from '@tiptap/extension-link';
+
+// Importações para os ícones do FontAwesome
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faBold, faItalic, faStrikethrough, faParagraph, 
+  faListUl, faListOl, faHeading,
+  faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify,
+  faLink, faUnlink
+} from '@fortawesome/free-solid-svg-icons';
+
 // Suas funções de data originais mantidas
 const parseDateString = (value: string): Date | null => {
   const [datePart, timePart] = value.split(" ");
@@ -22,6 +39,53 @@ const parseDateString = (value: string): Date | null => {
   const [hour, minute] = timePart.split(":");
   const localDate = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute));
   return isNaN(localDate.getTime()) ? null : localDate;
+};
+
+// Componente da barra de ferramentas com os novos botões
+const MenuBar = ({ editor }: { editor: Editor | null }) => {
+  if (!editor) {
+    return null;
+  }
+
+  const setLink = useCallback(() => {
+    const previousUrl = editor.getAttributes('link').href;
+    const url = window.prompt('URL', previousUrl);
+
+    if (url === null) {
+      return;
+    }
+    if (url === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
+    }
+    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+  }, [editor]);
+
+  return (
+    <div className="tiptap-toolbar">
+      <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={editor.isActive('bold') ? 'is-active' : ''} title="Negrito"><FontAwesomeIcon icon={faBold} /></button>
+      <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={editor.isActive('italic') ? 'is-active' : ''} title="Itálico"><FontAwesomeIcon icon={faItalic} /></button>
+      <button type="button" onClick={setLink} className={editor.isActive('link') ? 'is-active' : ''} title="Adicionar Link"><FontAwesomeIcon icon={faLink} /></button>
+      <button type="button" onClick={() => editor.chain().focus().unsetLink().run()} disabled={!editor.isActive('link')} title="Remover Link"><FontAwesomeIcon icon={faUnlink} /></button>
+      <button type="button" onClick={() => editor.chain().focus().toggleStrike().run()} className={editor.isActive('strike') ? 'is-active' : ''} title="Riscado"><FontAwesomeIcon icon={faStrikethrough} /></button>
+      <button type="button" onClick={() => editor.chain().focus().setParagraph().run()} className={editor.isActive('paragraph') ? 'is-active' : ''} title="Parágrafo"><FontAwesomeIcon icon={faParagraph} /></button>
+      <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} className={editor.isActive('heading', { level: 1 }) ? 'is-active' : ''} title="Título 1">H1</button>
+      <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={editor.isActive('heading', { level: 2 }) ? 'is-active' : ''} title="Título 2">H2</button>
+      <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={editor.isActive('bulletList') ? 'is-active' : ''} title="Lista com marcadores"><FontAwesomeIcon icon={faListUl} /></button>
+      <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={editor.isActive('orderedList') ? 'is-active' : ''} title="Lista numerada"><FontAwesomeIcon icon={faListOl} /></button>
+      <button type="button" onClick={() => editor.chain().focus().setTextAlign('left').run()} className={editor.isActive({ textAlign: 'left' }) ? 'is-active' : ''} title="Alinhar à Esquerda"><FontAwesomeIcon icon={faAlignLeft} /></button>
+      <button type="button" onClick={() => editor.chain().focus().setTextAlign('center').run()} className={editor.isActive({ textAlign: 'center' }) ? 'is-active' : ''} title="Centralizar"><FontAwesomeIcon icon={faAlignCenter} /></button>
+      <button type="button" onClick={() => editor.chain().focus().setTextAlign('right').run()} className={editor.isActive({ textAlign: 'right' }) ? 'is-active' : ''} title="Alinhar à Direita"><FontAwesomeIcon icon={faAlignRight} /></button>
+      <button type="button" onClick={() => editor.chain().focus().setTextAlign('justify').run()} className={editor.isActive({ textAlign: 'justify' }) ? 'is-active' : ''} title="Justificar"><FontAwesomeIcon icon={faAlignJustify} /></button>
+      <input
+        type="color"
+        onInput={event => editor.chain().focus().setColor((event.target as HTMLInputElement).value).run()}
+        value={editor.getAttributes('textStyle').color || '#000000'}
+        title="Cor do Texto"
+        className="tiptap-color-picker"
+      />
+    </div>
+  );
 };
 
 interface EventoFormProps {
@@ -43,38 +107,57 @@ export default function EventoForm({
 }: EventoFormProps) {
   const router = useRouter();
   
-  // Estados do formulário original
-  const [localSlug, setLocalSlug] = useState(eventoId || "");
-  const [name, setName] = useState<string>(eventoData?.name || "");
-  const [description, setDescription] = useState<string>(eventoData?.description || "");
+  // Estados do formulário
+  const [localSlug, setLocalSlug] = useState("");
+  const [name, setName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>("");
-  const [startDate, setStartDate] = useState<Date | null>(eventoData?.startDate || null);
-  const [endDate, setEndDate] = useState<Date | null>(eventoData?.endDate || null);
-  const [registrationDeadLine, setRegistrationDeadLine] = useState<Date | null>(eventoData?.registrationDeadLine || null);
-  const [maxParticipants, setMaxParticipants] = useState<string>(eventoData?.maxParticipants?.toString() || "");
-  const [totalSessoes, setTotalSessoes] = useState<string>(eventoData?.totalSessoes?.toString() || "");
-  const [minAttendancePercentForCertificate, setMinAttendancePercentForCertificate] = useState<string>(eventoData?.minAttendancePercentForCertificate?.toString() || "60");
-  const [status, setStatus] = useState<StatusEvento>(eventoData?.status || "aberto");
-  const [requerAtividadeFinal, setRequerAtividadeFinal] = useState<boolean>(eventoData?.requer_atividade_final ?? false);
+  const [contactEmail, setContactEmail] = useState<string>("");
+  const [contactPhone, setContactPhone] = useState<string>("");
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [registrationDeadLine, setRegistrationDeadLine] = useState<Date | null>(null);
+  const [maxParticipants, setMaxParticipants] = useState<string>("");
+  const [totalSessoes, setTotalSessoes] = useState<string>("");
+  const [minAttendancePercentForCertificate, setMinAttendancePercentForCertificate] = useState<string>("60");
+  const [status, setStatus] = useState<StatusEvento>("aberto");
+  const [requerAtividadeFinal, setRequerAtividadeFinal] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Estados para inputs com máscara
-  const [startDateInput, setStartDateInput] = useState(eventoData?.startDate ? formatDateToBrazilianDateTime(eventoData.startDate) : '');
-  const [endDateInput, setEndDateInput] = useState(eventoData?.endDate ? formatDateToBrazilianDateTime(eventoData.endDate) : '');
-  const [registrationDeadLineInput, setRegistrationDeadLineInput] = useState(eventoData?.registrationDeadLine ? formatDateToBrazilianDateTime(eventoData.registrationDeadLine) : '');
-
+  const [startDateInput, setStartDateInput] = useState('');
+  const [endDateInput, setEndDateInput] = useState('');
+  const [registrationDeadLineInput, setRegistrationDeadLineInput] = useState('');
   const [admins, setAdmins] = useState<Usuario[]>([]);
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [adminLoading, setAdminLoading] = useState(true);
   const [showImageTooltip, setShowImageTooltip] = useState(false);
 
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({ link: false }),
+      Link.configure({ openOnClick: false, autolink: true, HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer' } }),
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      TextStyle,
+      Color.configure({ types: [TextStyle.name] }),
+    ],
+    content: description,
+    immediatelyRender: false,
+    onUpdate: ({ editor }) => { setDescription(editor.getHTML()); },
+    editorProps: {
+      attributes: { class: 'tiptap-editor', placeholder: 'Descreva o evento...' },
+    },
+  });
+
   // Efeito para preencher o formulário
   useEffect(() => {
+    const currentUserEmail = auth.currentUser?.email || "";
     if (isEditing && eventoData) {
       setLocalSlug(eventoData.id || "");
       setName(eventoData.name);
       setDescription(eventoData.description);
       setImageUrl(eventoData.imageUrl || "");
+      // ✅ CORREÇÃO: No modo de edição, mostra o que está salvo (ou vazio), sem usar o email do usuário como fallback.
+      setContactEmail(eventoData.contactEmail || "");
+      setContactPhone(eventoData.contactPhone || "");
       setStartDate(eventoData.startDate);
       setEndDate(eventoData.endDate);
       setRegistrationDeadLine(eventoData.registrationDeadLine);
@@ -86,11 +169,16 @@ export default function EventoForm({
       setStartDateInput(eventoData.startDate ? formatDateToBrazilianDateTime(eventoData.startDate) : '');
       setEndDateInput(eventoData.endDate ? formatDateToBrazilianDateTime(eventoData.endDate) : '');
       setRegistrationDeadLineInput(eventoData.registrationDeadLine ? formatDateToBrazilianDateTime(eventoData.registrationDeadLine) : '');
+      if (editor && eventoData.description !== editor.getHTML()) {
+        editor.commands.setContent(eventoData.description);
+      }
     } else {
-      // Reset para formulário de criação
+      // No modo de criação, define o email do usuário como padrão.
       setName("");
       setDescription("");
       setImageUrl("");
+      setContactEmail(currentUserEmail);
+      setContactPhone("");
       setStartDate(null);
       setEndDate(null);
       setRegistrationDeadLine(null);
@@ -103,10 +191,11 @@ export default function EventoForm({
       setStartDateInput('');
       setEndDateInput('');
       setRegistrationDeadLineInput('');
+      editor?.commands.clearContent();
     }
-  }, [isEditing, eventoData]);
+  }, [isEditing, eventoData, editor]);
 
-  // Efeito para buscar os dados dos admins atuais do evento
+  // (O restante do código, como useEffects e handles, permanece igual)
   useEffect(() => {
     const fetchAdminsData = async () => {
       setAdminLoading(true);
@@ -114,28 +203,17 @@ export default function EventoForm({
         try {
           const adminPromises = eventoData.admins.map(adminId => getDoc(doc(db, "users", adminId)));
           const adminDocs = await Promise.all(adminPromises);
-          const adminsList = adminDocs
-            .filter(docSnap => docSnap.exists())
-            .map(docSnap => ({ id: docSnap.id, ...docSnap.data() } as Usuario));
+          const adminsList = adminDocs.filter(docSnap => docSnap.exists()).map(docSnap => ({ id: docSnap.id, ...docSnap.data() } as Usuario));
           setAdmins(adminsList);
-        } catch (error) {
-          console.error("Erro ao buscar dados dos administradores:", error);
-        }
+        } catch (error) { console.error("Erro ao buscar admins:", error); }
       } else if (!isEditing) {
         const currentUser = auth.currentUser;
         if(currentUser) {
-          const creatorAsAdmin: Usuario = {
-            id: currentUser.uid,
-            email: currentUser.email || 'N/A',
-            nome: currentUser.displayName || 'Criador',
-            role: 'user'
-          };
-          setAdmins([creatorAsAdmin]);
+          setAdmins([{ id: currentUser.uid, email: currentUser.email || 'N/A', nome: currentUser.displayName || 'Criador', role: 'user' }]);
         }
       }
       setAdminLoading(false);
     };
-
     fetchAdminsData();
   }, [isEditing, eventoData]);
   
@@ -146,11 +224,7 @@ export default function EventoForm({
   };
 
   const handleSlugBlur = () => {
-    const slug = slugify(localSlug, {
-      lower: true,
-      strict: false,
-      remove: /[*+~.()'"!:@]/g,
-    });
+    const slug = slugify(localSlug, { lower: true, strict: false, remove: /[*+~.()'"!:@]/g });
     setLocalSlug(slug);
     if (setEventoId) setEventoId(slug);
   };
@@ -158,22 +232,17 @@ export default function EventoForm({
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const user = auth.currentUser;
-    if (!user) {
-      alert("Você precisa estar logado para salvar um evento.");
-      return;
-    }
-    
-    if (!name.trim() || !startDate || !endDate || !registrationDeadLine) {
-      alert("Título e todas as datas são obrigatórios.");
-      return;
-    }
+    if (!user) { alert("Você precisa estar logado."); return; }
+    if (!name.trim() || !startDate || !endDate || !registrationDeadLine) { alert("Título e datas são obrigatórios."); return; }
 
     const adminIds = admins.map(admin => admin.id);
 
     const data: Omit<Evento, 'id'> = {
       name: name.trim(),
-      description: description.trim(),
+      description: description,
       imageUrl: imageUrl.trim(),
+      contactEmail: contactEmail.trim(),
+      contactPhone: contactPhone.replace(/\D/g, ''),
       startDate,
       endDate,
       registrationDeadLine,
@@ -191,93 +260,48 @@ export default function EventoForm({
     setIsSubmitting(true);
     try {
       if (isEditing && eventoId) {
-        const eventoRef = doc(db, "eventos", eventoId);
-        await updateDoc(eventoRef, data);
+        await updateDoc(doc(db, "eventos", eventoId), data);
         alert("Evento atualizado com sucesso.");
-        router.push('/eventos/admin');
       } else {
         const novoSlug = localSlug.trim() || slugify(name, { lower: true, strict: true });
-        const eventoRef = doc(db, "eventos", novoSlug);
-        
-        const finalData = { 
-          ...data, 
-          id: novoSlug, 
-          createdBy: user.uid,
-        };
-        
-        await setDoc(eventoRef, finalData);
-        
-        if (onEventoCriado) {
-          onEventoCriado(novoSlug);
-        }
-
+        await setDoc(doc(db, "eventos", novoSlug), { ...data, id: novoSlug, createdBy: user.uid });
+        if (onEventoCriado) onEventoCriado(novoSlug);
         alert("Evento criado com sucesso.");
-        router.push(`/eventos/admin`);
       }
+      router.push('/eventos/admin');
     } catch (error) {
-      console.error("Erro detalhado ao salvar o evento:", error);
-      let errorMessage = "Erro ao salvar o evento.";
-      if (error instanceof Error) {
-        errorMessage += `\n\nDetalhes: ${error.message}`;
-      }
-      alert(errorMessage);
+      console.error("Erro ao salvar:", error);
+      alert(`Erro ao salvar: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleAddAdmin = async () => {
-    if (!newAdminEmail.trim()) {
-      alert("Por favor, insira um email.");
-      return;
-    }
+    if (!newAdminEmail.trim()) { alert("Insira um email."); return; }
     try {
-      const usersRef = collection(db, "users");
-      const q = query(usersRef, where("email", "==", newAdminEmail.trim()));
+      const q = query(collection(db, "users"), where("email", "==", newAdminEmail.trim()));
       const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        alert("Nenhum usuário encontrado com este email.");
-        return;
-      }
-
-      const userDoc = querySnapshot.docs[0];
-      const newAdmin = { id: userDoc.id, ...userDoc.data() } as Usuario;
-
-      if (admins.some(admin => admin.id === newAdmin.id)) {
-        alert("Este usuário já é um administrador do evento.");
-        return;
-      }
-
+      if (querySnapshot.empty) { alert("Usuário não encontrado."); return; }
+      const newAdmin = { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() } as Usuario;
+      if (admins.some(admin => admin.id === newAdmin.id)) { alert("Usuário já é admin."); return; }
       setAdmins([...admins, newAdmin]);
       setNewAdminEmail('');
-    } catch (error) {
-      console.error("Erro ao adicionar administrador:", error);
-      alert("Ocorreu um erro ao buscar o usuário.");
-    }
+    } catch (error) { console.error("Erro ao adicionar admin:", error); alert("Erro ao buscar usuário."); }
   };
 
   const handleRemoveAdmin = (adminId: string) => {
-    if (eventoData?.createdBy === adminId) {
-      alert("O criador original do evento não pode ser removido.");
-      return;
-    }
-    if (admins.length <= 1) {
-      alert("O evento deve ter pelo menos um administrador.");
-      return;
-    }
+    if (eventoData?.createdBy === adminId) { alert("O criador não pode ser removido."); return; }
+    if (admins.length <= 1) { alert("O evento precisa de ao menos um admin."); return; }
     setAdmins(admins.filter(admin => admin.id !== adminId));
   };
 
   const handleDateChange = (value: string, setter: (date: Date | null) => void) => {
     const parsedDate = parseDateString(value);
-    if (parsedDate) {
-        setter(parsedDate);
-    } else if (value.replace(/[_\s/:]/g, '').length < 14) {
-        setter(null);
-    }
+    if (parsedDate) { setter(parsedDate); } 
+    else if (value.replace(/[_\s/:]/g, '').length < 14) { setter(null); }
   };
-
+  
   return (
     <form onSubmit={handleSubmit} className="evento-form">
       {!isEditing && setEventoId && (
@@ -294,6 +318,30 @@ export default function EventoForm({
       </div>
       
       <div className="form-group">
+        <label>Email de Contato para Dúvidas:</label>
+        <input 
+          type="email" 
+          value={contactEmail} 
+          onChange={(e) => setContactEmail(e.target.value)} 
+          placeholder="email.contato@exemplo.com"
+          className="form-input" 
+        />
+        <small>Este email será exibido na página de consulta de inscrições.</small>
+      </div>
+
+      <div className="form-group">
+        <label>Telefone de Contato (Opcional):</label>
+        <IMaskInput
+          mask="(00) 00000-0000"
+          value={contactPhone}
+          onAccept={(value: any) => setContactPhone(value)}
+          placeholder="(99) 99999-9999"
+          className="form-input"
+        />
+        <small>Este telefone também será exibido para contato.</small>
+      </div>
+
+      <div className="form-group">
         <label style={{ display: 'flex', alignItems: 'center', cursor: 'default' }}>
           URL da imagem do evento (opcional)
           <div
@@ -302,54 +350,28 @@ export default function EventoForm({
             onMouseLeave={() => setShowImageTooltip(false)}
           >
             <span style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '16px',
-              height: '16px',
-              borderRadius: '50%',
-              backgroundColor: '#e0e0e0',
-              color: '#757575',
-              fontSize: '12px',
-              fontStyle: 'italic',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              userSelect: 'none'
+              display: 'flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px',
+              borderRadius: '50%', backgroundColor: '#e0e0e0', color: '#757575', fontSize: '12px',
+              fontStyle: 'italic', fontWeight: 'bold', cursor: 'pointer', userSelect: 'none'
             }}>
               i
             </span>
             {showImageTooltip && (
               <div style={{
-                position: 'absolute',
-                bottom: '125%',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                backgroundColor: '#333',
-                color: '#fff',
-                padding: '8px 12px',
-                borderRadius: '6px',
-                fontSize: '12px',
-                width: 'max-content',
-                maxWidth: '250px',
-                textAlign: 'center',
-                zIndex: 10,
-                boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                position: 'absolute', bottom: '125%', left: '50%', transform: 'translateX(-50%)',
+                backgroundColor: '#333', color: '#fff', padding: '8px 12px', borderRadius: '6px',
+                fontSize: '12px', width: 'max-content', maxWidth: '250px', textAlign: 'center',
+                zIndex: 10, boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
               }}>
                 Você pode usar o <a href="https://postimages.org/" target="_blank" rel="noopener noreferrer" style={{ color: '#82b1ff', textDecoration: 'underline' }}>Postimage</a> ou <a href="https://imgbb.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#82b1ff', textDecoration: 'underline' }}>imgbb</a> para hospedar sua imagem e pegar o Link Direto.
                 <div style={{
-                  position: 'absolute',
-                  top: '100%',
-                  left: '50%',
-                  marginLeft: '-5px',
-                  borderWidth: '5px',
-                  borderStyle: 'solid',
-                  borderColor: '#333 transparent transparent transparent'
+                  position: 'absolute', top: '100%', left: '50%', marginLeft: '-5px',
+                  borderWidth: '5px', borderStyle: 'solid', borderColor: '#333 transparent transparent transparent'
                 }}></div>
               </div>
             )}
           </div>
         </label>
-        {/* ✅ AJUSTE APLICADO AQUI */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <input 
               type="url" 
@@ -364,15 +386,9 @@ export default function EventoForm({
                 type="button"
                 onClick={() => setImageUrl('')}
                 style={{
-                  padding: '8px 12px',
-                  backgroundColor: '#fbe9e7',
-                  color: '#c62828',
-                  border: '1px solid #ffccbc',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  fontSize: '14px',
-                  whiteSpace: 'nowrap'
+                  padding: '8px 12px', backgroundColor: '#fbe9e7', color: '#c62828',
+                  border: '1px solid #ffccbc', borderRadius: '6px', cursor: 'pointer',
+                  fontWeight: '500', fontSize: '14px', whiteSpace: 'nowrap'
                 }}
               >
                 Remover
@@ -383,8 +399,11 @@ export default function EventoForm({
       </div>
 
       <div className="form-group">
-        <label>Descrição:</label>
-        <textarea value={description} onChange={(e) => setDescription(e.target.value)} required rows={4} className="form-input" />
+        <label>Descrição Detalhada:</label>
+        <div className="tiptap-container">
+          <MenuBar editor={editor} />
+          <EditorContent editor={editor} />
+        </div>
       </div>
 
       <div className="eventDates">
@@ -407,45 +426,15 @@ export default function EventoForm({
       
       <div className="form-group">
         <label>Máximo de participantes:</label>
-        <input
-          type="number"
-          value={maxParticipants}
-          onChange={(e) => {
-            const val = e.target.value;
-            if (val === "" || /^[0-9\b]+$/.test(val)) {
-              setMaxParticipants(val);
-            }
-          }}
-          required min={0} className="form-input"
-        />
+        <input type="number" value={maxParticipants} onChange={(e) => setMaxParticipants(e.target.value)} required min={0} className="form-input" />
       </div>
       <div className="form-group">
         <label>Total de sessões:</label>
-        <input
-          type="number"
-          value={totalSessoes}
-          onChange={(e) => {
-            const val = e.target.value;
-            if (val === "" || /^[0-9\b]+$/.test(val)) {
-              setTotalSessoes(val);
-            }
-          }}
-          required min={0} className="form-input"
-        />
+        <input type="number" value={totalSessoes} onChange={(e) => setTotalSessoes(e.target.value)} required min={0} className="form-input" />
       </div>
       <div className="form-group">
         <label>Presença mínima para certificado (%):</label>
-        <input
-          type="number"
-          value={minAttendancePercentForCertificate}
-          onChange={(e) => {
-            const val = e.target.value;
-            if (val === "" || (/^\d+$/.test(val) && Number(val) >= 0 && Number(val) <= 100)) {
-              setMinAttendancePercentForCertificate(val);
-            }
-          }}
-          required min={0} max={100} step={1} className="form-input"
-        />
+        <input type="number" value={minAttendancePercentForCertificate} onChange={(e) => setMinAttendancePercentForCertificate(e.target.value)} required min={0} max={100} step={1} className="form-input" />
         <small className="presenca-minima-hint">Digite um número entre 0 e 100.</small>
       </div>
 
@@ -464,51 +453,23 @@ export default function EventoForm({
       </div>
       
       {isEditing && (
-        <div className="form-group-admins" style={{ border: '1px solid #BDBDBD', borderRadius: '8px', padding: '8px'}}>
-          <h3 style={{ fontSize: '18px', marginTop: '4px' }}>Administradores do Evento</h3>
-          {adminLoading ? (
-            <p>Carregando...</p>
-          ) : (
+        <div className="form-group-admins">
+          <h3>Administradores do Evento</h3>
+          {adminLoading ? <p>Carregando...</p> : (
             <>
               <ul className="admin-list" style={{ listStyleType: 'none', paddingLeft: 0 }}>
                 {admins.map(admin => (
                   <li key={admin.id}>
                     <span>{admin.nome} ({admin.email})</span>
                     {admin.id !== eventoData?.createdBy && admins.length > 1 && (
-                       <button type="button" onClick={() => handleRemoveAdmin(admin.id)} className="remove-admin-btn" style={{ marginLeft: '4px', backgroundColor: '#FCC6BB', borderRadius: '8px', border: 'none', padding: '2px 4px', cursor: 'pointer' }}>
-                         Remover
-                       </button>
+                       <button type="button" onClick={() => handleRemoveAdmin(admin.id)} className="remove-admin-btn">Remover</button>
                     )}
                   </li>
                 ))}
               </ul>
               <div className="add-admin-section" style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
-                <input 
-                  type="email" 
-                  value={newAdminEmail} 
-                  onChange={(e) => setNewAdminEmail(e.target.value)} 
-                  placeholder="Email do novo administrador" 
-                  className="form-input" 
-                  style={{ flexGrow: 1 }}
-                />
-                <button
-                  type="button"
-                  onClick={handleAddAdmin}
-                  className="add-admin-btn"
-                  style={{
-                    padding: '4px 8px',
-                    fontSize: '14px',
-                    backgroundColor: '#e7f1ff',
-                    color: '#0056b3',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                    marginLeft: '10px'
-                  }}
-                >
-                  + Adicionar
-                </button>
+                <input type="email" value={newAdminEmail} onChange={(e) => setNewAdminEmail(e.target.value)} placeholder="Email do novo administrador" className="form-input" style={{ flexGrow: 1 }} />
+                <button type="button" onClick={handleAddAdmin} className="add-admin-btn" style={{ marginLeft: '10px' }}>+ Adicionar</button>
               </div>
             </>
           )}
@@ -517,17 +478,14 @@ export default function EventoForm({
 
       <div className="form-buttons">
         <button type="submit" disabled={isSubmitting} className={`submit-button ${isEditing ? "editing" : "creating"}`}>
-          {isSubmitting ? (isEditing ? "Salvando..." : "Criando...") : (isEditing ? "Salvar Alterações" : "Criar Evento")}
+          {isSubmitting ? "Salvando..." : (isEditing ? "Salvar Alterações" : "Criar Evento")}
         </button>
-        <button type="button" onClick={() => router.push('/eventos/admin')} className="cancel-button">
-          Voltar
-        </button>
+        <button type="button" onClick={() => router.push('/eventos/admin')} className="cancel-button">Voltar</button>
       </div>
     </form>
   );
 }
 
-// Suas funções auxiliares originais mantidas
 function formatDateToInput(dateStr: string): string {
   const date = parseISO(dateStr);
   return format(date, "yyyy-MM-dd'T'HH:mm");

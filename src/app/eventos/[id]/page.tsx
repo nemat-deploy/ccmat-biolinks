@@ -20,12 +20,15 @@ import { useEffect, useState } from "react";
 import { parseTimestamp, formatarData } from "@/lib/utils";
 import { onSnapshot } from "firebase/firestore"; 
 import LoadingMessage from "@/app/components/LoadingMessage";
+import 'react-quill/dist/quill.core.css';
 
 type Evento = {
   id: string;
   name: string;
   description: string;
   imageUrl?: string;
+  contactEmail?: string; // ✅ NOVO
+  contactPhone?: string; // ✅ NOVO
   startDate: Date;
   endDate: Date;
   registrationDeadLine: Date;
@@ -94,6 +97,8 @@ export default function EventoPage() {
           name: data.name,
           description: data.description,
           imageUrl: data.imageUrl,
+          contactEmail: data.contactEmail, // ✅ NOVO
+          contactPhone: data.contactPhone, // ✅ NOVO
           startDate: parseTimestamp(data.startDate) ?? new Date(0),
           endDate: parseTimestamp(data.endDate) ?? new Date(0),
           registrationDeadLine: parseTimestamp(data.registrationDeadLine) ?? new Date(0),
@@ -176,10 +181,28 @@ export default function EventoPage() {
         <h1>{evento.name}</h1>
       </div>
 
-      <p>{evento.description}</p>
-      <p>Início: {formatarData(evento.startDate)}<br />
-      Fim: {formatarData(evento.endDate)}</p>
-      <p><strong>Evento {evento.status}</strong></p>
+      <div 
+        className="event-description-content"
+        dangerouslySetInnerHTML={{ __html: evento.description }} 
+      />
+      
+      <p><strong>Início:</strong> {formatarData(evento.startDate)}<br />
+      <strong>Fim:</strong> {formatarData(evento.endDate)}</p>
+      <p><strong>
+        <span className={`eventoStatus status-${evento.status}`}>
+          Evento {evento.status}
+        </span>
+      </strong></p>
+
+      {/* ✅ AJUSTE: Bloco de contato dinâmico */}
+      {(evento.contactEmail || evento.contactPhone) && (
+        <div className="event-contact-info">
+          <h4>Dúvidas sobre o evento?</h4>
+          <p>Entre em contato com a organização:</p>
+          {evento.contactEmail && <p><strong>Email:</strong> {evento.contactEmail}</p>}
+          {evento.contactPhone && <p><strong>Telefone:</strong> {evento.contactPhone}</p>}
+        </div>
+      )}
 
       {prazoEncerrado && <p className="mensagem">⚠️ Inscrições encerradas.</p>}
       {eventoLotado && <p className="mensagem">⚠️ Vagas esgotadas.</p>}
@@ -235,8 +258,6 @@ export default function EventoPage() {
       )}
 
       {!formEnviado && mensagem && !prazoEncerrado && <p className="error-message">{mensagem}</p>}
-
-      {/* <Link href="/eventos" className="back-link">Voltar para Eventos</Link> */}
     </div>
   );
 }

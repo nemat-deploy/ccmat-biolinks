@@ -107,6 +107,8 @@ export async function getEventos(): Promise<Evento[]> {
       name: data.name,
       description: data.description || '',
       imageUrl: data.imageUrl || '',
+      contactEmail: data.contactEmail || '',
+      contactPhone: data.contactPhone || '',
       registrationsCount: data.registrationsCount || 0,
       status: data.status || 'aberto',
       startDate: data.startDate?.toDate(),
@@ -117,7 +119,7 @@ export async function getEventos(): Promise<Evento[]> {
       totalSessoes: data.totalSessoes ?? 0,
       sessions: data.sessions ?? [],
       createdBy: data.createdBy,
-      admins: data.admins || []
+      admins: data.admins || [],
     };
   });
 }
@@ -135,17 +137,19 @@ export async function getEvento(id: string): Promise<Evento | null> {
     name: data.name || '',
     description: data.description || '',
     imageUrl: data.imageUrl || '',
+    contactEmail: data.contactEmail || '', // ✅ CORREÇÃO
+    contactPhone: data.contactPhone || '', // ✅ CORREÇÃO
     registrationsCount: data.registrationsCount || 0,
     status: data.status || 'aberto',
-    startDate: data.startDate?.toDate() ?? null,
-    endDate: data.endDate?.toDate() ?? null,
-    registrationDeadLine: data.registrationDeadLine?.toDate() ?? null,
+    startDate: data.startDate?.toDate?.() ?? null,
+    endDate: data.endDate?.toDate?.() ?? null,
+    registrationDeadLine: data.registrationDeadLine?.toDate?.() ?? null,
     maxParticipants: data.maxParticipants || 0,
     totalSessoes: data.totalSessoes || 0,
     minAttendancePercentForCertificate: data.minAttendancePercentForCertificate || 0,
     requer_atividade_final: data.requer_atividade_final === true,
-    createdBy: data.createdBy || '',
-    admins: data.admins || []
+    createdBy: data.createdBy || null,
+    admins: data.admins || [],
   };
 }
 
@@ -154,6 +158,8 @@ export function buildEventoSemId(params: Partial<Evento>): EventoSemId {
     name: params.name ?? "",
     description: params.description ?? "",
     imageUrl: params.imageUrl ?? "",
+    contactEmail: params.contactEmail ?? "",
+    contactPhone: params.contactPhone ?? "",
     startDate: params.startDate ?? null,
     endDate: params.endDate ?? null,
     registrationDeadLine: params.registrationDeadLine ?? null,
@@ -164,10 +170,13 @@ export function buildEventoSemId(params: Partial<Evento>): EventoSemId {
     registrationsCount: params.registrationsCount ?? 0,
     sessions: params.sessions ?? [],
     createdBy: params.createdBy,
-    admins: params.admins
+    admins: params.admins,
   };
 }
 
+/**
+ * Busca participantes com o campo 'enviou_atividade_final' para uso específico na tela de administração
+ */
 export async function getInscritosComAtividadeFinal(eventoId: string): Promise<Participante[]> {
   try {
     const inscricoesRef = collection(db, 'eventos', eventoId, 'inscricoes');
@@ -175,6 +184,7 @@ export async function getInscritosComAtividadeFinal(eventoId: string): Promise<P
 
     return snapshot.docs.map(docSnap => {
       const data = docSnap.data();
+
       return {
         id: docSnap.id,
         nome: data.nome || '',
