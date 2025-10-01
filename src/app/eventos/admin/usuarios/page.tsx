@@ -18,7 +18,7 @@ import "./page.css";
 import LoadingMessage from "@/app/components/LoadingMessage";
 // ✅ AJUSTE: Importações para usar os ícones
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons'; // Corrigido: faEdit -> faPenToSquare
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
@@ -163,21 +163,19 @@ export default function UsuariosPage() {
               <td>{usuario.nome}</td>
               <td>{usuario.email}</td>
               <td>{usuario.role === "admin" ? "✅" : "❌"}</td>
-              <td className="actions-cell"> {/* Adicione uma classe se precisar de estilização específica */}
-                {/* ✅ AJUSTE: Botão de editar com ícone */}
+              <td className="actions-cell">
                 <button
                   className="botao-editar"
                   onClick={() => handleEditar(usuario)}
-                  title="Editar usuário" // Dica para o usuário
+                  title="Editar usuário"
                 >
-                  <FontAwesomeIcon icon={faEdit} />
+                  <FontAwesomeIcon icon={faPenToSquare} />
                 </button>
                 
-                {/* ✅ AJUSTE: Botão de excluir com ícone */}
                 <button
                   className="botao-excluir"
                   onClick={() => handleExcluir(usuario.id)}
-                  title="Excluir usuário" // Dica para o usuário
+                  title="Excluir usuário"
                 >
                   <FontAwesomeIcon icon={faTrash} />
                 </button>
@@ -248,3 +246,4 @@ export default function UsuariosPage() {
     </div>
   );
 }
+
