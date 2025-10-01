@@ -1,3 +1,4 @@
+// src/app/eventos/admin/[id]/page.tsx
 "use client";
 
 import { useEffect, useState, Fragment, useMemo } from "react";
@@ -17,10 +18,11 @@ import { onAuthStateChanged } from "firebase/auth";
 import { parseTimestamp } from "@/lib/utils";
 import { debugLog } from "@/lib/logger";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// ✅ AJUSTE: O ícone 'faEdit' foi substituído por 'faPenToSquare'
 import {
   faSearch,
   faTimes,
-  faEdit,
+  faPenToSquare, // Nome moderno do ícone de edição
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { Evento, Participante } from "@/types";
@@ -221,7 +223,6 @@ export default function AdminEventoPage() {
           </a>
         </div>
 
-        {/* exibir a URL aqui */}
         {id && (
           <p
             style={{
@@ -353,7 +354,8 @@ export default function AdminEventoPage() {
                       title="Editar"
                       onClick={() => startEdicao(p)}
                     >
-                      <FontAwesomeIcon icon={faEdit} />
+                      {/* ✅ AJUSTE: O ícone 'faEdit' foi substituído por 'faPenToSquare' */}
+                      <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
                     <button
                       className="btnExcluir"
