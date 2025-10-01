@@ -20,7 +20,6 @@ import { useEffect, useState } from "react";
 import { parseTimestamp, formatarData } from "@/lib/utils";
 import { onSnapshot } from "firebase/firestore"; 
 import LoadingMessage from "@/app/components/LoadingMessage";
-import 'react-quill/dist/quill.core.css';
 
 type Evento = {
   id: string;
