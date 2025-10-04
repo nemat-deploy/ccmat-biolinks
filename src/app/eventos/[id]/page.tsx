@@ -1,4 +1,3 @@
-// src/app/eventos/[id]/page.tsx
 "use client";
 
 import {
@@ -26,8 +25,8 @@ type Evento = {
   name: string;
   description: string;
   imageUrl?: string;
-  contactEmail?: string; // ✅ NOVO
-  contactPhone?: string; // ✅ NOVO
+  contactEmail?: string;
+  contactPhone?: string;
   startDate: Date;
   endDate: Date;
   registrationDeadLine: Date;
@@ -47,7 +46,7 @@ export default function EventoPage() {
 
   const [cpf, setCpf] = useState("");
   const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("sem@email.com");
+  const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [instituicao, setInstituicao] = useState("UFDPar");
 
@@ -96,8 +95,8 @@ export default function EventoPage() {
           name: data.name,
           description: data.description,
           imageUrl: data.imageUrl,
-          contactEmail: data.contactEmail, // ✅ NOVO
-          contactPhone: data.contactPhone, // ✅ NOVO
+          contactEmail: data.contactEmail,
+          contactPhone: data.contactPhone,
           startDate: parseTimestamp(data.startDate) ?? new Date(0),
           endDate: parseTimestamp(data.endDate) ?? new Date(0),
           registrationDeadLine: parseTimestamp(data.registrationDeadLine) ?? new Date(0),
@@ -119,6 +118,12 @@ export default function EventoPage() {
     const hoje = new Date();
     if (evento.registrationDeadLine && evento.registrationDeadLine < hoje) {
       setMensagem("⚠️ Inscrições encerradas para esse evento.");
+      return;
+    }
+    
+    // Bloqueia a submissão se o status for "fechado"
+    if (evento.status === "fechado") {
+      setMensagem("⚠️ Inscrições estão temporariamente fechadas pela organização.");
       return;
     }
 
@@ -170,6 +175,7 @@ export default function EventoPage() {
   const hoje = new Date();
   const prazoEncerrado = evento.registrationDeadLine && evento.registrationDeadLine < hoje;
   const eventoLotado = evento.maxParticipants > 0 && evento.registrationsCount >= evento.maxParticipants;
+  const statusFechado = evento.status === "fechado";
 
   return (
     <div className="container">
@@ -193,7 +199,7 @@ export default function EventoPage() {
         </span>
       </strong></p>
 
-      {/* ✅ AJUSTE: Bloco de contato dinâmico */}
+      {/* Bloco de contato dinâmico */}
       {(evento.contactEmail || evento.contactPhone) && (
         <div className="event-contact-info">
           <h4>Dúvidas sobre o evento?</h4>
@@ -203,14 +209,18 @@ export default function EventoPage() {
         </div>
       )}
 
+      {/* Mensagens de status do evento (fechamento automático/manual) */}
       {prazoEncerrado && <p className="mensagem">⚠️ Inscrições encerradas.</p>}
       {eventoLotado && <p className="mensagem">⚠️ Vagas esgotadas.</p>}
+      {statusFechado && <p className="mensagem">⚠️ Inscrições estão temporariamente fechadas pela organização.</p>}
 
-      {!(prazoEncerrado || eventoLotado) && (
+      {/* Título "Faça sua inscrição" */}
+      {!(prazoEncerrado || eventoLotado || statusFechado) && (
         <h3 className="section-title">Faça sua inscrição</h3>
       )}
 
-      {!formEnviado && !prazoEncerrado && !eventoLotado ? (
+      {/* Bloco principal de exibição de conteúdo */}
+      {!formEnviado && !prazoEncerrado && !eventoLotado && !statusFechado ? ( // Condição 1: Mostrar Formulário
         <form onSubmit={handleSubmit} className="form">
           <div className="form-floating">
             <input id="nome" type="text" value={nome} onChange={(e) => setNome(e.target.value)} required placeholder=" " autoFocus />
@@ -234,10 +244,10 @@ export default function EventoPage() {
           </div>
           <button type="submit">Enviar Inscrição</button>
         </form>
-      ) : formEnviado ? (
+      ) : formEnviado ? ( // Condição 2: Mostrar Sucesso
         <div className="success-container">
           <p className="success-message">✅ Inscrição realizada com sucesso!</p>
-          {!eventoLotado && (
+          {!(eventoLotado || statusFechado) && (
             <button 
               className="new-registration-btn"
               onClick={() => {
@@ -252,12 +262,16 @@ export default function EventoPage() {
             </button>
           )}
         </div>
-      ) : (
-        <p className="error-message">{mensagem}</p>
+      ) : ( 
+        // Condição 3 (ELSE): Mostrar Erros de Validação (Ajustado para evitar duplicidade de fundo vermelho)
+        // Este bloco só deve rodar se o formulário NÃO foi mostrado E a mensagem contém um erro de validação (ex: CPF inválido),
+        // pois as mensagens de status de fechamento já foram exibidas antes.
+        !prazoEncerrado && !eventoLotado && !statusFechado && (
+          <p className="error-message">{mensagem}</p>
+        )
       )}
-
-      {!formEnviado && mensagem && !prazoEncerrado && <p className="error-message">{mensagem}</p>}
+      
+      {/* 🛑 LINHA REMOVIDA: A linha duplicada de exibição de mensagem foi removida daqui. */}
     </div>
   );
 }
-

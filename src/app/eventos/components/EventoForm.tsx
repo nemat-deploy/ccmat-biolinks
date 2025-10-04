@@ -229,7 +229,7 @@ export default function EventoForm({
     if (setEventoId) setEventoId(slug);
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const user = auth.currentUser;
     if (!user) { alert("Você precisa estar logado."); return; }
@@ -260,15 +260,19 @@ export default function EventoForm({
     setIsSubmitting(true);
     try {
       if (isEditing && eventoId) {
+        // MODO EDIÇÃO: Não redireciona após o salvamento
         await updateDoc(doc(db, "eventos", eventoId), data);
         alert("Evento atualizado com sucesso.");
       } else {
+        // MODO CRIAÇÃO: Redireciona para a página administrativa do novo evento
         const novoSlug = localSlug.trim() || slugify(name, { lower: true, strict: true });
         await setDoc(doc(db, "eventos", novoSlug), { ...data, id: novoSlug, createdBy: user.uid });
         if (onEventoCriado) onEventoCriado(novoSlug);
         alert("Evento criado com sucesso.");
+        
+        // Redireciona para o novo evento
+        router.push(`/eventos/admin/${novoSlug}`); 
       }
-      router.push('/eventos/admin');
     } catch (error) {
       console.error("Erro ao salvar:", error);
       alert(`Erro ao salvar: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
@@ -313,65 +317,60 @@ export default function EventoForm({
         </div>
       )}
       <div className="form-group">
-        <label>Título:</label>
+        <label><strong>Título:</strong></label>
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className="form-input" />
       </div>
       
-      <div className="form-group">
-        <label>Email de Contato para Dúvidas:</label>
-        <input 
-          type="email" 
-          value={contactEmail} 
-          onChange={(e) => setContactEmail(e.target.value)} 
-          placeholder="email.contato@exemplo.com"
-          className="form-input" 
-        />
-        <small>Este email será exibido na página de consulta de inscrições.</small>
+      <div className="form-group-inline">
+        <div className="form-group">
+          <label><strong>Email de Contato (Opcional):</strong></label>
+          <input 
+            type="email" 
+            value={contactEmail} 
+            onChange={(e) => setContactEmail(e.target.value)} 
+            placeholder="contato@email.com"
+            className="form-input" 
+          />
+          <small>Este email será exibido na página do evento</small>
+        </div>
+
+        <div className="form-group">
+          <label><strong>Telefone de Contato (Opcional):</strong></label>
+          <IMaskInput
+            mask="(00) 00000-0000"
+            value={contactPhone}
+            onAccept={(value: any) => setContactPhone(value)}
+            placeholder="(99) 99999-9999"
+            className="form-input"
+          />
+          <small>Este telefone também será exibido na página do evento</small>
+        </div>
       </div>
 
       <div className="form-group">
-        <label>Telefone de Contato (Opcional):</label>
-        <IMaskInput
-          mask="(00) 00000-0000"
-          value={contactPhone}
-          onAccept={(value: any) => setContactPhone(value)}
-          placeholder="(99) 99999-9999"
-          className="form-input"
-        />
-        <small>Este telefone também será exibido para contato.</small>
-      </div>
-
-      <div className="form-group">
+        {/* Mantivemos os estilos de display e alinhamento da label aqui, pois controlam o layout da linha. */}
         <label style={{ display: 'flex', alignItems: 'center', cursor: 'default' }}>
-          URL da imagem do evento (opcional)
+          <strong>URL da imagem do evento (opcional)</strong>
           <div
             style={{ position: 'relative', marginLeft: '8px', display: 'inline-flex' }}
             onMouseEnter={() => setShowImageTooltip(true)}
             onMouseLeave={() => setShowImageTooltip(false)}
           >
-            <span style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px',
-              borderRadius: '50%', backgroundColor: '#e0e0e0', color: '#757575', fontSize: '12px',
-              fontStyle: 'italic', fontWeight: 'bold', cursor: 'pointer', userSelect: 'none'
-            }}>
+            {/* ÍCONE "i" - Usando a nova classe CSS */}
+            <span className="info-icon">
               i
             </span>
+            
+            {/* TOOLTIP - Usando a nova classe CSS */}
             {showImageTooltip && (
-              <div style={{
-                position: 'absolute', bottom: '125%', left: '50%', transform: 'translateX(-50%)',
-                backgroundColor: '#333', color: '#fff', padding: '8px 12px', borderRadius: '6px',
-                fontSize: '12px', width: 'max-content', maxWidth: '250px', textAlign: 'center',
-                zIndex: 10, boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
-              }}>
-                Você pode usar o <a href="https://postimages.org/" target="_blank" rel="noopener noreferrer" style={{ color: '#82b1ff', textDecoration: 'underline' }}>Postimage</a> ou <a href="https://imgbb.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#82b1ff', textDecoration: 'underline' }}>imgbb</a> para hospedar sua imagem e pegar o Link Direto.
-                <div style={{
-                  position: 'absolute', top: '100%', left: '50%', marginLeft: '-5px',
-                  borderWidth: '5px', borderStyle: 'solid', borderColor: '#333 transparent transparent transparent'
-                }}></div>
+              <div className="image-tooltip">
+                Você pode usar o <a href="https://postimages.org/" target="_blank" rel="noopener noreferrer">Postimage</a> ou <a href="https://imgbb.com/" target="_blank" rel="noopener noreferrer">imgbb</a> para hospedar sua imagem e pegar o Link Direto.
               </div>
             )}
           </div>
         </label>
+        
+        {/* Bloco do Input e Botão Remover (mantido como estava) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <input 
               type="url" 
@@ -399,7 +398,7 @@ export default function EventoForm({
       </div>
 
       <div className="form-group">
-        <label>Descrição Detalhada:</label>
+        <label><strong>Descrição Detalhada:</strong></label>
         <div className="tiptap-container">
           <MenuBar editor={editor} />
           <EditorContent editor={editor} />
@@ -407,7 +406,7 @@ export default function EventoForm({
       </div>
 
       <div className="eventDates">
-        <div className="form-group">Datas e horários do evento no formato <span className="date-format-hint">(DD/MM/AAAA 00:00)</span></div>
+        <div className="form-group">Datas e horários do evento no formato <span className="date-format-hint">(dia/mês/ano 00:00)</span></div>
         <div className="form-group-dates">
           <div className="form-group form-group-dates-item">
             <label>Início:</label>
@@ -423,28 +422,34 @@ export default function EventoForm({
           </div>
         </div>
       </div>
-      
-      <div className="form-group">
-        <label>Máximo de participantes:</label>
-        <input type="number" value={maxParticipants} onChange={(e) => setMaxParticipants(e.target.value)} required min={0} className="form-input" />
-      </div>
-      <div className="form-group">
-        <label>Total de sessões:</label>
-        <input type="number" value={totalSessoes} onChange={(e) => setTotalSessoes(e.target.value)} required min={0} className="form-input" />
-      </div>
-      <div className="form-group">
-        <label>Presença mínima para certificado (%):</label>
-        <input type="number" value={minAttendancePercentForCertificate} onChange={(e) => setMinAttendancePercentForCertificate(e.target.value)} required min={0} max={100} step={1} className="form-input" />
-        <small className="presenca-minima-hint">Digite um número entre 0 e 100.</small>
+
+      <div className="form-group-inline">
+        <div className="form-group">
+          <label>Máximo de participantes:</label>
+          <input type="number" value={maxParticipants} onChange={(e) => setMaxParticipants(e.target.value)} required min={0} className="form-input" />
+        </div>
+        <div className="form-group">
+          <label>Total de sessões:</label>
+          <input type="number" value={totalSessoes} onChange={(e) => setTotalSessoes(e.target.value)} required min={0} className="form-input" />
+        </div>
       </div>
 
-      <div className="form-group">
-        <label>Status:</label>
-        <select value={status} onChange={(e) => setStatus(e.target.value as StatusEvento)} className="form-input">
-          <option value="aberto">Aberto</option>
-          <option value="encerrado">Encerrado</option>
-        </select>
+      <div className="form-group-inline">
+        <div className="form-group">
+          <label>Presença mínima para certificado (%):</label>
+          <input type="number" value={minAttendancePercentForCertificate} onChange={(e) => setMinAttendancePercentForCertificate(e.target.value)} required min={0} max={100} step={1} className="form-input" />
+          <small className="presenca-minima-hint">Digite um número entre 0 e 100.</small>
+        </div>
+        <div className="form-group">
+          <label>Status:</label>
+          <select value={status} onChange={(e) => setStatus(e.target.value as StatusEvento)} className="form-input">
+            <option value="aberto">Aberto</option>
+            <option value="fechado">Fechado</option>
+            <option value="encerrado">Encerrado</option>
+          </select>
+        </div>
       </div>
+
       <div className="form-group">
         <label>
           <input type="checkbox" checked={requerAtividadeFinal} onChange={(e) => setRequerAtividadeFinal(e.target.checked)} />
@@ -457,7 +462,7 @@ export default function EventoForm({
           <h3>Administradores do Evento</h3>
           {adminLoading ? <p>Carregando...</p> : (
             <>
-              <ul className="admin-list" style={{ listStyleType: 'none', paddingLeft: 0 }}>
+              <ul className="admin-list" style={{ listStyleType: 'none', paddingLeft: 0, marginBottom: '30px' }}>
                 {admins.map(admin => (
                   <li key={admin.id}>
                     <span>{admin.nome} ({admin.email})</span>
@@ -468,7 +473,7 @@ export default function EventoForm({
                 ))}
               </ul>
               <div className="add-admin-section" style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
-                <input type="email" value={newAdminEmail} onChange={(e) => setNewAdminEmail(e.target.value)} placeholder="Email do novo administrador" className="form-input" style={{ flexGrow: 1 }} />
+                <input type="email" value={newAdminEmail} onChange={(e) => setNewAdminEmail(e.target.value)} placeholder="email do novo administrador" className="form-input" style={{ flexGrow: 1 }} />
                 <button type="button" onClick={handleAddAdmin} className="add-admin-btn" style={{ marginLeft: '10px' }}>+ Adicionar</button>
               </div>
             </>
