@@ -11,10 +11,10 @@ export default function EventosLayout({ children }: { children: ReactNode }) {
     <section className="eventos-layout">
       <div className="eventos-top-header">
         <Image
-          src="/images/logo-eventos-nemat.png"
-          alt="Descrição da imagem"
-          width={210}
-          height={60}
+          src="/images/logo-app-eventos.png"
+          alt="App Eventos"
+          width={151}
+          height={34}
           priority
         />
       </div>
