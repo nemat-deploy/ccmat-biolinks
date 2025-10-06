@@ -81,10 +81,10 @@ h1 {
 .resultado {
   width: 100%;
   margin-top: 2rem;
-  font-size: 16px;
 }
 
 .resultado h2 {
+  font-size: 18px;
   font-weight: 600;
   color: #2c5282;
   margin-bottom: 1.5rem;
