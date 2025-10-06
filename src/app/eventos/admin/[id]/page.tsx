@@ -216,7 +216,7 @@ export default function AdminEventoPage() {
         <div className="usuarios-header">
           <h1 className="titleCourse">
             <span className="titleNameEvento">{evento?.name || id}</span> (
-            {participantes.length} participantes inscritos)
+            {participantes.length} inscrições)
           </h1>
           <a href="/eventos/admin" className="voltar-admin-link">
             ← Voltar
