@@ -10,7 +10,7 @@ body {
   width: 100%;
   max-width: 900px;
   margin: auto;
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
 .titleFolhaAssinaturasItem {
@@ -21,9 +21,17 @@ body {
 }
 
 .headerText {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
   text-align: center;
   font-size: 16px;
   font-weight: bold;
+}
+
+.logoAppEventos {
+  display: none;
 }
 
 table {
@@ -60,24 +68,27 @@ td {
   }
 
   body {
-    margin: 0; /* remove margens do body para não acumular com @page */
+    margin: 0;
     padding: 0;
     font-size: 14px;
     background: none;
     min-height: auto;
-    display: block; /* remove flex para evitar interferências */
+    display: block;
   }
 
   .eventos-top-header {
     display: none !important;
   }
 
-  .titleFolhaAssinaturas {
-    margin-top: 0; /* nada além da margem da página */
-    margin-bottom: 10px; /* só se quiser espaçar do conteúdo */
+  .logoAppEventos {
+    display: block;
   }
 
-  /* Outros ajustes que você já tem */
+  .titleFolhaAssinaturas {
+    margin-top: 0; 
+    margin-bottom: 10px;
+  }
+
   table {
     width: 100%;
     margin-top: 0;

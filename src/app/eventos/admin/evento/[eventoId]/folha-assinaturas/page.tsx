@@ -46,24 +46,24 @@ export default function FolhaAssinaturasPage() {
     <div className="p-6">
       <div className="titleFolhaAssinaturas">
         <div className="titleFolhaAssinaturasItem">
-          <Image src="/images/logo-ufdpar-100px.png" alt="Logo UFDPar" width={100} height={100} />
+          {/* <Image src="/images/logo-ufdpar-100px.png" alt="Logo UFDPar" width={100} height={100} /> */}
+          
         </div>
 
         <div className="titleFolhaAssinaturasItem headerText">
-          Universidade Federal do Delta do Parnaíba <br />
-          Coordenação do Curso de Matemática <br />
-          Núcleo de Estudos em Matemática
+          <Image src="/images/logo-app-eventos.png" alt="Logo App EVENTOS" width={151} height={34} className='logoAppEventos' style={{ marginBottom: '10px' }} />
+          {nomeEvento}
         </div>
 
         <div className="titleFolhaAssinaturasItem">
-          <Image src="/images/logo-nemat-100px.png" alt="Logo NEMAT" width={114} height={80} />
+          
         </div>
       </div>
 
       <table>
         <thead>
           <tr>
-            <th colSpan={2}>Frequência - {nomeEvento}</th>
+            <th colSpan={2}>FREQUÊNCIA</th>
           </tr>
         </thead>
         <tbody>
