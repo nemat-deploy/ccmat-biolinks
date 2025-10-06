@@ -81,6 +81,7 @@ h1 {
 .resultado {
   width: 100%;
   margin-top: 2rem;
+  font-size: 18px;
 }
 
 .resultado h2 {
