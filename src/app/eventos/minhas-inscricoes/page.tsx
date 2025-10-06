@@ -133,7 +133,7 @@ export default function MinhasInscricoesPage() {
 
       {result && (
         <div className="resultado">
-          <h2>Resultados para: {result.nome}</h2>
+          <h2>Resultados para: <br />{result.nome}</h2>
           
           <div className="eventos-grid">
             {result.eventos.map((evento) => (
