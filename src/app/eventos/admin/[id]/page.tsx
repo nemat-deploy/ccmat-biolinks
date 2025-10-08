@@ -184,7 +184,7 @@ export default function AdminEventoPage() {
   async function salvarEdicao() {
     if (!editingId || !id) return;
     try {
-      // Cria um objeto com os dados a serem atualizados
+      // criar um objeto com os dados a serem atualizados
       const dadosAtualizados = {
         nome: form.nome ?? "",
         email: form.email ?? "",
@@ -350,7 +350,11 @@ export default function AdminEventoPage() {
               <Fragment key={p.id}>
                 <tr>
                   <td>
-                    {p.isMonitor && <FontAwesomeIcon icon={faUserShield} title="Monitor/Organizador" style={{ color: '#2962ff', marginRight: '8px' }} />}
+                    {p.isMonitor && (
+                      <span title="Monitor/Organizador">
+                        <FontAwesomeIcon icon={faUserShield} style={{ color: '#2962ff', marginRight: '8px' }} />
+                      </span>
+                    )}
                     <strong>{p.nome}</strong>
                   </td>
                   <td data-label="Email:"> {p.email} </td>
