@@ -186,11 +186,11 @@ export default function AdminEventoPage() {
     try {
       // Cria um objeto com os dados a serem atualizados
       const dadosAtualizados = {
-        nome: form.nome,
-        email: form.email,
-        telefone: form.telefone,
-        institution: form.institution,
-        isMonitor: form.isMonitor ?? false, // ✅ NOVO
+        nome: form.nome ?? "",
+        email: form.email ?? "",
+        telefone: form.telefone ?? "",
+        institution: form.institution ?? "",
+        isMonitor: form.isMonitor ?? false,
       };
       
       await updateDoc(doc(db, `eventos/${id}/inscricoes`, editingId), dadosAtualizados);
