@@ -18,17 +18,16 @@ import { onAuthStateChanged } from "firebase/auth";
 import { parseTimestamp } from "@/lib/utils";
 import { debugLog } from "@/lib/logger";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// ✅ AJUSTE: O ícone 'faEdit' foi substituído por 'faPenToSquare'
 import {
   faSearch,
   faTimes,
-  faPenToSquare, // Nome moderno do ícone de edição
+  faPenToSquare,
   faTrash,
+  faUserShield, // ✅ NOVO ÍCONE
 } from "@fortawesome/free-solid-svg-icons";
-import { Evento, Participante } from "@/types";
+import { Evento, ParticipanteData } from "@/types";
 import Link from "next/link";
 import "./page.css";
-import { ParticipanteData } from "@/types";
 import React from "react";
 import LoadingMessage from "@/app/components/LoadingMessage";
 
@@ -50,9 +49,9 @@ export default function AdminEventoPage() {
     email: "",
     telefone: "",
     institution: "",
+    isMonitor: false, // ✅ NOVO
   });
 
-  // normalizar texto removendo acentos
   const normalizeText = (text: string) => {
     return text
       .normalize("NFD")
@@ -60,7 +59,7 @@ export default function AdminEventoPage() {
       .toLowerCase();
   };
 
-  // Filtrar participantes com base no termo de busca
+  // filtrar participantes
   const filteredParticipantes = useMemo(() => {
     if (!searchTerm) return participantes;
 
@@ -71,7 +70,7 @@ export default function AdminEventoPage() {
     });
   }, [participantes, searchTerm]);
 
-  // Adicionando o listener para a tecla Esc
+  // listener for Esc key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -86,7 +85,7 @@ export default function AdminEventoPage() {
     };
   }, []);
 
-  // Ordenar participantes
+  // ordenar participantes
   const participantesOrdenados = useMemo(() => {
     return [...filteredParticipantes].sort((a, b) =>
       a.nome.localeCompare(b.nome),
@@ -98,6 +97,7 @@ export default function AdminEventoPage() {
       if (!user) return router.push("/eventos/login");
       if (!id || typeof id !== "string") {
         setErro("ID inválido");
+        setLoading(false);
         return;
       }
 
@@ -122,17 +122,11 @@ export default function AdminEventoPage() {
     const data = snap.data();
     setEvento({
       id: snap.id,
-      name: data.name || "",
-      description: data.description || "",
+      ...data,
       startDate: parseTimestamp(data.startDate),
       endDate: parseTimestamp(data.endDate),
       registrationDeadLine: parseTimestamp(data.registrationDeadLine),
-      maxParticipants: data.maxParticipants ?? 0,
-      registrationsCount: data.registrationsCount ?? 0,
-      status: data.status || "aberto",
-      minAttendancePercentForCertificate:
-        data.minAttendancePercentForCertificate ?? 80,
-    });
+    } as Evento);
   }
 
   async function loadParticipantes(eventoId: string) {
@@ -148,6 +142,7 @@ export default function AdminEventoPage() {
         telefone: d.telefone || "",
         institution: d.institution || "",
         dataInscricao: d.dataInscricao?.toDate?.() ?? null,
+        isMonitor: d.isMonitor ?? false, // ✅ NOVO
       };
     });
     setParticipantes(list);
@@ -176,25 +171,32 @@ export default function AdminEventoPage() {
       email: p.email,
       telefone: p.telefone || "",
       institution: p.institution || "",
+      isMonitor: p.isMonitor ?? false, // ✅ NOVO
     });
   }
 
+  // ✅ AJUSTE: Função atualizada para lidar com checkbox
   function onChangeForm(e: React.ChangeEvent<HTMLInputElement>) {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   }
 
   async function salvarEdicao() {
     if (!editingId || !id) return;
     try {
-      await updateDoc(doc(db, `eventos/${id}/inscricoes`, editingId), {
+      // Cria um objeto com os dados a serem atualizados
+      const dadosAtualizados = {
         nome: form.nome,
         email: form.email,
         telefone: form.telefone,
         institution: form.institution,
-      });
+        isMonitor: form.isMonitor ?? false, // ✅ NOVO
+      };
+      
+      await updateDoc(doc(db, `eventos/${id}/inscricoes`, editingId), dadosAtualizados);
+      
       setParticipantes((prev) =>
-        prev.map((p) => (p.id === editingId ? { ...p, ...form } : p)),
+        prev.map((p) => (p.id === editingId ? { ...p, ...dadosAtualizados } : p)),
       );
       setEditingId(null);
     } catch (e) {
@@ -204,9 +206,7 @@ export default function AdminEventoPage() {
   }
 
   if (loading) {
-    return (
-      <LoadingMessage text="Carregando página do evento" fullHeight delay={0} />
-    );
+    return <LoadingMessage text="Carregando página do evento" fullHeight delay={0} />;
   }
   if (erro) return <p>{erro}</p>;
 
@@ -270,14 +270,23 @@ export default function AdminEventoPage() {
           >
             elegíveis para certificado
           </Link>
+          {/* ✅ NOVO: Link para a página de monitores */}
+          <Link 
+            href={`/eventos/admin/${id}/monitores`} 
+            className="linkListarMonitores" 
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
+            listar monitores
+          </Link>
         </p>
       </div>
 
       <div
         className="search-container"
-        style={{ margin: "auto", width: "1200px" }}
+        style={{ margin: "1rem auto", maxWidth: "960px" }}
       >
-        <div className="search-container">
+        <div style={{ position: "relative", width: "100%" }}>
           <FontAwesomeIcon
             icon={faSearch}
             style={{
@@ -300,7 +309,7 @@ export default function AdminEventoPage() {
               onClick={() => setSearchTerm("")}
               style={{
                 position: "absolute",
-                right: "1px",
+                right: "10px",
                 top: "50%",
                 transform: "translateY(-50%)",
                 background: "none",
@@ -338,11 +347,11 @@ export default function AdminEventoPage() {
             </tr>
           ) : (
             participantesOrdenados.map((p) => (
-              <Fragment key={p.cpf}>
+              <Fragment key={p.id}>
                 <tr>
                   <td>
-                    {" "}
-                    <strong>{p.nome}</strong>{" "}
+                    {p.isMonitor && <FontAwesomeIcon icon={faUserShield} title="Monitor/Organizador" style={{ color: '#2962ff', marginRight: '8px' }} />}
+                    <strong>{p.nome}</strong>
                   </td>
                   <td data-label="Email:"> {p.email} </td>
                   <td data-label="Telefone:"> {p.telefone} </td>
@@ -354,7 +363,6 @@ export default function AdminEventoPage() {
                       title="Editar"
                       onClick={() => startEdicao(p)}
                     >
-                      {/* ✅ AJUSTE: O ícone 'faEdit' foi substituído por 'faPenToSquare' */}
                       <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
                     <button
@@ -366,8 +374,8 @@ export default function AdminEventoPage() {
                     </button>
                   </td>
                 </tr>
-                {editingId === p.cpf && (
-                  <tr key={`edit-${p.cpf}`}>
+                {editingId === p.id && (
+                  <tr key={`edit-${p.id}`} className="edit-row">
                     <td colSpan={6}>
                       <div className="edit-form">
                         <label>
@@ -406,6 +414,16 @@ export default function AdminEventoPage() {
                             onChange={onChangeForm}
                           />
                         </label>
+                        {/* ✅ NOVO: Checkbox para monitor */}
+                        <label className="checkbox-label">
+                          <input
+                            type="checkbox"
+                            name="isMonitor"
+                            checked={form.isMonitor ?? false}
+                            onChange={onChangeForm}
+                          />
+                          É monitor/organizador do evento?
+                        </label>
                         <div className="btns">
                           <button className="save-btn" onClick={salvarEdicao}>
                             Salvar
@@ -429,3 +447,4 @@ export default function AdminEventoPage() {
     </div>
   );
 }
+

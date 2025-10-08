@@ -17,7 +17,7 @@ export type Evento = {
   name: string;
   description: string;
   imageUrl?: string;
-  contactEmail?: string; 
+  contactEmail?: string;
   contactPhone?: string;
   startDate: Date | null;
   endDate: Date | null;
@@ -56,6 +56,7 @@ export type Participante = {
   attendances?: RegistroPresenca[]; 
   certificateIssued?: boolean;
   enviou_atividade_final?: boolean;
+  isMonitor?: boolean;
 };
 
 export interface ParticipanteData {
@@ -65,7 +66,8 @@ export interface ParticipanteData {
   email: string;
   telefone: string;
   institution: string;
-  dataInscricao: string | null;
+  dataInscricao: Date | null;
+  isMonitor?: boolean;
 }
 
 export type PresencaResponse = {
@@ -116,4 +118,3 @@ export interface ParticipanteComCertificado extends ParticipanteDataWithDate {
   attendances: Attendance[];
   certificateIssued: boolean;
 }
-

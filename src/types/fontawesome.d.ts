@@ -26,15 +26,13 @@ declare module '@fortawesome/free-solid-svg-icons' {
   export const faHeading: any;
   export const faListUl: any;
   export const faListOl: any;
-
-  // Ícones para alinhamento
   export const faAlignLeft: any;
   export const faAlignCenter: any;
   export const faAlignRight: any;
   export const faAlignJustify: any;
-
-  // ✅ NOVOS ÍCONES: Ícones para links
   export const faLink: any;
   export const faUnlink: any;
-}
 
+  // ✅ NOVO ÍCONE: Ícone para Monitores/Organizadores
+  export const faUserShield: any;
+}
