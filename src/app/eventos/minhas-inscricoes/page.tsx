@@ -165,7 +165,6 @@ export default function MinhasInscricoesPage() {
             ))}
           </div>
 
-          {/* ✅ AJUSTE: Bloco de contato dinâmico, exibindo os dados do primeiro evento encontrado */}
           <div className="contact-info">
             <h3>Encontrou erros?</h3>
             <p>
