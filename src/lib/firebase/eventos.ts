@@ -82,7 +82,7 @@ export async function marcarPresenca(
     const agora = new Date();
     const diferencaHoras = (agora.getTime() - ultimaHora.getTime()) / (1000 * 60 * 60);
 
-    if (diferencaHoras < 4) {
+    if (process.env.NODE_ENV !== 'development' && diferencaHoras < 4) {
       throw new Error("Aguarde 4 horas antes de marcar novamente.");
     }
   }
