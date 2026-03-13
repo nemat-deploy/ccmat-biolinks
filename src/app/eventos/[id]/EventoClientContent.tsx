@@ -194,9 +194,31 @@ export default function EventoClientContent({ initialEvento }: { initialEvento: 
 
       {(evento.contactEmail || evento.contactPhone) && (
         <div className="event-contact-info">
-          <h4>Dúvidas sobre o evento?</h4>
-          <p>Entre em contato com a organização:</p>
-          {evento.contactEmail && <p><strong>Email:</strong> {evento.contactEmail}</p>}
+          <h4>Dúvidas?</h4>
+          <p>Entre em contato com a organização do evento:</p>
+          
+          {evento.contactEmail && (
+            <p>
+              {evento.contactEmail.trim().startsWith('http') ? (
+                <a 
+                  href={evento.contactEmail.trim()} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="link-contato-externo"
+                >
+                  Acessar formulário de contato <span className="seta-animada">➜</span>
+                </a>
+              ) : (
+                <a 
+                  href={`mailto:${evento.contactEmail.trim()}`}
+                  className="link-contato-email"
+                >
+                  {evento.contactEmail}
+                </a>
+              )}
+            </p>
+          )}
+
           {evento.contactPhone && <p><strong>Telefone:</strong> {evento.contactPhone}</p>}
         </div>
       )}

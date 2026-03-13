@@ -323,15 +323,15 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
       
       <div className="form-group-inline">
         <div className="form-group">
-          <label><strong>Email de Contato (Opcional):</strong></label>
+          <label><strong>Email ou Link de Contato (Opcional):</strong></label>
           <input 
-            type="email" 
+            type="text" 
             value={contactEmail} 
             onChange={(e) => setContactEmail(e.target.value)} 
-            placeholder="contato@email.com"
+            placeholder="contato@email.com ou https://seu-site.com/contato"
             className="form-input" 
           />
-          <small>Este email será exibido na página do evento</small>
+          <small>Pode ser um email ou um link para um formulário</small>
         </div>
 
         <div className="form-group">

@@ -307,3 +307,52 @@ button[type="submit"]:active,
 .event-contact-info strong {
   color: #2d3748;
 }
+
+/* styles for contact event (Email/URL) */
+
+.link-contato-externo,
+.link-contato-email {
+    color: #0056b3;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+}
+
+.link-contato-externo:hover,
+.link-contato-email:hover {
+    color: #003d82; 
+}
+
+.link-contato-externo {
+    text-decoration: none;
+    padding: 6px 14px;
+    border: 1px solid rgb(174, 174, 174);
+    border-radius: 20px;
+    background-color: transparent;
+}
+
+.link-contato-externo:hover {
+    background-color: #f4f6f8;
+    border-color: #0056b3;
+}
+
+/* email sem borda */
+.link-contato-email {
+    text-decoration: none;
+    padding: 4px 0;
+}
+
+.link-contato-email:hover {
+    text-decoration: underline;
+}
+
+.link-contato-externo .seta-animada {
+    display: inline-block;
+    margin-left: 6px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.link-contato-externo:hover .seta-animada {
+    transform: translateX(4px);
+}
