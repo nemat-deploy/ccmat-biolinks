@@ -239,3 +239,43 @@
         vertical-align: middle;
     }
 }
+
+.action-buttons-container {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+.diminuir-button {
+    background-color: #f39c12;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 15px;
+    transition: background-color 0.2s;
+}
+
+.diminuir-button:disabled {
+    background-color: #fad7a1;
+    cursor: not-allowed;
+    color: #ffffff;
+}
+
+.diminuir-button:hover:not(:disabled) {
+    background-color: #e67e22;
+}
+
+@media (max-width: 767px) {
+    .action-buttons-container {
+        justify-content: flex-start;
+        margin-left: 12px;
+        margin-bottom: 12px;
+    }
+    .diminuir-button {
+        padding: 8px 16px;
+    }
+}

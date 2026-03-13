@@ -13,6 +13,8 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import Modal from "./components/Modal";
 import "@/app/eventos/admin/evento/[eventoId]/presenca/components/modal.css";
 import LoadingMessage from "@/app/components/LoadingMessage";
+// Adicione a nova função ao import existente
+import { removerUltimaPresenca } from "@/lib/firebase/eventos";
 
 export default function PresencePage() {
   const params = useParams();
@@ -98,6 +100,35 @@ export default function PresencePage() {
       );
     } catch (error: any) {
       console.error("Erro completo:", error);
+      setModalMessage(error.message);
+      setModalOpen(true);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDiminuir = async (inscritoId: string, totalAtual: number) => {
+    if (totalAtual === 0) return;
+
+    try {
+      setActionLoading(true);
+      if (!eventoId) throw new Error("EventoId não definido.");
+
+      await removerUltimaPresenca(eventoId, inscritoId);
+
+      // Atualiza a tela removendo o último item do array local
+      setInscritos((prev) =>
+        prev.map((inscrito) =>
+          inscrito.id === inscritoId
+            ? {
+                ...inscrito,
+                attendances: inscrito.attendances ? inscrito.attendances.slice(0, -1) : [],
+              }
+            : inscrito,
+        ),
+      );
+    } catch (error: any) {
+      console.error("Erro ao diminuir:", error);
       setModalMessage(error.message);
       setModalOpen(true);
     } finally {
@@ -214,13 +245,24 @@ export default function PresencePage() {
                   </td>
 
                   <td data-label="Ações:" className="td-checkbox">
-                    <button
-                      onClick={() => handlePresenca(inscrito.id)}
-                      disabled={actionLoading}
-                      className="presenca-button"
-                    >
-                      {actionLoading ? "Processando..." : "Marcar Presença"}
-                    </button>
+                    <div className="action-buttons-container">
+                      <button
+                        onClick={() => handlePresenca(inscrito.id)}
+                        disabled={actionLoading}
+                        className="presenca-button"
+                      >
+                        {actionLoading ? "..." : "Marcar"}
+                      </button>
+
+                      <button
+                        onClick={() => handleDiminuir(inscrito.id, inscrito.attendances?.length || 0)}
+                        disabled={actionLoading || (inscrito.attendances?.length || 0) === 0}
+                        className="diminuir-button"
+                        title="Desfazer última presença"
+                      >
+                        -1
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

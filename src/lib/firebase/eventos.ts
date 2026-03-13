@@ -203,3 +203,29 @@ export async function getInscritosComAtividadeFinal(eventoId: string): Promise<P
   }
 }
 
+export async function removerUltimaPresenca(
+  eventoId: string,
+  inscritoId: string
+): Promise<void> {
+  const inscritoRef = doc(db, 'eventos', eventoId, 'inscricoes', inscritoId);
+  const snap = await getDoc(inscritoRef);
+
+  if (!snap.exists()) {
+    throw new Error("Inscrito não encontrado");
+  }
+
+  const data = snap.data();
+  const attendances: any[] = data.attendances || [];
+
+  if (attendances.length === 0) {
+    throw new Error("Não há presenças para remover.");
+  }
+
+  // Remove o último item do array
+  attendances.pop();
+
+  // Atualiza o Firestore com o array reduzido
+  await updateDoc(inscritoRef, {
+    attendances: attendances
+  });
+}
