@@ -15,27 +15,37 @@ button {
     margin-bottom: 8px;
 }
 
-.linkRegistrarPresenca,
-.linkImprimirFolha,
-.linkImprimirElegiveis {
-    text-decoration: none;
-    background-color: royalblue;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 8px;
-}
-
-.linkRegistrarPresenca:hover,
-.linkImprimirFolha:hover,
-.linkImprimirElegiveis:hover {
-    background-color: darkblue;
-}
-
 .linksInscritos {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
+    margin-top: 25px;
+}
+
+.linkRegistrarPresenca,
+.linkImprimirFolha,
+.linkImprimirElegiveis,
+.linkListarMonitores {
+    text-decoration: none;
+    background-color: #2f5fd0;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 200px;
+    font-weight: bold;
+}
+
+.linkRegistrarPresenca:hover,
+.linkImprimirFolha:hover,
+.linkImprimirElegiveis:hover,
+.linkListarMonitores:hover {
+    background-color: #3588b5;
 }
 
 /* tabela de Participantes */
@@ -54,7 +64,7 @@ thead {
 
 th,
 td {
-    padding: 0.75rem;
+    padding: 8px;
     border-bottom: 1px solid #888888;
     text-align: left;
 }
@@ -73,6 +83,13 @@ tbody tr:nth-child(odd) {
     background-color: #ffffff;
 }
 
+.actionsColumn {
+    width: 112px;
+    text-align: center;
+    padding: 8px 4px;
+    gap: 12px;
+}
+
 /* Botões */
 button {
     cursor: pointer;
@@ -87,7 +104,7 @@ button {
     padding: 0.4rem 0.8rem;
     border: none;
     border-radius: 4px;
-    margin-right: 0.5rem;
+    margin: 4px;
 }
 
 /* Formulário de Edição */
@@ -122,7 +139,7 @@ button {
 
 .btns {
     display: flex;
-    gap: 10px;
+    gap: 20px;
 }
 
 .edit-form button {

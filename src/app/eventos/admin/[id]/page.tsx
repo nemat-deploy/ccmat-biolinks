@@ -23,7 +23,7 @@ import {
   faTimes,
   faPenToSquare,
   faTrash,
-  faUserShield, // ✅ NOVO ÍCONE
+  faUserShield, 
 } from "@fortawesome/free-solid-svg-icons";
 import { Evento, ParticipanteData } from "@/types";
 import Link from "next/link";
@@ -49,7 +49,7 @@ export default function AdminEventoPage() {
     email: "",
     telefone: "",
     institution: "",
-    isMonitor: false, // ✅ NOVO
+    isMonitor: false, 
   });
 
   const normalizeText = (text: string) => {
@@ -142,7 +142,7 @@ export default function AdminEventoPage() {
         telefone: d.telefone || "",
         institution: d.institution || "",
         dataInscricao: d.dataInscricao?.toDate?.() ?? null,
-        isMonitor: d.isMonitor ?? false, // ✅ NOVO
+        isMonitor: d.isMonitor ?? false, 
       };
     });
     setParticipantes(list);
@@ -171,11 +171,10 @@ export default function AdminEventoPage() {
       email: p.email,
       telefone: p.telefone || "",
       institution: p.institution || "",
-      isMonitor: p.isMonitor ?? false, // ✅ NOVO
+      isMonitor: p.isMonitor ?? false, 
     });
   }
 
-  // ✅ AJUSTE: Função atualizada para lidar com checkbox
   function onChangeForm(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
@@ -243,7 +242,7 @@ export default function AdminEventoPage() {
           </p>
         )}
 
-        <p className="linksInscritos">
+        <div className="linksInscritos">
           <Link
             href={`/eventos/admin/evento/${id}/presenca`}
             target="_blank"
@@ -259,7 +258,7 @@ export default function AdminEventoPage() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            imprimir folha de assinaturas
+            folha de assinaturas
           </Link>
 
           <Link
@@ -270,7 +269,7 @@ export default function AdminEventoPage() {
           >
             elegíveis para certificado
           </Link>
-          {/* ✅ NOVO: Link para a página de monitores */}
+
           <Link 
             href={`/eventos/admin/${id}/monitores`} 
             className="linkListarMonitores" 
@@ -279,12 +278,12 @@ export default function AdminEventoPage() {
           >
             listar monitores
           </Link>
-        </p>
+        </div>
       </div>
 
       <div
         className="search-container"
-        style={{ margin: "1rem auto", maxWidth: "960px" }}
+        style={{ margin: "0.5rem auto", maxWidth: "960px" }}
       >
         <div style={{ position: "relative", width: "100%" }}>
           <FontAwesomeIcon
@@ -361,7 +360,7 @@ export default function AdminEventoPage() {
                   <td data-label="Telefone:"> {p.telefone} </td>
                   <td data-label="CPF:"> {p.cpf} </td>
                   <td data-label="Instituição:"> {p.institution} </td>
-                  <td data-label="Ações:">
+                  <td data-label="Ações:" className="actionsColumn">
                     <button
                       className="btnEditar"
                       title="Editar"
@@ -418,7 +417,7 @@ export default function AdminEventoPage() {
                             onChange={onChangeForm}
                           />
                         </label>
-                        {/* ✅ NOVO: Checkbox para monitor */}
+                        {/* checkbox monitores */}
                         <label className="checkbox-label">
                           <input
                             type="checkbox"

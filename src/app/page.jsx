@@ -53,6 +53,12 @@ export default function Home() {
           Núcleo de Estudo em Matemática - NEMAT/UFDPar
         </LinkButton>
 
+        <LinkButton
+          href="https://www.im.ufrj.br/index.php/pt/estrutura/editora-im/matematica"
+          target="_blank">
+          Livros Gratuitos [baixe agora]
+        </LinkButton>
+
         <LinkButton 
           href="https://www.instagram.com/camatufdpar/?hl=pt-br">
           Centro Acadêmico

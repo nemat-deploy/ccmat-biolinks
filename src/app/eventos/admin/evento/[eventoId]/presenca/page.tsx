@@ -1,7 +1,7 @@
 // src/app/eventos/admin/evento/[eventoId]/presenca/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getInscritos, marcarPresenca } from "@/lib/firebase/eventos";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
@@ -19,6 +19,7 @@ import { removerUltimaPresenca } from "@/lib/firebase/eventos";
 export default function PresencePage() {
   const params = useParams();
   const router = useRouter();
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const [pageLoading, setPageLoading] = useState(true); // usado no useEffect
   const [actionLoading, setActionLoading] = useState(false); // usado nos botões
@@ -32,6 +33,14 @@ export default function PresencePage() {
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
   const [nomeEvento, setNomeEvento] = useState<string | null>(null);
+
+  // selecionar campo de busca ao carregar a página e ao clicar em Marcar
+  useEffect(() => {
+    if (!pageLoading && searchInputRef.current) {
+      searchInputRef.current.focus();
+      searchInputRef.current.select();
+    }
+  }, [pageLoading]);
 
   const eventoId = Array.isArray(params.eventoId)
     ? params.eventoId[0]
@@ -104,6 +113,11 @@ export default function PresencePage() {
       setModalOpen(true);
     } finally {
       setActionLoading(false);
+
+      if (searchInputRef.current) {
+        searchInputRef.current.focus();
+        searchInputRef.current.select(); 
+      }
     }
   };
 
@@ -206,6 +220,7 @@ export default function PresencePage() {
 
         <div>
           <input
+          ref={searchInputRef}
             type="text"
             placeholder="buscar por nome..."
             value={filtro}

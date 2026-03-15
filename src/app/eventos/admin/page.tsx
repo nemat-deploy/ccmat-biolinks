@@ -168,7 +168,22 @@ export default function AdminPage() {
 
   return (
     <div className="admin-container">
-      <h1 className="titleAdmin">Área Administrativa</h1>
+
+      <div className="titleAndLogout">
+
+        <h1 className="titleAdmin">Área Administrativa</h1>
+
+        <button
+          className="btnSair"
+          onClick={() => {
+            auth.signOut().then(() => router.push("/eventos/login"));
+          }}
+          >
+          <span>sair </span>
+          <FontAwesomeIcon icon={faRightFromBracket} />
+        </button>
+
+      </div>
 
       <div className="menuBar">
         <div className="userLogged">
@@ -187,18 +202,9 @@ export default function AdminPage() {
           <Link href="/eventos/admin/gerenciar/novo/">
             <button className="btnNewEvent">
               <FontAwesomeIcon icon={faPlus} />
-              <span>novo evento</span>
+              <span>criar evento</span>
             </button>
           </Link>
-          <button
-            className="btnSair"
-            onClick={() => {
-              auth.signOut().then(() => router.push("/eventos/login"));
-            }}
-          >
-            <span>sair</span>
-            <FontAwesomeIcon icon={faRightFromBracket} />
-          </button>
         </div>
       </div>
 
@@ -209,7 +215,7 @@ export default function AdminPage() {
       <ul style={{ listStyle: "none", paddingLeft: 0 }}>
         {eventos.length === 0 && (
           <li>
-            <em>Nenhum evento encontrado. Crie um novo evento para começar.</em>
+            <em>Nenhum evento encontrado. Crie um novo evento para começar.</em> 
           </li>
         )}
         {eventos.map((evento) => (
@@ -220,6 +226,9 @@ export default function AdminPage() {
             >
               {evento.name || evento.id}
             </Link>
+
+            <span className="totalRegistrations">Inscrições: {evento.registrationsCount}/{evento.maxParticipants} </span>
+
             <div className="actionsBtn">
               <button
                 className="btnEditar"
@@ -227,7 +236,6 @@ export default function AdminPage() {
                   router.push(`/eventos/admin/gerenciar/${evento.id}`)
                 }
               >
-                {/* ✅ AJUSTE: Ícone antigo 'faPencilAlt' trocado pelo novo 'faPenToSquare' */}
                 <FontAwesomeIcon icon={faPenToSquare} />
                 <span>editar</span>
               </button>

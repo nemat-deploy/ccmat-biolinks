@@ -8,11 +8,19 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
+.titleAndLogout {
+  display: flex;
+  min-height: 50px;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .titleAdmin {
   color: #333;
-  margin-bottom: 1.5rem;
+  margin: 0.5rem 0;
   text-align: left;
 }
+
 
 /* Barra de menu superior */
 .menuBar {
@@ -64,6 +72,8 @@
 .btnUsers, .btnNewEvent {
   background-color: #0070f3;
   color: white;
+  text-decoration: underline;
+  height: 40px;
 }
 .btnUsers:hover, .btnNewEvent:hover {
   background-color: #005bb5;
@@ -71,10 +81,15 @@
 }
 
 .btnSair {
-  background-color: #f4f4f4;
-  color: #333;
-  border: 1px solid #ddd;
+  background-color: #fff;
+  color: #d65050;
+  font-weight: bold;
+  padding: 6px 12px;
+  border: 1px solid #d65050;
+  border-radius: 8px;
+  cursor: pointer;
 }
+
 .btnSair:hover {
   background-color: #e9e9e9;
 }
@@ -112,15 +127,18 @@
   font-weight: 600;
   font-size: 1.1rem;
   text-decoration: none;
-  flex-grow: 1; /* Faz o link ocupar o espaço disponível */
+  flex-grow: 1; 
 }
 
+.totalRegistrations {
+  margin: 0 8px;
+}
 
 /* Botões de Ação (Editar/Excluir) */
 .actionsBtn {
   display: flex;
   gap: 10px;
-  flex-shrink: 0; /* Impede que os botões encolham */
+  flex-shrink: 0; 
 }
 
 .actionsBtn button {
@@ -139,6 +157,7 @@
 .btnEditar {
   background-color: #e7f1ff;
   color: #0056b3;
+  border: 1px solid #aaa !important;
 }
 .btnEditar:hover {
   background-color: #d0e1ff;
@@ -147,6 +166,7 @@
 .btnExcluir {
   background-color: #ffdede;
   color: #9c2d2d;
+  border: 1px solid #aaa !important;
 }
 .btnExcluir:hover {
   background-color: #ffc4c4;
@@ -169,6 +189,9 @@
     .actionsBtn {
       width: 100%;
       justify-content: flex-end;
+    }
+    .totalRegistrations {
+      margin-left: 0;
     }
 }
 
