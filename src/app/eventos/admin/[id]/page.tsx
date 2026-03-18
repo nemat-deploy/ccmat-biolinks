@@ -30,6 +30,9 @@ import Link from "next/link";
 import "./page.css";
 import React from "react";
 import LoadingMessage from "@/app/components/LoadingMessage";
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import TiptapLink from '@tiptap/extension-link';
 
 export default function AdminEventoPage() {
   const params = useParams();
@@ -41,6 +44,24 @@ export default function AdminEventoPage() {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [enviandoEmails, setEnviandoEmails] = useState(false);
+  const [assuntoEmail, setAssuntoEmail] = useState("Lembrete do Evento");
+  const [mensagemEmail, setMensagemEmail] = useState("");
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      TiptapLink.configure({
+        openOnClick: false, // evitar abrir o link sem querer enquanto edita
+      }),
+    ],
+    immediatelyRender: false,
+    content: mensagemEmail,
+    onUpdate: ({ editor }) => {
+      // O Tiptap já devolve tudo formatadinho em HTML (ex: <p>Texto <strong>negrito</strong></p>)
+      setMensagemEmail(editor.getHTML());
+    },
+  });
+  const [mostrarFormEmail, setMostrarFormEmail] = useState(false);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<Partial<ParticipanteData>>({
@@ -204,6 +225,79 @@ export default function AdminEventoPage() {
     }
   }
 
+  async function enviarLembretes() {
+    if (!assuntoEmail || !mensagemEmail) {
+      alert("Por favor, preencha o assunto e a mensagem do e-mail.");
+      return;
+    }
+
+    if (!confirm(`Tem certeza que deseja enviar o e-mail para todos os ${participantes.length} inscritos de ${evento?.name}?`)) return;
+    
+    setEnviandoEmails(true);
+    try {
+      const response = await fetch('/api/lembretes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          participantes: participantes.map(p => ({ nome: p.nome, email: p.email })),
+          nomeEvento: evento?.name || "Nosso Evento",
+          assunto: assuntoEmail, // pega da caixa de texto
+          mensagemHtml: mensagemEmail.replace(/\n/g, '<br>')
+        }),
+      });
+
+      if (!response.ok) throw new Error("Erro na requisição de envio");
+      alert("E-mails enviados com sucesso!");
+      setMensagemEmail(""); // limpa o campo após enviar
+      editor?.commands.setContent(""); // limpa o Tiptap visualmente
+    } catch (e) {
+      console.error(e);
+      alert("Erro ao disparar os e-mails. Verifique o console.");
+    } finally {
+      setEnviandoEmails(false);
+    }
+  }
+
+  async function testarEnvioEmail() {
+    // É bom validar se você digitou algo antes de testar também
+    if (!assuntoEmail || !mensagemEmail) {
+      alert("Por favor, preencha o assunto e a mensagem do e-mail para testar.");
+      return;
+    }
+
+    setEnviandoEmails(true);
+    try {
+      // Usando o e-mail que você definiu no seu trecho
+      const emailTeste = "ricardo@riotechsistemas.com.br"; 
+
+      const response = await fetch('/api/lembretes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          // testing...
+          participantes: [{ 
+            nome: "Ricardo Melo (teste)", 
+            email: emailTeste 
+          }],
+          // Enviando os dados da tela para a API:
+          nomeEvento: evento?.name || "Nosso Evento",
+          assunto: assuntoEmail,
+          mensagemHtml: mensagemEmail.replace(/\n/g, '<br>') // Converte as quebras de linha
+        }),
+      });
+
+      if (!response.ok) throw new Error("Erro na requisição de envio do teste");
+      
+      // Alerta ajustado para mostrar o e-mail correto
+      alert(`E-mail de teste enviado com sucesso para ${emailTeste}!`);
+    } catch (e) {
+      console.error(e);
+      alert("Erro ao disparar o e-mail de teste. Verifique o terminal.");
+    } finally {
+      setEnviandoEmails(false);
+    }
+  }
+
   if (loading) {
     return <LoadingMessage text="Carregando página do evento" fullHeight delay={0} />;
   }
@@ -278,8 +372,151 @@ export default function AdminEventoPage() {
           >
             listar monitores
           </Link>
+
+          <button
+            onClick={() => setMostrarFormEmail(!mostrarFormEmail)}
+            style={{
+              background: "none",
+              border: "none",
+              color: "#0070f3",
+              textDecoration: "underline",
+              cursor: "pointer",
+              padding: 0,
+              fontFamily: "inherit",
+              fontSize: "inherit"
+            }}
+          >
+            {mostrarFormEmail ? "fechar painel de e-mail" : "enviar e-mail aos inscritos"}
+          </button>
+
         </div>
       </div>
+
+      {mostrarFormEmail && (
+        <div style={{ 
+          margin: "1rem auto", 
+          maxWidth: "960px", 
+          padding: "1rem", 
+          backgroundColor: "#f9f9f9", 
+          border: "1px solid #ddd", 
+          borderRadius: "8px" 
+        }}>
+          <h3 style={{ marginTop: 0, marginBottom: "1rem" }}>✉️ Enviar E-mail para Inscritos</h3>
+          
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>Assunto:</label>
+          <input 
+            type="text" 
+            value={assuntoEmail}
+            onChange={(e) => setAssuntoEmail(e.target.value)}
+            style={{ width: "100%", padding: "8px", marginBottom: "1rem", borderRadius: "4px", border: "1px solid #ccc" }}
+          />
+
+          <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>Mensagem:</label>
+
+          <div style={{ marginBottom: "1rem", border: "1px solid #ccc", borderRadius: "4px", backgroundColor: "#fff" }}>
+            {/* Barra de Ferramentas Simples */}
+            {editor && (
+              <div style={{ display: "flex", gap: "5px", padding: "8px", borderBottom: "1px solid #eaeaea", backgroundColor: "#f1f1f1", borderTopLeftRadius: "4px", borderTopRightRadius: "4px" }}>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().toggleBold().run()}
+                  style={{ 
+                    fontWeight: "bold", padding: "4px 8px", cursor: "pointer", 
+                    backgroundColor: editor.isActive('bold') ? '#d1d5db' : '#fff',
+                    border: "1px solid #ccc", borderRadius: "4px"
+                  }}
+                >
+                  B
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().toggleItalic().run()}
+                  style={{ 
+                    fontStyle: "italic", padding: "4px 8px", cursor: "pointer", 
+                    backgroundColor: editor.isActive('italic') ? '#d1d5db' : '#fff',
+                    border: "1px solid #ccc", borderRadius: "4px" 
+                  }}
+                >
+                  I
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Pega o link atual caso o texto já tenha um link
+                    const previousUrl = editor.getAttributes('link').href;
+                    
+                    // Abre a janelinha pedindo a URL
+                    const url = window.prompt('Digite ou cole a URL do link:', previousUrl);
+
+                    // Se você cancelar, não faz nada
+                    if (url === null) {
+                      return;
+                    }
+
+                    // Se você deixar em branco e der OK, ele remove o link existente
+                    if (url === '') {
+                      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+                      return;
+                    }
+
+                    // Se colocou um link válido, ele aplica no texto selecionado
+                    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+                  }}
+                  style={{ 
+                    padding: "4px 8px", cursor: "pointer", 
+                    backgroundColor: editor.isActive('link') ? '#d1d5db' : '#fff',
+                    border: "1px solid #ccc", borderRadius: "4px" 
+                  }}
+                  title="Adicionar Link"
+                >
+                  🔗
+                </button>
+              </div>
+            )}
+
+            {/* O Editor em Si */}
+            <div style={{ minHeight: "150px", cursor: "text" }} onClick={() => editor?.commands.focus()}>
+              <EditorContent editor={editor} />
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button
+              onClick={testarEnvioEmail}
+              disabled={enviandoEmails}
+              style={{
+                backgroundColor: enviandoEmails ? "#ccc" : "#f39c12",
+                color: "#fff",
+                border: "none",
+                padding: "8px 16px",
+                borderRadius: "4px",
+                cursor: enviandoEmails ? "not-allowed" : "pointer",
+                fontWeight: "bold"
+              }}
+            >
+              {enviandoEmails ? "Aguarde..." : "Testar (Somente para mim)"}
+            </button>
+
+            <button
+              onClick={enviarLembretes}
+              disabled={enviandoEmails || participantes.length === 0}
+              style={{
+                backgroundColor: enviandoEmails ? "#ccc" : "#28a745",
+                color: "#fff",
+                border: "none",
+                padding: "8px 16px",
+                borderRadius: "4px",
+                cursor: enviandoEmails ? "not-allowed" : "pointer",
+                fontWeight: "bold"
+              }}
+            >
+              {enviandoEmails ? "Enviando para todos..." : `Disparar para todos (${participantes.length})`}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div
         className="search-container"

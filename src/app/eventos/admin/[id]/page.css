@@ -291,3 +291,29 @@ button {
         text-align: left;
     }
 }
+
+/* Estilos para o editor Tiptap */
+.tiptap {
+  outline: none !important; /* Remove a borda preta padrão do navegador */
+  min-height: 150px;
+  padding: 12px; /* Dá um respiro interno para o texto não "colar" na borda do container */
+}
+
+/* Remove a margem extra do primeiro parágrafo para ficar alinhado com o topo */
+.tiptap p.is-editor-empty:first-child::before {
+  color: #adb5bd;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Remove a margem do topo do primeiro parágrafo para o texto não ficar "afundado" */
+.tiptap > p:first-child {
+  margin-top: 0;
+}
+
+/* Opcional: ajusta o espaçamento entre os parágrafos normais */
+.tiptap p {
+  margin-bottom: 0.5rem;
+}
