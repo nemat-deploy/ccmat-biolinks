@@ -373,21 +373,23 @@ export default function AdminEventoPage() {
             listar monitores
           </Link>
 
-          <button
-            onClick={() => setMostrarFormEmail(!mostrarFormEmail)}
-            style={{
-              background: "none",
-              border: "none",
-              color: "#0070f3",
-              textDecoration: "underline",
-              cursor: "pointer",
-              padding: 0,
-              fontFamily: "inherit",
-              fontSize: "inherit"
-            }}
-          >
-            {mostrarFormEmail ? "fechar painel de e-mail" : "enviar e-mail aos inscritos"}
-          </button>
+          {process.env.NODE_ENV === 'development' && (
+            <button
+              onClick={() => setMostrarFormEmail(!mostrarFormEmail)}
+              style={{
+                background: "none",
+                border: "1px solid #cccccc",
+                color: "#0070f3",
+                textDecoration: "underline",
+                cursor: "pointer",
+                padding: 8,
+                fontFamily: "inherit",
+                fontSize: "inherit"
+              }}
+            >
+              {mostrarFormEmail ? "fechar painel de e-mail" : "enviar e-mail aos inscritos"}
+            </button>
+          )}
 
         </div>
       </div>
