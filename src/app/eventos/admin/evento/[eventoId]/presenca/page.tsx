@@ -33,8 +33,9 @@ export default function PresencePage() {
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
   const [nomeEvento, setNomeEvento] = useState<string | null>(null);
+  const [exigeAtividadeFinal, setExigeAtividadeFinal] = useState(false);
 
-  // selecionar campo de busca ao carregar a página e ao clicar em Marcar
+  // seleciona campo de busca ao carregar a página e ao clicar em Marcar
   useEffect(() => {
     if (!pageLoading && searchInputRef.current) {
       searchInputRef.current.focus();
@@ -68,6 +69,15 @@ export default function PresencePage() {
       if (!eventoId) throw new Error("EventoId não definido.");
       const eventoRef = doc(db, "eventos", eventoId);
       const eventoSnap = await getDoc(eventoRef);
+
+      if (eventoSnap.exists()) {
+        const data = eventoSnap.data(); 
+        setNomeEvento(data.name);
+        setExigeAtividadeFinal(data.requer_atividade_final || false); 
+      } else {
+        setNomeEvento(null);
+        setExigeAtividadeFinal(false); 
+      }
 
       if (eventoSnap.exists()) {
         setNomeEvento(eventoSnap.data().name);
@@ -233,7 +243,9 @@ export default function PresencePage() {
               <tr>
                 <th className="th-nome">Nome</th>
                 <th className="th-centro">Presenças</th>
-                <th className="th-centro">Atividade Final Enviada?</th>
+                {exigeAtividadeFinal && (
+                  <th className="th-centro">Atividade Final Enviada?</th>
+                )}
                 <th className="th-centro">Ações</th>
               </tr>
             </thead>
@@ -246,18 +258,20 @@ export default function PresencePage() {
                   <td data-label="Presenças:" className="td-presencas">
                     {inscrito.attendances?.length || 0}
                   </td>
-                  <td
-                    data-label="Atividade Final Entregue?"
-                    className="td-checkbox"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={Boolean(inscrito.enviou_atividade_final)}
-                      onChange={() => toggleAtividadeFinal(inscrito.id)}
-                      disabled={actionLoading}
-                      className="checkboxAtividadeFinal"
-                    />
-                  </td>
+                  {exigeAtividadeFinal && (
+                    <td
+                      data-label="Atividade Final Entregue?"
+                      className="td-checkbox"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={Boolean(inscrito.enviou_atividade_final)}
+                        onChange={() => toggleAtividadeFinal(inscrito.id)}
+                        disabled={actionLoading}
+                        className="checkboxAtividadeFinal"
+                      />
+                    </td>
+                  )}
 
                   <td data-label="Ações:" className="td-checkbox">
                     <div className="action-buttons-container">

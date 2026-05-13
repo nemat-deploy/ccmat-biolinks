@@ -49,6 +49,7 @@ export default function EventoClientContent({ initialEvento }: { initialEvento: 
   const [evento, setEvento] = useState<Evento | null>(eventoComDatas);
   const [formEnviado, setFormEnviado] = useState(false);
   const [mensagem, setMensagem] = useState("");
+  const [mostrarLinkConsulta, setMostrarLinkConsulta] = useState(false);
 
   const [cpf, setCpf] = useState("");
   const [nome, setNome] = useState("");
@@ -111,6 +112,9 @@ export default function EventoClientContent({ initialEvento }: { initialEvento: 
     e.preventDefault();
     if (!evento) return;
 
+    setMensagem("");
+    setMostrarLinkConsulta(false);
+
     const hoje = new Date();
     if (evento.registrationDeadLine && evento.registrationDeadLine < hoje) {
       setMensagem("⚠️ Inscrições encerradas para esse evento.");
@@ -124,7 +128,7 @@ export default function EventoClientContent({ initialEvento }: { initialEvento: 
 
     const cpfNumeros = cpf.replace(/\D/g, "");
     if (!cpf || !validarCPF(cpfNumeros)) {
-      setMensagem("⚠️ CPF inválido.");
+      setMensagem("⚠️ Por favor, confirme se digitou o CPF corretamente.");
       return;
     }
 
@@ -135,7 +139,8 @@ export default function EventoClientContent({ initialEvento }: { initialEvento: 
       const inscricaoSnap = await getDoc(inscricaoRef as DocumentReference<Inscricao>);
 
       if (inscricaoSnap.exists()) {
-        setMensagem("⚠️ Você já está inscrito neste evento.");
+        setMensagem("⚠️ Você já se inscreveu neste evento.");
+        setMostrarLinkConsulta(true);
         return;
       }
 
@@ -253,6 +258,25 @@ export default function EventoClientContent({ initialEvento }: { initialEvento: 
             <input id="instituicao" type="text" value={instituicao} onChange={(e) => setInstituicao(e.target.value)} placeholder=" " />
             <label htmlFor="instituicao">Instituição</label>
           </div>
+
+          {/* link condicional caso já inscrito */}
+          {mensagem && (
+            <div className="error-message" style={{ color: 'red', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <span>{mensagem}</span>
+              
+              {mostrarLinkConsulta && (
+                <Link 
+                  href="http://matematica-ufdpar.vercel.app/eventos/minhas-inscricoes"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: '#0056b3', textDecoration: 'underline', fontWeight: 'bold' }}
+                >
+                  Consulte sua inscrição -&gt;
+                </Link>
+              )}
+            </div>
+          )}
+
           <button type="submit">Enviar Inscrição</button>
         </form>
       ) : formEnviado ? ( 
