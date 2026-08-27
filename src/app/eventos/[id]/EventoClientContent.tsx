@@ -15,8 +15,8 @@ import "./page.css";
 import Link from "next/link";
 import { Inscricao } from "@/types";
 import { db } from "@/lib/firebase";
-import { useEffect, useState } from "react";
-import { formatarData } from "@/lib/utils";
+import { useEffect, useState, useRef } from "react";
+import { formatarData, formatarNome } from "@/lib/utils";
 import LoadingMessage from "@/app/components/LoadingMessage";
 
 // O tipo agora precisa lidar com Datas que podem vir como string
@@ -56,6 +56,14 @@ export default function EventoClientContent({ initialEvento }: { initialEvento: 
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [instituicao, setInstituicao] = useState("UFDPar");
+  const [outraInstituicao, setOutraInstituicao] = useState("");
+  const outraInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (instituicao === "Outra") {
+      outraInputRef.current?.focus();
+    }
+  }, [instituicao]);
 
   // Funções de validação e formatação (exatamente como as suas)
   function validarCPF(cpf: string) {
@@ -133,6 +141,12 @@ export default function EventoClientContent({ initialEvento }: { initialEvento: 
     }
 
     const telefoneNumeros = telefone.replace(/\D/g, "");
+    if (instituicao === "Outra" && !outraInstituicao.trim()) {
+      setMensagem("⚠️ Por favor, informe o nome da sua instituição.");
+      return;
+    }
+
+    const instituicaoFinal = instituicao === "Outra" ? outraInstituicao.trim() : instituicao;
 
     try {
       const inscricaoRef = doc(collection(db, `eventos/${evento.id}/inscricoes`), cpfNumeros);
@@ -145,10 +159,10 @@ export default function EventoClientContent({ initialEvento }: { initialEvento: 
       }
 
       await setDoc(inscricaoRef, {
-        nome,
-        email,
+        nome: formatarNome(nome),
+        email: email.toLowerCase().trim(),
         telefone: telefoneNumeros,
-        institution: instituicao,
+        institution: instituicaoFinal,
         dataInscricao: serverTimestamp(),
         attendances: [],
         certificateIssued: false,
@@ -200,7 +214,7 @@ export default function EventoClientContent({ initialEvento }: { initialEvento: 
       {(evento.contactEmail || evento.contactPhone) && (
         <div className="event-contact-info">
           <h4>Dúvidas?</h4>
-          <p>Entre em contato com a organização do evento:</p>
+          <p>Fale com a organização do evento:</p>
           
           {evento.contactEmail && (
             <p>
@@ -239,7 +253,7 @@ export default function EventoClientContent({ initialEvento }: { initialEvento: 
       {!formEnviado && !prazoEncerrado && !eventoLotado && !statusFechado ? (
         <form onSubmit={handleSubmit} className="form">
           <div className="form-floating">
-            <input id="nome" type="text" value={nome} onChange={(e) => setNome(e.target.value)} required placeholder=" " autoFocus />
+            <input id="nome" type="text" value={nome} onChange={(e) => setNome(e.target.value)} onBlur={(e) => setNome(formatarNome(e.target.value))} required placeholder=" " autoFocus />
             <label htmlFor="nome">Nome</label>
           </div>
           <div className="form-floating">
@@ -247,16 +261,44 @@ export default function EventoClientContent({ initialEvento }: { initialEvento: 
             <label htmlFor="cpf">CPF</label>
           </div>
           <div className="form-floating">
-            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder=" " />
+            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value.toLowerCase())} style={{ textTransform: 'lowercase' }} required placeholder=" " />
             <label htmlFor="email">Email</label>
           </div>
           <div className="form-floating">
             <input id="telefone" type="tel" value={telefone} onChange={(e) => setTelefone(formatTelefone(e.target.value))} required maxLength={15} placeholder=" " />
             <label htmlFor="telefone">Telefone</label>
           </div>
-          <div className="form-floating">
-            <input id="instituicao" type="text" value={instituicao} onChange={(e) => setInstituicao(e.target.value)} placeholder=" " />
-            <label htmlFor="instituicao">Instituição</label>
+          <div className="radio-group-container">
+            <label className="radio-group-label">Instituição</label>
+            <div className="radio-options">
+              {["UFDPar", "UESPI", "IFPI", "Outra"].map((opcao) => (
+                <label key={opcao} className="radio-option">
+                  <input
+                    type="radio"
+                    name="instituicao"
+                    value={opcao}
+                    checked={instituicao === opcao}
+                    onChange={(e) => setInstituicao(e.target.value)}
+                  />
+                  <span>{opcao}</span>
+                </label>
+              ))}
+            </div>
+
+            {instituicao === "Outra" && (
+              <div className="form-floating" style={{ marginTop: "0.75rem" }}>
+                <input
+                  ref={outraInputRef}
+                  id="outraInstituicao"
+                  type="text"
+                  value={outraInstituicao}
+                  onChange={(e) => setOutraInstituicao(e.target.value)}
+                  required
+                  placeholder=" "
+                />
+                <label htmlFor="outraInstituicao">Nome da Instituição</label>
+              </div>
+            )}
           </div>
 
           {/* link condicional caso já inscrito */}
@@ -290,7 +332,10 @@ export default function EventoClientContent({ initialEvento }: { initialEvento: 
                 setMensagem("");
                 setCpf("");
                 setNome("");
+                setEmail("");
                 setTelefone("");
+                setInstituicao("UFDPar");
+                setOutraInstituicao("");
               }}
             >
               Nova Inscrição

@@ -328,7 +328,7 @@ button[type="submit"]:active,
     text-decoration: none;
     padding: 6px 14px;
     border: 1px solid rgb(174, 174, 174);
-    border-radius: 20px;
+    border-radius: 8px;
     background-color: transparent;
 }
 
@@ -355,4 +355,60 @@ button[type="submit"]:active,
 
 .link-contato-externo:hover .seta-animada {
     transform: translateX(4px);
+}
+
+/* --- Grupo de Radio Buttons (Instituição) --- */
+.radio-group-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.radio-group-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 0.25rem;
+}
+
+.radio-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #2d3748;
+  user-select: none;
+  padding: 8px 14px;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  background-color: #fff;
+  transition: all 0.2s ease;
+}
+
+.radio-option:hover {
+  border-color: #3182ce;
+  background-color: #f7fafc;
+}
+
+.radio-option:has(input:checked) {
+  border-color: #3182ce;
+  background-color: #ebf8ff;
+  color: #2b6cb0;
+  font-weight: 600;
+}
+
+.radio-option input[type="radio"] {
+  accent-color: #3182ce;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  margin: 0;
 }

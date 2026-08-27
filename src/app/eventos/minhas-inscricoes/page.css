@@ -99,11 +99,19 @@ h1 {
 }
 
 .evento-card {
-  background-color: #fdfdfd;
-  border: 1px solid #eef2f5;
-  border-radius: 10px;
+  background-color: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-top: 2px solid #2b6cb0;
+  border-radius: 4px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.evento-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  border-color: #3182ce;
 }
 
 .evento-card h3 {
@@ -207,3 +215,43 @@ h1 {
     box-sizing: border-box;
   }
 }
+
+/* --- Botão de Download de Certificado --- */
+.download-cert-btn {
+  margin-top: 0.75rem;
+  width: 100%;
+  padding: 10px 16px;
+  background-color: #2b6cb0;
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.download-cert-btn:hover {
+  background-color: #2c5282;
+}
+
+.download-cert-btn:disabled {
+  background-color: #a0aec0;
+  cursor: wait;
+}
+
+.cert-status-pending {
+  font-size: 0.85rem;
+  color: #d69e2e;
+  background-color: #fffaf0;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #f6e05e;
+  display: inline-block;
+  margin-top: 0.5rem;
+}
+

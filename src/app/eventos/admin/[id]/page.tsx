@@ -1,21 +1,24 @@
 // src/app/eventos/admin/[id]/page.tsx
 "use client";
 
-import { useEffect, useState, Fragment, useMemo } from "react";
+import { useEffect, useState, Fragment, useMemo, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   collection,
   doc,
   getDoc,
   getDocs,
+  setDoc,
   updateDoc,
   deleteDoc,
   increment,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { auth } from "@/lib/firebaseAuth";
 import { onAuthStateChanged } from "firebase/auth";
-import { parseTimestamp } from "@/lib/utils";
+import { parseTimestamp, formatarNome } from "@/lib/utils";
+import { gerarPdfCertificado } from "@/lib/generateCertificate";
 import { debugLog } from "@/lib/logger";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -24,6 +27,7 @@ import {
   faPenToSquare,
   faTrash,
   faUserShield, 
+  faCertificate,
 } from "@fortawesome/free-solid-svg-icons";
 import { Evento, ParticipanteData } from "@/types";
 import Link from "next/link";
@@ -62,6 +66,36 @@ export default function AdminEventoPage() {
     },
   });
   const [mostrarFormEmail, setMostrarFormEmail] = useState(false);
+
+  // Estados para o formulário de Cadastro Manual de Inscrição
+  const [mostrarFormNovaInscricao, setMostrarFormNovaInscricao] = useState(false);
+  const [salvandoNovaInscricao, setSalvandoNovaInscricao] = useState(false);
+  const [novoForm, setNovoForm] = useState({
+    cpf: "",
+    nome: "",
+    email: "",
+    telefone: "",
+    institution: "UFDPar",
+    outraInstituicao: "",
+    isMonitor: false,
+  });
+
+  const nomeAdminInputRef = useRef<HTMLInputElement>(null);
+  const outraAdminInputRef = useRef<HTMLInputElement>(null);
+
+  // Foco automático no nome ao abrir o formulário
+  useEffect(() => {
+    if (mostrarFormNovaInscricao) {
+      setTimeout(() => nomeAdminInputRef.current?.focus(), 100);
+    }
+  }, [mostrarFormNovaInscricao]);
+
+  // Foco automático no campo outraInstituicao ao selecionar "Outra"
+  useEffect(() => {
+    if (mostrarFormNovaInscricao && novoForm.institution === "Outra") {
+      setTimeout(() => outraAdminInputRef.current?.focus(), 100);
+    }
+  }, [novoForm.institution, mostrarFormNovaInscricao]);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<Partial<ParticipanteData>>({
@@ -155,9 +189,10 @@ export default function AdminEventoPage() {
     const snap = await getDocs(ref);
     const list: ParticipanteData[] = snap.docs.map((docSnap) => {
       const d = docSnap.data();
+      const cpfReal = d.cpf ? d.cpf : (docSnap.id.length === 11 && /^\d+$/.test(docSnap.id) ? docSnap.id : "");
       return {
         id: docSnap.id,
-        cpf: docSnap.id,
+        cpf: cpfReal,
         nome: d.nome || "",
         email: d.email || "",
         telefone: d.telefone || "",
@@ -222,6 +257,124 @@ export default function AdminEventoPage() {
     } catch (e) {
       console.error(e);
       alert("Erro ao salvar edição");
+    }
+  }
+
+  async function handleSalvarNovaInscricao(e: React.FormEvent) {
+    e.preventDefault();
+    if (!id || typeof id !== "string") return;
+
+    if (!novoForm.nome.trim()) {
+      alert("Por favor, informe o nome do participante.");
+      return;
+    }
+    if (!novoForm.email.trim()) {
+      alert("Por favor, informe o e-mail do participante.");
+      return;
+    }
+
+    const rawCpf = novoForm.cpf.replace(/\D/g, "");
+
+    // CPF é OPCIONAL no admin. Se informado, valida se tem 11 dígitos.
+    if (rawCpf.length > 0 && rawCpf.length !== 11) {
+      alert("Se informado, o CPF deve conter 11 dígitos.");
+      return;
+    }
+
+    const instituicaoFinal = novoForm.institution === "Outra"
+      ? (novoForm.outraInstituicao.trim() || "Outra")
+      : novoForm.institution;
+
+    // Se informou CPF válido (11 dígitos), usa como ID. Se não, gera ID único no Firestore.
+    const docId = rawCpf.length === 11 ? rawCpf : doc(collection(db, `eventos/${id}/inscricoes`)).id;
+
+    setSalvandoNovaInscricao(true);
+    try {
+      const inscricaoRef = doc(db, `eventos/${id}/inscricoes`, docId);
+
+      // Se tem CPF, verifica se já existe registro prévio
+      if (rawCpf.length === 11) {
+        const snap = await getDoc(inscricaoRef);
+        if (snap.exists()) {
+          alert("Já existe um participante cadastrado com este CPF neste evento.");
+          setSalvandoNovaInscricao(false);
+          return;
+        }
+      }
+
+      const nomeFormatado = formatarNome(novoForm.nome);
+      const emailFormatado = novoForm.email.toLowerCase().trim();
+      const telefoneNumeros = novoForm.telefone.replace(/\D/g, "");
+
+      const dadosSalvar: any = {
+        nome: nomeFormatado,
+        email: emailFormatado,
+        telefone: telefoneNumeros,
+        institution: instituicaoFinal,
+        dataInscricao: serverTimestamp(),
+        attendances: [],
+        certificateIssued: false,
+      };
+
+      if (novoForm.isMonitor) {
+        dadosSalvar.isMonitor = true;
+      }
+      if (rawCpf.length === 11) {
+        dadosSalvar.cpf = rawCpf;
+      }
+
+      await setDoc(inscricaoRef, dadosSalvar);
+      await updateDoc(doc(db, "eventos", id), {
+        registrationsCount: increment(1),
+      });
+
+      alert("Inscrição cadastrada com sucesso!");
+
+      const novoParticipante: ParticipanteData = {
+        id: docId,
+        cpf: rawCpf.length === 11 ? rawCpf : "",
+        nome: nomeFormatado,
+        email: emailFormatado,
+        telefone: telefoneNumeros,
+        institution: instituicaoFinal,
+        dataInscricao: new Date(),
+        isMonitor: novoForm.isMonitor,
+      };
+
+      setParticipantes((prev) => [novoParticipante, ...prev]);
+
+      setNovoForm({
+        cpf: "",
+        nome: "",
+        email: "",
+        telefone: "",
+        institution: "UFDPar",
+        outraInstituicao: "",
+        isMonitor: false,
+      });
+      setMostrarFormNovaInscricao(false);
+    } catch (e) {
+      console.error("Erro ao salvar inscrição manual:", e);
+      alert(`Erro ao cadastrar inscrição manual: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setSalvandoNovaInscricao(false);
+    }
+  }
+
+  async function handleBaixarCertificadoAdmin(p: ParticipanteData) {
+    if (!evento) return;
+    try {
+      const cpfExibicao = p.cpf && p.cpf.replace(/\D/g, "").length === 11 
+        ? p.cpf.replace(/\D/g, "").replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")
+        : (p.cpf || "—");
+
+      await gerarPdfCertificado(evento, {
+        nome: p.nome,
+        cpf: cpfExibicao,
+      });
+    } catch (e) {
+      console.error("Erro ao gerar certificado no admin:", e);
+      alert("Erro ao gerar o PDF do certificado.");
     }
   }
 
@@ -373,6 +526,14 @@ export default function AdminEventoPage() {
             listar monitores
           </Link>
 
+          <button
+            onClick={() => setMostrarFormNovaInscricao(!mostrarFormNovaInscricao)}
+            className="btnCadastrarInscricao"
+            type="button"
+          >
+            + Cadastrar Inscrição
+          </button>
+
           {process.env.NODE_ENV === 'development' && (
             <button
               onClick={() => setMostrarFormEmail(!mostrarFormEmail)}
@@ -393,6 +554,182 @@ export default function AdminEventoPage() {
 
         </div>
       </div>
+
+      {/* --- Painel de Cadastro Manual de Inscrição --- */}
+      {mostrarFormNovaInscricao && (
+        <div style={{
+          margin: "1.5rem auto",
+          maxWidth: "1200px",
+          padding: "1.5rem",
+          backgroundColor: "#ffffff",
+          border: "2px solid #3182ce",
+          borderRadius: "10px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.08)"
+        }}>
+          <h3 style={{ marginTop: 0, marginBottom: "0.5rem", color: "#2c5282", fontSize: "1.25rem" }}>
+            ➕ Cadastrar Nova Inscrição (Manual)
+          </h3>
+          <p style={{ fontSize: "0.9rem", color: "#718096", marginBottom: "1.25rem" }}>
+            Cadastre participantes que perderam o prazo ou precisam regularizar os dados. O CPF é <strong>opcional</strong> na área administrativa.
+          </p>
+
+          <form onSubmit={handleSalvarNovaInscricao} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1rem" }}>
+              <div>
+                <label style={{ display: "block", marginBottom: "4px", fontWeight: "600", fontSize: "0.9rem" }}>
+                  Nome Completo *:
+                </label>
+                <input
+                  ref={nomeAdminInputRef}
+                  type="text"
+                  value={novoForm.nome}
+                  onChange={(e) => setNovoForm(p => ({ ...p, nome: e.target.value }))}
+                  onBlur={(e) => setNovoForm(p => ({ ...p, nome: formatarNome(e.target.value) }))}
+                  required
+                  placeholder="Nome do inscrito"
+                  style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e0", boxSizing: "border-box" }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: "block", marginBottom: "4px", fontWeight: "600", fontSize: "0.9rem" }}>
+                  E-mail *:
+                </label>
+                <input
+                  type="email"
+                  value={novoForm.email}
+                  onChange={(e) => setNovoForm(p => ({ ...p, email: e.target.value.toLowerCase() }))}
+                  required
+                  placeholder="email@exemplo.com"
+                  style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e0", boxSizing: "border-box", textTransform: "lowercase" }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: "block", marginBottom: "4px", fontWeight: "600", fontSize: "0.9rem" }}>
+                  CPF (Opcional):
+                </label>
+                <input
+                  type="text"
+                  value={novoForm.cpf}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "")
+                      .replace(/(\d{3})(\d)/, "$1.$2")
+                      .replace(/(\d{3})(\d)/, "$1.$2")
+                      .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+                      .slice(0, 14);
+                    setNovoForm(p => ({ ...p, cpf: val }));
+                  }}
+                  maxLength={14}
+                  placeholder="000.000.000-00 (Opcional)"
+                  style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e0", boxSizing: "border-box" }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: "block", marginBottom: "4px", fontWeight: "600", fontSize: "0.9rem" }}>
+                  Telefone (Opcional):
+                </label>
+                <input
+                  type="text"
+                  value={novoForm.telefone}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "")
+                      .replace(/^(\d{2})(\d)/, "($1) $2")
+                      .replace(/(\d{5})(\d{4})$/, "$1-$2")
+                      .slice(0, 15);
+                    setNovoForm(p => ({ ...p, telefone: val }));
+                  }}
+                  maxLength={15}
+                  placeholder="(99) 99999-9999"
+                  style={{ width: "100%", padding: "10px", borderRadius: "6px", border: "1px solid #cbd5e0", boxSizing: "border-box" }}
+                />
+              </div>
+            </div>
+
+            {/* Instituição Radio Buttons */}
+            <div>
+              <label style={{ display: "block", marginBottom: "6px", fontWeight: "600", fontSize: "0.9rem" }}>
+                Instituição:
+              </label>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
+                {["UFDPar", "UESPI", "IFPI", "Outra"].map((opcao) => (
+                  <label key={opcao} style={{ display: "inline-flex", alignItems: "center", gap: "6px", cursor: "pointer", fontSize: "0.9rem", padding: "6px 12px", border: "1px solid #cbd5e0", borderRadius: "6px", backgroundColor: novoForm.institution === opcao ? "#ebf8ff" : "#fff", fontWeight: novoForm.institution === opcao ? "600" : "normal" }}>
+                    <input
+                      type="radio"
+                      name="adminInstituicao"
+                      value={opcao}
+                      checked={novoForm.institution === opcao}
+                      onChange={(e) => setNovoForm(p => ({ ...p, institution: e.target.value }))}
+                    />
+                    {opcao}
+                  </label>
+                ))}
+              </div>
+
+              {novoForm.institution === "Outra" && (
+                <div style={{ marginTop: "10px" }}>
+                  <input
+                    ref={outraAdminInputRef}
+                    type="text"
+                    value={novoForm.outraInstituicao}
+                    onChange={(e) => setNovoForm(p => ({ ...p, outraInstituicao: e.target.value }))}
+                    placeholder="Digite o nome da instituição"
+                    required
+                    style={{ width: "100%", maxWidth: "400px", padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e0" }}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Monitor checkbox */}
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
+              <input
+                id="adminIsMonitor"
+                type="checkbox"
+                checked={novoForm.isMonitor}
+                onChange={(e) => setNovoForm(p => ({ ...p, isMonitor: e.target.checked }))}
+              />
+              <label htmlFor="adminIsMonitor" style={{ cursor: "pointer", fontSize: "0.9rem", fontWeight: "600" }}>
+                Cadastrar como Monitor do evento
+              </label>
+            </div>
+
+            <div style={{ display: "flex", gap: "10px", marginTop: "1rem" }}>
+              <button
+                type="submit"
+                disabled={salvandoNovaInscricao}
+                style={{
+                  backgroundColor: "#2b6cb0",
+                  color: "#ffffff",
+                  padding: "10px 20px",
+                  borderRadius: "6px",
+                  border: "none",
+                  fontWeight: "600",
+                  cursor: "pointer"
+                }}
+              >
+                {salvandoNovaInscricao ? "Salvando..." : "Salvar Inscrição"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setMostrarFormNovaInscricao(false)}
+                style={{
+                  backgroundColor: "#e2e8f0",
+                  color: "#4a5568",
+                  padding: "10px 20px",
+                  borderRadius: "6px",
+                  border: "none",
+                  fontWeight: "600",
+                  cursor: "pointer"
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {mostrarFormEmail && (
         <div style={{ 
@@ -571,7 +908,7 @@ export default function AdminEventoPage() {
             <th> Telefone </th>
             <th> CPF </th>
             <th> Instituição </th>
-            <th>Ações</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -596,10 +933,17 @@ export default function AdminEventoPage() {
                     <strong>{p.nome}</strong>
                   </td>
                   <td data-label="Email:"> {p.email} </td>
-                  <td data-label="Telefone:"> {p.telefone} </td>
-                  <td data-label="CPF:"> {p.cpf} </td>
-                  <td data-label="Instituição:"> {p.institution} </td>
+                  <td data-label="Telefone:"> {p.telefone || "—"} </td>
+                  <td data-label="CPF:"> {p.cpf && p.cpf.replace(/\D/g, "").length === 11 ? p.cpf.replace(/\D/g, "").replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4") : (p.cpf || "—")} </td>
+                  <td data-label="Instituição:"> {p.institution || "—"} </td>
                   <td data-label="Ações:" className="actionsColumn">
+                    <button
+                      className="btnBaixarCertificadoAdmin"
+                      title="Baixar Certificado PDF"
+                      onClick={() => handleBaixarCertificadoAdmin(p)}
+                    >
+                      <FontAwesomeIcon icon={faCertificate} />
+                    </button>
                     <button
                       className="btnEditar"
                       title="Editar"
@@ -610,7 +954,7 @@ export default function AdminEventoPage() {
                     <button
                       className="btnExcluir"
                       title="Excluir"
-                      onClick={() => excluirParticipante(p.cpf)}
+                      onClick={() => excluirParticipante(p.id)}
                     >
                       <FontAwesomeIcon icon={faTrash} />
                     </button>

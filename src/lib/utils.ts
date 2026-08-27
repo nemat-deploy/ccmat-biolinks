@@ -53,3 +53,26 @@ export function formatarData(date: Date | null | undefined): string {
     minute: "2-digit"
   }).format(date);
 }
+
+/**
+ * Capitaliza cada palavra do nome, mantendo preposições ("de", "da", "dos", "do", "das") em minúsculo.
+ */
+export function formatarNome(nome: string): string {
+  if (!nome) return "";
+
+  const excecoes = ["de", "da", "dos", "do", "das"];
+
+  return nome
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .map((palavra, index) => {
+      // Mantém preposições em minúsculo (exceto no início do nome)
+      if (index > 0 && excecoes.includes(palavra)) {
+        return palavra;
+      }
+      // Capitaliza a primeira letra
+      return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+    })
+    .join(" ");
+}

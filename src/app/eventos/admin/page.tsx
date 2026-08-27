@@ -98,12 +98,11 @@ export default function AdminPage() {
           evento.endDate < agora &&
           evento.status !== "encerrado"
         ) {
-          try {
-            await updateDoc(doc(db, "eventos", evento.id), { status: "encerrado" });
-            evento.status = "encerrado";
-          } catch (error) {
+          evento.status = "encerrado";
+          // Atualiza no Firestore em segundo plano sem bloquear o carregamento da tela
+          updateDoc(doc(db, "eventos", evento.id), { status: "encerrado" }).catch((error) => {
             console.error(`Erro ao atualizar status de ${evento.name}:`, error);
-          }
+          });
         }
         lista.push(evento);
       }

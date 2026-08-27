@@ -2,8 +2,11 @@
 "use client";
 
 import { useState } from "react";
-import { collection, getDocs, query, where, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { Evento } from "@/types";
+import { parseTimestamp } from "@/lib/utils";
+import { gerarPdfCertificado } from "@/lib/generateCertificate";
 import "./page.css";
 
 function validarCPF(cpf: string) {
@@ -23,9 +26,15 @@ function validarCPF(cpf: string) {
   return resto === Number(cpf[10]);
 }
 
+function formatarCpfExibicao(cpfRaw: string): string {
+  const clean = cpfRaw.replace(/\D/g, "");
+  return clean.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+}
+
 export default function MinhasInscricoesPage() {
   const [cpf, setCpf] = useState("");
   const [loading, setLoading] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [result, setResult] = useState<{
     nome: string;
     eventos: {
@@ -33,19 +42,19 @@ export default function MinhasInscricoesPage() {
       nome: string;
       nomeInscrito: string;
       emailInscrito: string;
-      contactEmail?: string; // ✅ NOVO
-      contactPhone?: string; // ✅ NOVO
+      contactEmail?: string;
+      contactPhone?: string;
       dataInscricao: Date | null;
       presencas: number;
       totalSessoes: number;
       percentual: number;
       certificado: boolean;
+      eventoDataRaw: any;
     }[];
   } | null>(null);
   const [error, setError] = useState("");
 
   const buscarCertificados = async () => {
-
     const rawCpf = cpf.replace(/\D/g, "");
     if (!validarCPF(rawCpf)) {
       setError("CPF inválido");
@@ -80,13 +89,14 @@ export default function MinhasInscricoesPage() {
             nome: eventoData.name,
             nomeInscrito: inscricaoData.nome, 
             emailInscrito: inscricaoData.email,
-            contactEmail: eventoData.contactEmail, // ✅ NOVO
-            contactPhone: eventoData.contactPhone, // ✅ NOVO
+            contactEmail: eventoData.contactEmail,
+            contactPhone: eventoData.contactPhone,
             presencas,
             totalSessoes,
             percentual,
-            certificado: percentual >= minPresenca && (!requerAtividadeFinal || enviouAtividadeFinal),
-            dataInscricao: inscricaoData.dataInscricao?.toDate?.() || null
+            certificado: (eventoData?.liberarCertificados === true) && percentual >= minPresenca && (!requerAtividadeFinal || enviouAtividadeFinal),
+            dataInscricao: inscricaoData.dataInscricao?.toDate?.() || null,
+            eventoDataRaw: eventoData,
           });
         }
       }
@@ -105,6 +115,39 @@ export default function MinhasInscricoesPage() {
       setError("Erro ao buscar inscrições. Tente novamente.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadCert = async (item: any) => {
+    const rawCpf = cpf.replace(/\D/g, "");
+    setDownloadingId(item.id);
+
+    try {
+      const eventoCompleto: Evento = {
+        id: item.id,
+        name: item.nome,
+        description: item.eventoDataRaw.description || "",
+        startDate: parseTimestamp(item.eventoDataRaw.startDate),
+        endDate: parseTimestamp(item.eventoDataRaw.endDate),
+        registrationDeadLine: parseTimestamp(item.eventoDataRaw.registrationDeadLine),
+        maxParticipants: item.eventoDataRaw.maxParticipants || 0,
+        registrationsCount: item.eventoDataRaw.registrationsCount || 0,
+        status: item.eventoDataRaw.status || "aberto",
+        minAttendancePercentForCertificate: item.eventoDataRaw.minAttendancePercentForCertificate || 80,
+        cargaHoraria: item.eventoDataRaw.cargaHoraria || 0,
+        certificateBgUrl: item.eventoDataRaw.certificateBgUrl || "",
+        certificateText: item.eventoDataRaw.certificateText || "",
+      };
+
+      await gerarPdfCertificado(eventoCompleto, {
+        nome: item.nomeInscrito,
+        cpf: formatarCpfExibicao(rawCpf),
+      });
+    } catch (err) {
+      console.error("Erro ao gerar certificado PDF:", err);
+      alert("Ocorreu um erro ao gerar o certificado. Tente novamente.");
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -147,20 +190,23 @@ export default function MinhasInscricoesPage() {
                 </div>
 
                 <div className="info-group">
-                  <h4></h4>
                   <p>
-                    <strong>Certificado? </strong>
+                    <strong>Certificado: </strong>
                     <span className={evento.certificado ? "success" : "warning"}>
-                      {evento.certificado ? "✅ Sim" : "❌ Não"}
+                      {evento.certificado ? "✅ Disponível" : "❌ Indisponível"}
                     </span>
                   </p>
-                </div>
 
-                {evento.nomeInscrito !== result.nome && (
-                  <p className="discrepancy-warning">
-                    ⚠️ O nome nesta inscrição difere do seu nome principal.
-                  </p>
-                )}
+                  {evento.certificado && (
+                    <button
+                      className="download-cert-btn"
+                      onClick={() => handleDownloadCert(evento)}
+                      disabled={downloadingId === evento.id}
+                    >
+                      {downloadingId === evento.id ? "⏳ Gerando PDF..." : "📄 Baixar Certificado (PDF)"}
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -176,4 +222,5 @@ export default function MinhasInscricoesPage() {
     </div>
   );
 }
+
 

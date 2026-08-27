@@ -119,9 +119,10 @@ async function loadParticipantesComCertificado(eventoId: string) {
     // - Frequência mínima foi atingida
     // - Se o evento requer atividade final, então ela precisa ter sido enviada
     if (atingiuFrequenciaMinima && (!requerAtividadeFinal || enviouAtividadeFinal)) {
+      const cpfReal = d.cpf ? d.cpf : (docSnap.id.length === 11 && /^\d+$/.test(docSnap.id) ? docSnap.id : "");
       list.push({
         id: docSnap.id,
-        cpf: docSnap.id,
+        cpf: cpfReal,
         nome: d.nome || "",
         email: d.email || "",
         telefone: d.telefone || "",

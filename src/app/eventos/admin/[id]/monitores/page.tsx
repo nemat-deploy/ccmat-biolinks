@@ -36,16 +36,20 @@ export default function MonitoresPage() {
         const q = query(inscricoesRef, where("isMonitor", "==", true));
         const querySnapshot = await getDocs(q);
         
-        const listaMonitores = querySnapshot.docs.map(docSnap => ({
-          id: docSnap.id,
-          cpf: docSnap.id,
-          nome: docSnap.data().nome || 'N/A',
-          email: docSnap.data().email || 'N/A',
-          telefone: docSnap.data().telefone || 'N/A',
-          institution: docSnap.data().institution || 'N/A',
-          dataInscricao: docSnap.data().dataInscricao?.toDate?.() ?? null,
-          isMonitor: true,
-        }));
+        const listaMonitores = querySnapshot.docs.map(docSnap => {
+          const d = docSnap.data();
+          const cpfReal = d.cpf ? d.cpf : (docSnap.id.length === 11 && /^\d+$/.test(docSnap.id) ? docSnap.id : "");
+          return {
+            id: docSnap.id,
+            cpf: cpfReal,
+            nome: d.nome || 'N/A',
+            email: d.email || 'N/A',
+            telefone: d.telefone || 'N/A',
+            institution: d.institution || 'N/A',
+            dataInscricao: d.dataInscricao?.toDate?.() ?? null,
+            isMonitor: true,
+          };
+        });
         
         // Ordena por nome
         listaMonitores.sort((a, b) => a.nome.localeCompare(b.nome));

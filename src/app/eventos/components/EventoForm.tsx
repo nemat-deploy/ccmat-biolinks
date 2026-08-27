@@ -131,10 +131,17 @@ export default function EventoForm({
   const [adminLoading, setAdminLoading] = useState(true);
   const [showImageTooltip, setShowImageTooltip] = useState(false);
 
+  // Estados para o certificado
+  const [certificateBgUrl, setCertificateBgUrl] = useState<string>("");
+  const [cargaHoraria, setCargaHoraria] = useState<string>("");
+  const [certificateText, setCertificateText] = useState<string>("");
+  const [liberarCertificados, setLiberarCertificados] = useState<boolean>(false);
+
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ link: false }),
-      Link.configure({ openOnClick: false, autolink: true, HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer' } }),
+      StarterKit.configure({
+        link: { openOnClick: false, autolink: true, HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer' } },
+      }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       TextStyle,
       Color.configure({ types: [TextStyle.name] }),
@@ -144,6 +151,23 @@ export default function EventoForm({
     onUpdate: ({ editor }) => { setDescription(editor.getHTML()); },
     editorProps: {
       attributes: { class: 'tiptap-editor', placeholder: 'Descreva o evento...' },
+    },
+  });
+
+  const certEditor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        link: { openOnClick: false, autolink: true, HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer' } },
+      }),
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      TextStyle,
+      Color.configure({ types: [TextStyle.name] }),
+    ],
+    content: certificateText,
+    immediatelyRender: false,
+    onUpdate: ({ editor }) => { setCertificateText(editor.getHTML()); },
+    editorProps: {
+      attributes: { class: 'tiptap-editor', placeholder: 'Digite o texto modelo do certificado...' },
     },
   });
 
@@ -166,17 +190,28 @@ export default function EventoForm({
       setMinAttendancePercentForCertificate(eventoData.minAttendancePercentForCertificate?.toString() || "60");
       setStatus(eventoData.status);
       setRequerAtividadeFinal(eventoData.requer_atividade_final ?? false);
+      setCertificateBgUrl(eventoData.certificateBgUrl || "");
+      setCargaHoraria(eventoData.cargaHoraria?.toString() || "");
+      setCertificateText(eventoData.certificateText || "");
+      setLiberarCertificados(eventoData.liberarCertificados === true);
       setStartDateInput(eventoData.startDate ? formatDateToBrazilianDateTime(eventoData.startDate) : '');
       setEndDateInput(eventoData.endDate ? formatDateToBrazilianDateTime(eventoData.endDate) : '');
       setRegistrationDeadLineInput(eventoData.registrationDeadLine ? formatDateToBrazilianDateTime(eventoData.registrationDeadLine) : '');
       if (editor && eventoData.description !== editor.getHTML()) {
         editor.commands.setContent(eventoData.description);
       }
+      if (certEditor && eventoData.certificateText && eventoData.certificateText !== certEditor.getHTML()) {
+        certEditor.commands.setContent(eventoData.certificateText);
+      }
     } else {
       // No modo de criação, define o email do usuário como padrão.
       setName("");
       setDescription("");
       setImageUrl("");
+      setCertificateBgUrl("");
+      setCargaHoraria("");
+      setCertificateText("");
+      setLiberarCertificados(false);
       setContactEmail(currentUserEmail);
       setContactPhone("");
       setStartDate(null);
@@ -192,8 +227,9 @@ export default function EventoForm({
       setEndDateInput('');
       setRegistrationDeadLineInput('');
       editor?.commands.clearContent();
+      certEditor?.commands.clearContent();
     }
-  }, [isEditing, eventoData, editor]);
+  }, [isEditing, eventoData, editor, certEditor]);
 
   // (O restante do código, como useEffects e handles, permanece igual)
   useEffect(() => {
@@ -255,6 +291,10 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
       requer_atividade_final: requerAtividadeFinal,
       createdBy: eventoData?.createdBy || user.uid,
       admins: adminIds.length > 0 ? adminIds : [user.uid],
+      certificateBgUrl: certificateBgUrl.trim(),
+      cargaHoraria: Number(cargaHoraria) || 0,
+      certificateText: certificateText,
+      liberarCertificados: liberarCertificados,
     };
 
     setIsSubmitting(true);
@@ -455,6 +495,66 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
           <input type="checkbox" checked={requerAtividadeFinal} onChange={(e) => setRequerAtividadeFinal(e.target.checked)} />
           Requer atividade final
         </label>
+      </div>
+
+      {/* --- Seção de Configuração do Certificado --- */}
+      <div className="certificate-section" style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '2px solid #e2e8f0' }}>
+        <h3 style={{ fontSize: '1.2rem', color: '#2c5282', marginBottom: '1rem', fontWeight: '600' }}>📜 Configuração do Certificado</h3>
+
+        {/* Toggle de Liberação de Certificados */}
+        <div className="form-group" style={{ marginBottom: '1.25rem', padding: '12px 16px', backgroundColor: liberarCertificados ? '#f0fff4' : '#fff5f5', border: `1.5px solid ${liberarCertificados ? '#9ae6b4' : '#feb2b2'}`, borderRadius: '8px', transition: 'all 0.2s ease' }}>
+          <label style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontWeight: '600', color: liberarCertificados ? '#22543d' : '#742a2a', fontSize: '0.95rem' }}>
+            <input 
+              type="checkbox" 
+              checked={liberarCertificados} 
+              onChange={(e) => setLiberarCertificados(e.target.checked)} 
+              style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+            />
+            <span>{liberarCertificados ? "✅ Emissão de certificados LIBERADA para os participantes" : "🔒 Emissão de certificados BLOQUEADA para os participantes"}</span>
+          </label>
+          <small style={{ display: 'block', marginTop: '4px', color: '#4a5568', fontSize: '0.85rem' }}>
+            Quando bloqueado, os participantes verão a mensagem "Indisponível" na consulta pública de inscrições. No painel administrativo, o download sempre fica disponível para pré-visualização.
+          </small>
+        </div>
+        
+        <div className="form-group-inline">
+          <div className="form-group">
+            <label><strong>Carga Horária (em horas):</strong></label>
+            <input 
+              type="number" 
+              value={cargaHoraria} 
+              onChange={(e) => setCargaHoraria(e.target.value)} 
+              min={0} 
+              placeholder="Ex: 8"
+              className="form-input" 
+            />
+            <small>Carga horária que substituirá a tag <code>{"{carga_horaria}"}</code></small>
+          </div>
+
+          <div className="form-group">
+            <label><strong>URL da Imagem de Fundo do Certificado (Opcional):</strong></label>
+            <input 
+              type="url" 
+              value={certificateBgUrl} 
+              onChange={(e) => setCertificateBgUrl(e.target.value)} 
+              placeholder="https://..." 
+              className="form-input" 
+            />
+            <small>Link da arte A4 (com assinaturas e timbres gravados)</small>
+          </div>
+        </div>
+
+        <div className="form-group" style={{ marginTop: '1rem' }}>
+          <label><strong>Modelo de Texto do Certificado:</strong></label>
+          <div style={{ marginBottom: '10px', fontSize: '0.85rem', color: '#4a5568', backgroundColor: '#ebf8ff', padding: '10px 14px', borderRadius: '8px', border: '1px solid #bee3f8', lineHeight: '1.6' }}>
+            <strong>Tags dinâmicas disponíveis (serão substituídas automaticamente ao gerar o PDF):</strong><br />
+            <code>{"{nome}"}</code> • <code>{"{cpf}"}</code> • <code>{"{evento}"}</code> • <code>{"{data_inicio}"}</code> • <code>{"{data_fim}"}</code> • <code>{"{carga_horaria}"}</code>
+          </div>
+          <div className="tiptap-container">
+            <MenuBar editor={certEditor} />
+            <EditorContent editor={certEditor} />
+          </div>
+        </div>
       </div>
       
       {isEditing && (

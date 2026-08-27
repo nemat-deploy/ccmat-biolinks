@@ -31,6 +31,10 @@ export type Evento = {
   requer_atividade_final?: boolean;
   createdBy?: string;
   admins?: string[];
+  certificateBgUrl?: string;
+  cargaHoraria?: number;
+  certificateText?: string;
+  liberarCertificados?: boolean;
 };
 
 export interface Sessao {

@@ -33,6 +33,9 @@ declare module '@fortawesome/free-solid-svg-icons' {
   export const faLink: any;
   export const faUnlink: any;
 
-  // ✅ NOVO ÍCONE: Ícone para Monitores/Organizadores
+  // Ícone para Monitores/Organizadores e Certificados
   export const faUserShield: any;
+  export const faFilePdf: any;
+  export const faCertificate: any;
+  export const faDownload: any;
 }

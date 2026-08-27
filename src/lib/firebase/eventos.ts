@@ -120,6 +120,10 @@ export async function getEventos(): Promise<Evento[]> {
       sessions: data.sessions ?? [],
       createdBy: data.createdBy,
       admins: data.admins || [],
+      certificateBgUrl: data.certificateBgUrl || '',
+      cargaHoraria: data.cargaHoraria || 0,
+      certificateText: data.certificateText || '',
+      liberarCertificados: data.liberarCertificados === true,
     };
   });
 }
@@ -150,6 +154,10 @@ export async function getEvento(id: string): Promise<Evento | null> {
     requer_atividade_final: data.requer_atividade_final === true,
     createdBy: data.createdBy || null,
     admins: data.admins || [],
+    certificateBgUrl: data.certificateBgUrl || '',
+    cargaHoraria: data.cargaHoraria || 0,
+    certificateText: data.certificateText || '',
+    liberarCertificados: data.liberarCertificados === true,
   };
 }
 

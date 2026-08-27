@@ -18,6 +18,10 @@ type Evento = {
   registrationsCount: number;
   status: string;
   minAttendancePercentForCertificate: number;
+  certificateBgUrl?: string;
+  cargaHoraria?: number;
+  certificateText?: string;
+  liberarCertificados?: boolean;
 };
 
 // A função getEvento permanece a mesma
@@ -44,22 +48,30 @@ async function getEvento(id: string): Promise<Evento | null> {
     registrationsCount: data.registrationsCount ?? 0,
     status: data.status || 'aberto',
     minAttendancePercentForCertificate: data.minAttendancePercentForCertificate ?? 80,
+    certificateBgUrl: data.certificateBgUrl || '',
+    cargaHoraria: data.cargaHoraria || 0,
+    certificateText: data.certificateText || '',
+    liberarCertificados: data.liberarCertificados === true,
   };
 }
 
-// AJUSTE 1: A assinatura agora recebe as props como uma Promise
-export async function generateMetadata(
-  props: Promise<{ params: { id: string } }>
-): Promise<Metadata> {
-  // Usamos 'await' para resolver a Promise e obter os parâmetros
-  const { params } = await props;
+// Desempacota os parâmetros com segurança no Next.js 16 (onde params é uma Promise)
+async function extractParams(props: any): Promise<{ id: string }> {
+  const resolvedProps = await props;
+  const params = resolvedProps?.params ? await resolvedProps.params : resolvedProps;
+  return params || { id: "" };
+}
+
+// AJUSTE 1: A assinatura agora recebe as props compatíveis com Next.js 16
+export async function generateMetadata(props: any): Promise<Metadata> {
+  const params = await extractParams(props);
   const evento = await getEvento(params.id);
 
   if (!evento) {
     return { title: 'Evento não encontrado' };
   }
   
-  const firstSentence = evento.description.replace(/<[^>]*>?/gm, '').split('. ')[0];
+  const firstSentence = evento.description ? evento.description.replace(/<[^>]*>?/gm, '').split('. ')[0] : '';
 
   return {
     title: evento.name,
@@ -82,11 +94,8 @@ export async function generateMetadata(
 }
 
 // AJUSTE 2: A mesma lógica é aplicada ao componente da página
-export default async function EventoPage(
-  props: Promise<{ params: { id: string } }>
-) {
-  // Usamos 'await' para resolver a Promise e obter os parâmetros
-  const { params } = await props;
+export default async function EventoPage(props: any) {
+  const params = await extractParams(props);
   const evento = await getEvento(params.id);
 
   if (!evento) {
