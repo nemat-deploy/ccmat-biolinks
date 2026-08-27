@@ -512,9 +512,6 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
             />
             <span>{liberarCertificados ? "✅ Emissão de certificados LIBERADA para os participantes" : "🔒 Emissão de certificados BLOQUEADA para os participantes"}</span>
           </label>
-          <small style={{ display: 'block', marginTop: '4px', color: '#4a5568', fontSize: '0.85rem' }}>
-            Quando bloqueado, os participantes verão a mensagem "Indisponível" na consulta pública de inscrições. No painel administrativo, o download sempre fica disponível para pré-visualização.
-          </small>
         </div>
         
         <div className="form-group-inline">
