@@ -1,7 +1,7 @@
 // src/app/eventos/minhas-inscricoes/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Evento } from "@/types";
@@ -33,6 +33,11 @@ function formatarCpfExibicao(cpfRaw: string): string {
 
 export default function MinhasInscricoesPage() {
   const [cpf, setCpf] = useState("");
+  const cpfInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    cpfInputRef.current?.focus();
+  }, []);
   const [loading, setLoading] = useState(false);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [result, setResult] = useState<{
@@ -94,7 +99,9 @@ export default function MinhasInscricoesPage() {
             presencas,
             totalSessoes,
             percentual,
-            certificado: (eventoData?.liberarCertificados === true) && percentual >= minPresenca && (!requerAtividadeFinal || enviouAtividadeFinal),
+            isMonitor: Boolean(inscricaoData.isMonitor),
+            isMinistrante: Boolean(inscricaoData.isMinistrante),
+            certificado: (eventoData?.liberarCertificados === true) && (inscricaoData.isMonitor || inscricaoData.isMinistrante || (percentual >= minPresenca && (!requerAtividadeFinal || enviouAtividadeFinal))),
             dataInscricao: inscricaoData.dataInscricao?.toDate?.() || null,
             eventoDataRaw: eventoData,
           });
@@ -104,6 +111,13 @@ export default function MinhasInscricoesPage() {
       if (eventosComInscricao.length === 0) {
         setError("Nenhuma inscrição encontrada para este CPF");
       } else {
+        // Ordena da inscrição mais recente para a mais antiga (dataInscricao decrescente)
+        eventosComInscricao.sort((a, b) => {
+          const timeA = a.dataInscricao ? a.dataInscricao.getTime() : 0;
+          const timeB = b.dataInscricao ? b.dataInscricao.getTime() : 0;
+          return timeB - timeA;
+        });
+
         const primeiroNome = eventosComInscricao[0].nomeInscrito || "Participante";
         setResult({
           nome: primeiroNome,
@@ -137,11 +151,15 @@ export default function MinhasInscricoesPage() {
         cargaHoraria: item.eventoDataRaw.cargaHoraria || 0,
         certificateBgUrl: item.eventoDataRaw.certificateBgUrl || "",
         certificateText: item.eventoDataRaw.certificateText || "",
+        certificateTextMonitor: item.eventoDataRaw.certificateTextMonitor || "",
+        certificateTextMinistrante: item.eventoDataRaw.certificateTextMinistrante || "",
       };
 
       await gerarPdfCertificado(eventoCompleto, {
         nome: item.nomeInscrito,
         cpf: formatarCpfExibicao(rawCpf),
+        isMonitor: item.isMonitor,
+        isMinistrante: item.isMinistrante,
       });
     } catch (err) {
       console.error("Erro ao gerar certificado PDF:", err);
@@ -157,6 +175,8 @@ export default function MinhasInscricoesPage() {
       
       <div className="input-group">
         <input
+          ref={cpfInputRef}
+          autoFocus
           type="text"
           value={cpf}
           onChange={(e) => setCpf(e.target.value.replace(/\D/g, "")
@@ -176,7 +196,8 @@ export default function MinhasInscricoesPage() {
 
       {result && (
         <div className="resultado">
-          <h2>Resultados para: <br />{result.nome}</h2>
+          <p style={{ marginBottom: '8px', fontSize: '18px' }}>Resultados para:</p>
+          <h2>{result.nome}</h2>
           
           <div className="eventos-grid">
             {result.eventos.map((evento) => (

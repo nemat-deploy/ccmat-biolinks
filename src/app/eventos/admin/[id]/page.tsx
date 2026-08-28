@@ -28,6 +28,7 @@ import {
   faTrash,
   faUserShield, 
   faCertificate,
+  faMicrophone,
 } from "@fortawesome/free-solid-svg-icons";
 import { Evento, ParticipanteData } from "@/types";
 import Link from "next/link";
@@ -78,6 +79,7 @@ export default function AdminEventoPage() {
     institution: "UFDPar",
     outraInstituicao: "",
     isMonitor: false,
+    isMinistrante: false,
   });
 
   const nomeAdminInputRef = useRef<HTMLInputElement>(null);
@@ -105,6 +107,7 @@ export default function AdminEventoPage() {
     telefone: "",
     institution: "",
     isMonitor: false, 
+    isMinistrante: false,
   });
 
   const normalizeText = (text: string) => {
@@ -199,6 +202,7 @@ export default function AdminEventoPage() {
         institution: d.institution || "",
         dataInscricao: d.dataInscricao?.toDate?.() ?? null,
         isMonitor: d.isMonitor ?? false, 
+        isMinistrante: d.isMinistrante ?? false,
       };
     });
     setParticipantes(list);
@@ -228,6 +232,7 @@ export default function AdminEventoPage() {
       telefone: p.telefone || "",
       institution: p.institution || "",
       isMonitor: p.isMonitor ?? false, 
+      isMinistrante: p.isMinistrante ?? false,
     });
   }
 
@@ -246,6 +251,7 @@ export default function AdminEventoPage() {
         telefone: form.telefone ?? "",
         institution: form.institution ?? "",
         isMonitor: form.isMonitor ?? false,
+        isMinistrante: form.isMinistrante ?? false,
       };
       
       await updateDoc(doc(db, `eventos/${id}/inscricoes`, editingId), dadosAtualizados);
@@ -319,6 +325,9 @@ export default function AdminEventoPage() {
       if (novoForm.isMonitor) {
         dadosSalvar.isMonitor = true;
       }
+      if (novoForm.isMinistrante) {
+        dadosSalvar.isMinistrante = true;
+      }
       if (rawCpf.length === 11) {
         dadosSalvar.cpf = rawCpf;
       }
@@ -339,6 +348,7 @@ export default function AdminEventoPage() {
         institution: instituicaoFinal,
         dataInscricao: new Date(),
         isMonitor: novoForm.isMonitor,
+        isMinistrante: novoForm.isMinistrante,
       };
 
       setParticipantes((prev) => [novoParticipante, ...prev]);
@@ -351,6 +361,7 @@ export default function AdminEventoPage() {
         institution: "UFDPar",
         outraInstituicao: "",
         isMonitor: false,
+        isMinistrante: false,
       });
       setMostrarFormNovaInscricao(false);
     } catch (e) {
@@ -371,6 +382,8 @@ export default function AdminEventoPage() {
       await gerarPdfCertificado(evento, {
         nome: p.nome,
         cpf: cpfExibicao,
+        isMonitor: p.isMonitor,
+        isMinistrante: p.isMinistrante,
       });
     } catch (e) {
       console.error("Erro ao gerar certificado no admin:", e);
@@ -682,16 +695,26 @@ export default function AdminEventoPage() {
               )}
             </div>
 
-            {/* Monitor checkbox */}
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
-              <input
-                id="adminIsMonitor"
-                type="checkbox"
-                checked={novoForm.isMonitor}
-                onChange={(e) => setNovoForm(p => ({ ...p, isMonitor: e.target.checked }))}
-              />
-              <label htmlFor="adminIsMonitor" style={{ cursor: "pointer", fontSize: "0.9rem", fontWeight: "600" }}>
-                Cadastrar como Monitor do evento
+            {/* Monitor & Ministrante checkboxes */}
+            <div style={{ display: "flex", gap: "16px", marginTop: "4px", flexWrap: "wrap" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", fontSize: "0.9rem", fontWeight: "600" }}>
+                <input
+                  id="adminIsMonitor"
+                  type="checkbox"
+                  checked={novoForm.isMonitor}
+                  onChange={(e) => setNovoForm(p => ({ ...p, isMonitor: e.target.checked }))}
+                />
+                Cadastrar como Monitor
+              </label>
+
+              <label style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", fontSize: "0.9rem", fontWeight: "600" }}>
+                <input
+                  id="adminIsMinistrante"
+                  type="checkbox"
+                  checked={novoForm.isMinistrante}
+                  onChange={(e) => setNovoForm(p => ({ ...p, isMinistrante: e.target.checked }))}
+                />
+                Cadastrar como Ministrante
               </label>
             </div>
 
@@ -906,7 +929,7 @@ export default function AdminEventoPage() {
             <th> Nome </th>
             <th> Email </th>
             <th> Telefone </th>
-            <th> CPF </th>
+            <th className="cpfColumn"> CPF </th>
             <th> Instituição </th>
             <th></th>
           </tr>
@@ -925,6 +948,11 @@ export default function AdminEventoPage() {
               <Fragment key={p.id}>
                 <tr>
                   <td>
+                    {p.isMinistrante && (
+                      <span title="Ministrante">
+                        <FontAwesomeIcon icon={faMicrophone} style={{ color: '#d69e2e', marginRight: '8px' }} />
+                      </span>
+                    )}
                     {p.isMonitor && (
                       <span title="Monitor/Organizador">
                         <FontAwesomeIcon icon={faUserShield} style={{ color: '#2962ff', marginRight: '8px' }} />
@@ -934,7 +962,7 @@ export default function AdminEventoPage() {
                   </td>
                   <td data-label="Email:"> {p.email} </td>
                   <td data-label="Telefone:"> {p.telefone || "—"} </td>
-                  <td data-label="CPF:"> {p.cpf && p.cpf.replace(/\D/g, "").length === 11 ? p.cpf.replace(/\D/g, "").replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4") : (p.cpf || "—")} </td>
+                  <td data-label="CPF:" className="cpfColumn"> {p.cpf && p.cpf.replace(/\D/g, "").length === 11 ? p.cpf.replace(/\D/g, "").replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4") : (p.cpf || "—")} </td>
                   <td data-label="Instituição:"> {p.institution || "—"} </td>
                   <td data-label="Ações:" className="actionsColumn">
                     <button
@@ -1000,7 +1028,7 @@ export default function AdminEventoPage() {
                             onChange={onChangeForm}
                           />
                         </label>
-                        {/* checkbox monitores */}
+                        {/* checkbox monitores / ministrantes */}
                         <label className="checkbox-label">
                           <input
                             type="checkbox"
@@ -1008,7 +1036,16 @@ export default function AdminEventoPage() {
                             checked={form.isMonitor ?? false}
                             onChange={onChangeForm}
                           />
-                          É monitor/organizador do evento?
+                          Monitor
+                        </label>
+                        <label className="checkbox-label">
+                          <input
+                            type="checkbox"
+                            name="isMinistrante"
+                            checked={form.isMinistrante ?? false}
+                            onChange={onChangeForm}
+                          />
+                          Ministrante
                         </label>
                         <div className="btns">
                           <button className="save-btn" onClick={salvarEdicao}>

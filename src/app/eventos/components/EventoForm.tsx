@@ -135,7 +135,10 @@ export default function EventoForm({
   const [certificateBgUrl, setCertificateBgUrl] = useState<string>("");
   const [cargaHoraria, setCargaHoraria] = useState<string>("");
   const [certificateText, setCertificateText] = useState<string>("");
+  const [certificateTextMonitor, setCertificateTextMonitor] = useState<string>("");
+  const [certificateTextMinistrante, setCertificateTextMinistrante] = useState<string>("");
   const [liberarCertificados, setLiberarCertificados] = useState<boolean>(false);
+  const [activeCertTab, setActiveCertTab] = useState<'participante' | 'monitor' | 'ministrante'>('participante');
 
   const editor = useEditor({
     extensions: [
@@ -154,7 +157,7 @@ export default function EventoForm({
     },
   });
 
-  const certEditor = useEditor({
+  const certEditorParticipante = useEditor({
     extensions: [
       StarterKit.configure({
         link: { openOnClick: false, autolink: true, HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer' } },
@@ -167,7 +170,41 @@ export default function EventoForm({
     immediatelyRender: false,
     onUpdate: ({ editor }) => { setCertificateText(editor.getHTML()); },
     editorProps: {
-      attributes: { class: 'tiptap-editor', placeholder: 'Digite o texto modelo do certificado...' },
+      attributes: { class: 'tiptap-editor', placeholder: 'Digite o texto modelo do certificado para Participantes...' },
+    },
+  });
+
+  const certEditorMonitor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        link: { openOnClick: false, autolink: true, HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer' } },
+      }),
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      TextStyle,
+      Color.configure({ types: [TextStyle.name] }),
+    ],
+    content: certificateTextMonitor,
+    immediatelyRender: false,
+    onUpdate: ({ editor }) => { setCertificateTextMonitor(editor.getHTML()); },
+    editorProps: {
+      attributes: { class: 'tiptap-editor', placeholder: 'Digite o texto modelo do certificado para Monitores...' },
+    },
+  });
+
+  const certEditorMinistrante = useEditor({
+    extensions: [
+      StarterKit.configure({
+        link: { openOnClick: false, autolink: true, HTMLAttributes: { target: '_blank', rel: 'noopener noreferrer' } },
+      }),
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      TextStyle,
+      Color.configure({ types: [TextStyle.name] }),
+    ],
+    content: certificateTextMinistrante,
+    immediatelyRender: false,
+    onUpdate: ({ editor }) => { setCertificateTextMinistrante(editor.getHTML()); },
+    editorProps: {
+      attributes: { class: 'tiptap-editor', placeholder: 'Digite o texto modelo do certificado para Ministrantes...' },
     },
   });
 
@@ -193,6 +230,8 @@ export default function EventoForm({
       setCertificateBgUrl(eventoData.certificateBgUrl || "");
       setCargaHoraria(eventoData.cargaHoraria?.toString() || "");
       setCertificateText(eventoData.certificateText || "");
+      setCertificateTextMonitor(eventoData.certificateTextMonitor || "");
+      setCertificateTextMinistrante(eventoData.certificateTextMinistrante || "");
       setLiberarCertificados(eventoData.liberarCertificados === true);
       setStartDateInput(eventoData.startDate ? formatDateToBrazilianDateTime(eventoData.startDate) : '');
       setEndDateInput(eventoData.endDate ? formatDateToBrazilianDateTime(eventoData.endDate) : '');
@@ -200,8 +239,14 @@ export default function EventoForm({
       if (editor && eventoData.description !== editor.getHTML()) {
         editor.commands.setContent(eventoData.description);
       }
-      if (certEditor && eventoData.certificateText && eventoData.certificateText !== certEditor.getHTML()) {
-        certEditor.commands.setContent(eventoData.certificateText);
+      if (certEditorParticipante && eventoData.certificateText !== certEditorParticipante.getHTML()) {
+        certEditorParticipante.commands.setContent(eventoData.certificateText || "");
+      }
+      if (certEditorMonitor && eventoData.certificateTextMonitor !== certEditorMonitor.getHTML()) {
+        certEditorMonitor.commands.setContent(eventoData.certificateTextMonitor || "");
+      }
+      if (certEditorMinistrante && eventoData.certificateTextMinistrante !== certEditorMinistrante.getHTML()) {
+        certEditorMinistrante.commands.setContent(eventoData.certificateTextMinistrante || "");
       }
     } else {
       // No modo de criação, define o email do usuário como padrão.
@@ -211,6 +256,8 @@ export default function EventoForm({
       setCertificateBgUrl("");
       setCargaHoraria("");
       setCertificateText("");
+      setCertificateTextMonitor("");
+      setCertificateTextMinistrante("");
       setLiberarCertificados(false);
       setContactEmail(currentUserEmail);
       setContactPhone("");
@@ -227,9 +274,11 @@ export default function EventoForm({
       setEndDateInput('');
       setRegistrationDeadLineInput('');
       editor?.commands.clearContent();
-      certEditor?.commands.clearContent();
+      certEditorParticipante?.commands.clearContent();
+      certEditorMonitor?.commands.clearContent();
+      certEditorMinistrante?.commands.clearContent();
     }
-  }, [isEditing, eventoData, editor, certEditor]);
+  }, [isEditing, eventoData, editor, certEditorParticipante, certEditorMonitor, certEditorMinistrante]);
 
   // (O restante do código, como useEffects e handles, permanece igual)
   useEffect(() => {
@@ -294,6 +343,8 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
       certificateBgUrl: certificateBgUrl.trim(),
       cargaHoraria: Number(cargaHoraria) || 0,
       certificateText: certificateText,
+      certificateTextMonitor: certificateTextMonitor,
+      certificateTextMinistrante: certificateTextMinistrante,
       liberarCertificados: liberarCertificados,
     };
 
@@ -510,7 +561,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
               onChange={(e) => setLiberarCertificados(e.target.checked)} 
               style={{ width: '18px', height: '18px', cursor: 'pointer' }}
             />
-            <span>{liberarCertificados ? "✅ Emissão de certificados LIBERADA para os participantes" : "🔒 Emissão de certificados BLOQUEADA para os participantes"}</span>
+            <span>{liberarCertificados ? "Emissão de certificados LIBERADA" : "Emissão de certificados BLOQUEADA"}</span>
           </label>
         </div>
         
@@ -542,14 +593,101 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         </div>
 
         <div className="form-group" style={{ marginTop: '1rem' }}>
-          <label><strong>Modelo de Texto do Certificado:</strong></label>
+          <label><strong>Modelo de Texto do Certificado por Categoria:</strong></label>
           <div style={{ marginBottom: '10px', fontSize: '0.85rem', color: '#4a5568', backgroundColor: '#ebf8ff', padding: '10px 14px', borderRadius: '8px', border: '1px solid #bee3f8', lineHeight: '1.6' }}>
             <strong>Tags dinâmicas disponíveis (serão substituídas automaticamente ao gerar o PDF):</strong><br />
             <code>{"{nome}"}</code> • <code>{"{cpf}"}</code> • <code>{"{evento}"}</code> • <code>{"{data_inicio}"}</code> • <code>{"{data_fim}"}</code> • <code>{"{carga_horaria}"}</code>
           </div>
-          <div className="tiptap-container">
-            <MenuBar editor={certEditor} />
-            <EditorContent editor={certEditor} />
+
+          {/* Abas de Navegação */}
+          <div style={{ display: 'flex', gap: '8px', marginTop: '15px', marginBottom: '0', borderBottom: '2px solid #cbd5e0' }}>
+            <button
+              type="button"
+              onClick={() => setActiveCertTab('participante')}
+              style={{
+                padding: '10px 18px',
+                border: 'none',
+                borderBottom: activeCertTab === 'participante' ? '3px solid #2b6cb0' : '3px solid transparent',
+                backgroundColor: activeCertTab === 'participante' ? '#ebf8ff' : '#f7fafc',
+                color: activeCertTab === 'participante' ? '#2b6cb0' : '#4a5568',
+                fontWeight: activeCertTab === 'participante' ? 'bold' : '500',
+                cursor: 'pointer',
+                borderRadius: '6px 6px 0 0',
+                transition: 'all 0.2s ease',
+                fontSize: '0.95rem'
+              }}
+            >
+              🎓 Participantes
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveCertTab('monitor')}
+              style={{
+                padding: '10px 18px',
+                border: 'none',
+                borderBottom: activeCertTab === 'monitor' ? '3px solid #2b6cb0' : '3px solid transparent',
+                backgroundColor: activeCertTab === 'monitor' ? '#ebf8ff' : '#f7fafc',
+                color: activeCertTab === 'monitor' ? '#2b6cb0' : '#4a5568',
+                fontWeight: activeCertTab === 'monitor' ? 'bold' : '500',
+                cursor: 'pointer',
+                borderRadius: '6px 6px 0 0',
+                transition: 'all 0.2s ease',
+                fontSize: '0.95rem'
+              }}
+            >
+              🤝 Monitores
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveCertTab('ministrante')}
+              style={{
+                padding: '10px 18px',
+                border: 'none',
+                borderBottom: activeCertTab === 'ministrante' ? '3px solid #2b6cb0' : '3px solid transparent',
+                backgroundColor: activeCertTab === 'ministrante' ? '#ebf8ff' : '#f7fafc',
+                color: activeCertTab === 'ministrante' ? '#2b6cb0' : '#4a5568',
+                fontWeight: activeCertTab === 'ministrante' ? 'bold' : '500',
+                cursor: 'pointer',
+                borderRadius: '6px 6px 0 0',
+                transition: 'all 0.2s ease',
+                fontSize: '0.95rem'
+              }}
+            >
+              🎤 Ministrantes
+            </button>
+          </div>
+
+          {/* Conteúdo da Aba: Participantes */}
+          <div style={{ display: activeCertTab === 'participante' ? 'block' : 'none', marginTop: '10px' }}>
+            <div className="tiptap-container">
+              <MenuBar editor={certEditorParticipante} />
+              <EditorContent editor={certEditorParticipante} />
+            </div>
+            <small style={{ color: '#718096', marginTop: '6px', display: 'block' }}>
+              Se em branco, será usado o texto padrão: <em>&quot;Certificamos que &#123;nome&#125;, CPF &#123;cpf&#125;, participou do evento...&quot;</em>
+            </small>
+          </div>
+
+          {/* Conteúdo da Aba: Monitores */}
+          <div style={{ display: activeCertTab === 'monitor' ? 'block' : 'none', marginTop: '10px' }}>
+            <div className="tiptap-container">
+              <MenuBar editor={certEditorMonitor} />
+              <EditorContent editor={certEditorMonitor} />
+            </div>
+            <small style={{ color: '#718096', marginTop: '6px', display: 'block' }}>
+              Se em branco, será usado o texto padrão: <em>&quot;Certificamos que &#123;nome&#125;, CPF &#123;cpf&#125;, atuou como MONITOR(A) no evento...&quot;</em>
+            </small>
+          </div>
+
+          {/* Conteúdo da Aba: Ministrantes */}
+          <div style={{ display: activeCertTab === 'ministrante' ? 'block' : 'none', marginTop: '10px' }}>
+            <div className="tiptap-container">
+              <MenuBar editor={certEditorMinistrante} />
+              <EditorContent editor={certEditorMinistrante} />
+            </div>
+            <small style={{ color: '#718096', marginTop: '6px', display: 'block' }}>
+              Se em branco, será usado o texto padrão: <em>&quot;Certificamos que &#123;nome&#125;, CPF &#123;cpf&#125;, atuou como MINISTRANTE no evento...&quot;</em>
+            </small>
           </div>
         </div>
       </div>

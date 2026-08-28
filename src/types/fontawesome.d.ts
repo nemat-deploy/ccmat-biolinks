@@ -38,4 +38,5 @@ declare module '@fortawesome/free-solid-svg-icons' {
   export const faFilePdf: any;
   export const faCertificate: any;
   export const faDownload: any;
+  export const faMicrophone: any;
 }

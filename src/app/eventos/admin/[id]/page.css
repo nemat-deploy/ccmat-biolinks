@@ -95,6 +95,12 @@ tbody tr:nth-child(odd) {
     white-space: nowrap;
 }
 
+.cpfColumn {
+    width: 155px;
+    min-width: 155px;
+    white-space: nowrap;
+}
+
 /* Botões */
 button {
     cursor: pointer;
@@ -140,7 +146,8 @@ button {
     margin-bottom: 0.5rem;
 }
 
-.edit-form input {
+.edit-form input[type="text"],
+.edit-form input[type="email"] {
     width: 100%;
     max-width: 400px;
     padding: 0.5rem;
@@ -149,6 +156,23 @@ button {
     border: 1px solid #d1d5db;
     border-radius: 6px;
     font-size: 16px;
+}
+
+.edit-form .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0.8rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.edit-form input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    cursor: pointer;
 }
 
 .btns {

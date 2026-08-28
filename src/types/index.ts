@@ -34,6 +34,8 @@ export type Evento = {
   certificateBgUrl?: string;
   cargaHoraria?: number;
   certificateText?: string;
+  certificateTextMonitor?: string;
+  certificateTextMinistrante?: string;
   liberarCertificados?: boolean;
 };
 
@@ -61,6 +63,7 @@ export type Participante = {
   certificateIssued?: boolean;
   enviou_atividade_final?: boolean;
   isMonitor?: boolean;
+  isMinistrante?: boolean;
 };
 
 export interface ParticipanteData {
@@ -72,6 +75,7 @@ export interface ParticipanteData {
   institution: string;
   dataInscricao: Date | null;
   isMonitor?: boolean;
+  isMinistrante?: boolean;
 }
 
 export type PresencaResponse = {

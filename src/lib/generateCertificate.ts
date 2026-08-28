@@ -1,9 +1,12 @@
 import slugify from "slugify";
 import { Evento } from "@/types";
 
-interface ParticipanteInfo {
+export interface ParticipanteInfo {
   nome: string;
   cpf: string;
+  isMonitor?: boolean;
+  isMinistrante?: boolean;
+  papel?: "participante" | "monitor" | "ministrante";
 }
 
 /**
@@ -35,7 +38,7 @@ export function processarTextoCertificado(
 
   let textoProcessado = templateHtml;
 
-  // Se o participante não tem CPF, remove suavemente a expressão ", CPF {cpf}" para o texto fluir naturalmente
+  // Se o participante não tem CPF, remove suavemente a expressão ", CPF {cpf}" para o texto fluir naturally
   if (!temCpfValido) {
     textoProcessado = textoProcessado.replace(/,\s*CPF\s*\{cpf\}/gi, "");
     textoProcessado = textoProcessado.replace(/CPF\s*\{cpf\},\s*/gi, "");
@@ -126,9 +129,20 @@ export async function gerarPdfCertificado(
 ): Promise<void> {
   const html2canvas = (await import("html2canvas")).default;
   const { jsPDF } = await import("jspdf");
-  const textoPadrao = `<p style="text-align: justify;">Certificamos que <strong>{nome}</strong>, CPF {cpf}, participou do evento <strong>{evento}</strong>, no período de {data_inicio} a {data_fim}, perfazendo um total de {carga_horaria} horas.</p>`;
+
+  const textoPadraoParticipante = `<p style="text-align: justify;">Certificamos que <strong>{nome}</strong>, CPF {cpf}, participou do evento <strong>{evento}</strong>, no período de {data_inicio} a {data_fim}, perfazendo um total de {carga_horaria} horas.</p>`;
+  const textoPadraoMonitor = `<p style="text-align: justify;">Certificamos que <strong>{nome}</strong>, CPF {cpf}, atuou como <strong>MONITOR(A)</strong> no evento <strong>{evento}</strong>, no período de {data_inicio} a {data_fim}, perfazendo um total de {carga_horaria} horas.</p>`;
+  const textoPadraoMinistrante = `<p style="text-align: justify;">Certificamos que <strong>{nome}</strong>, CPF {cpf}, atuou como <strong>MINISTRANTE</strong> no evento <strong>{evento}</strong>, no período de {data_inicio} a {data_fim}, perfazendo um total de {carga_horaria} horas.</p>`;
   
-  const templateBase = evento.certificateText?.trim() || textoPadrao;
+  let templateBase = "";
+  if (participante.papel === "ministrante" || participante.isMinistrante) {
+    templateBase = evento.certificateTextMinistrante?.trim() || textoPadraoMinistrante;
+  } else if (participante.papel === "monitor" || participante.isMonitor) {
+    templateBase = evento.certificateTextMonitor?.trim() || textoPadraoMonitor;
+  } else {
+    templateBase = evento.certificateText?.trim() || textoPadraoParticipante;
+  }
+
   const htmlFinal = processarTextoCertificado(templateBase, evento, participante);
 
   // Cria um elemento temporário fora da tela para renderização visual do A4 Horizontal

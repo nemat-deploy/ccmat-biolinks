@@ -115,10 +115,13 @@ async function loadParticipantesComCertificado(eventoId: string) {
     // verifica se enviou a atividade final (se for requerido)
     const enviouAtividadeFinal = Boolean(d.enviou_atividade_final);
 
-    // adicionar à lista somente se:
+    const isMonitor = Boolean(d.isMonitor);
+    const isMinistrante = Boolean(d.isMinistrante);
+
+    // adicionar à lista somente se for Monitor, Ministrante ou se:
     // - Frequência mínima foi atingida
     // - Se o evento requer atividade final, então ela precisa ter sido enviada
-    if (atingiuFrequenciaMinima && (!requerAtividadeFinal || enviouAtividadeFinal)) {
+    if (isMonitor || isMinistrante || (atingiuFrequenciaMinima && (!requerAtividadeFinal || enviouAtividadeFinal))) {
       const cpfReal = d.cpf ? d.cpf : (docSnap.id.length === 11 && /^\d+$/.test(docSnap.id) ? docSnap.id : "");
       list.push({
         id: docSnap.id,
@@ -131,6 +134,8 @@ async function loadParticipantesComCertificado(eventoId: string) {
         presencaPercentual,
         attendances: attendances,
         certificateIssued: d.certificateIssued || false,
+        isMonitor,
+        isMinistrante,
       });
     }
   });
