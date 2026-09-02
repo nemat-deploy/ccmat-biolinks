@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       if (!p.email) continue; 
 
       const mailOptions = {
-        from: `"${nomeEvento}" <geemat.ufdpar@gmail.com>`,
+        from: `"Congresso GEEMat 2026" <geemat.ufdpar@gmail.com>`,
         to: p.email,
         subject: assunto,
         html: `

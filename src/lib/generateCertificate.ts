@@ -202,9 +202,19 @@ export async function gerarPdfCertificado(
   textHolder.style.width = "100%";
   textHolder.style.fontSize = "22px";
   textHolder.style.lineHeight = "1.8";
-  textHolder.style.color = "#1a202c";
+  textHolder.style.color = "#000000"; // Preto puro para não ficar clarinho
   textHolder.style.fontFamily = "Arial, sans-serif";
+  // Força que o texto seja renderizado com mais contraste
+  textHolder.style.textRendering = "geometricPrecision";
+  textHolder.style.WebkitFontSmoothing = "antialiased";
   textHolder.innerHTML = htmlFinal;
+
+  // Injeta um CSS para forçar que qualquer estilo vindo do editor Tiptap (ex: <span style="color: gray">) seja ignorado e fique preto puro.
+  const styleBlock = document.createElement("style");
+  styleBlock.innerHTML = `
+    * { color: #000000 !important; }
+  `;
+  textHolder.appendChild(styleBlock);
 
   innerContent.appendChild(textHolder);
   container.appendChild(innerContent);

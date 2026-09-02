@@ -52,6 +52,7 @@ export default function AdminEventoPage() {
   const [enviandoEmails, setEnviandoEmails] = useState(false);
   const [assuntoEmail, setAssuntoEmail] = useState("Lembrete do Evento");
   const [mensagemEmail, setMensagemEmail] = useState("");
+  const [progressoEnvio, setProgressoEnvio] = useState("");
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -400,27 +401,46 @@ export default function AdminEventoPage() {
     if (!confirm(`Tem certeza que deseja enviar o e-mail para todos os ${participantes.length} inscritos de ${evento?.name}?`)) return;
     
     setEnviandoEmails(true);
+    setProgressoEnvio("");
     try {
-      const response = await fetch('/api/lembretes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          participantes: participantes.map(p => ({ nome: p.nome, email: p.email })),
-          nomeEvento: evento?.name || "Nosso Evento",
-          assunto: assuntoEmail, // pega da caixa de texto
-          mensagemHtml: mensagemEmail.replace(/\n/g, '<br>')
-        }),
-      });
+      // Filtrar participantes que realmente possuem um e-mail cadastrado
+      const participantesValidos = participantes.filter(p => p.email && p.email.trim() !== "");
+      
+      const TAMANHO_LOTE = 15;
+      const totalLotes = Math.ceil(participantesValidos.length / TAMANHO_LOTE);
 
-      if (!response.ok) throw new Error("Erro na requisição de envio");
-      alert("E-mails enviados com sucesso!");
+      for (let i = 0; i < totalLotes; i++) {
+        const inicio = i * TAMANHO_LOTE;
+        const fim = inicio + TAMANHO_LOTE;
+        const lote = participantesValidos.slice(inicio, fim);
+
+        // Opcional: Atualizar a tela mostrando o progresso via alert ou console
+        setProgressoEnvio(`Enviando lote ${i + 1} de ${totalLotes}...`);
+        console.log(`Enviando lote ${i + 1} de ${totalLotes} (${lote.length} participantes)...`);
+
+        const response = await fetch('/api/lembretes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            participantes: lote.map(p => ({ nome: p.nome, email: p.email })),
+            nomeEvento: evento?.name || "Nosso Evento",
+            assunto: assuntoEmail,
+            mensagemHtml: mensagemEmail.replace(/\n/g, '<br>')
+          }),
+        });
+
+        if (!response.ok) throw new Error(`Erro na requisição do lote ${i + 1}`);
+      }
+
+      alert("E-mails enviados com sucesso para todos os inscritos!");
       setMensagemEmail(""); // limpa o campo após enviar
       editor?.commands.setContent(""); // limpa o Tiptap visualmente
     } catch (e) {
       console.error(e);
-      alert("Erro ao disparar os e-mails. Verifique o console.");
+      alert("Erro ao disparar os e-mails (pode ter falhado em algum lote). Verifique o console.");
     } finally {
       setEnviandoEmails(false);
+      setProgressoEnvio("");
     }
   }
 
@@ -547,23 +567,21 @@ export default function AdminEventoPage() {
             + Cadastrar Inscrição
           </button>
 
-          {process.env.NODE_ENV === 'development' && (
-            <button
-              onClick={() => setMostrarFormEmail(!mostrarFormEmail)}
-              style={{
-                background: "none",
-                border: "1px solid #cccccc",
-                color: "#0070f3",
-                textDecoration: "underline",
-                cursor: "pointer",
-                padding: 8,
-                fontFamily: "inherit",
-                fontSize: "inherit"
-              }}
-            >
-              {mostrarFormEmail ? "fechar painel de e-mail" : "enviar e-mail aos inscritos"}
-            </button>
-          )}
+          <button
+            onClick={() => setMostrarFormEmail(!mostrarFormEmail)}
+            style={{
+              background: "none",
+              border: "1px solid #cccccc",
+              color: "#0070f3",
+              textDecoration: "underline",
+              cursor: "pointer",
+              padding: 8,
+              fontFamily: "inherit",
+              fontSize: "inherit"
+            }}
+          >
+            {mostrarFormEmail ? "fechar painel de e-mail" : "enviar e-mail aos inscritos"}
+          </button>
 
         </div>
       </div>
@@ -874,7 +892,7 @@ export default function AdminEventoPage() {
                 fontWeight: "bold"
               }}
             >
-              {enviandoEmails ? "Enviando para todos..." : `Disparar para todos (${participantes.length})`}
+              {enviandoEmails ? (progressoEnvio || "Enviando para todos...") : `Disparar para todos (${participantes.length})`}
             </button>
           </div>
         </div>
