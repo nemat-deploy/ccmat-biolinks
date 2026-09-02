@@ -54,7 +54,7 @@ export async function POST(request: Request) {
               
               <p>Prezado(a) <strong>${p.nome}</strong>,</p>
               
-              ${mensagemHtml}
+              ${mensagemHtml.replace(/{nome}/g, p.nome).replace(/{evento}/g, nomeEvento)}
               
               <hr style="border: 0; border-top: 1px solid #eaeaea; margin: 20px 0;">
               <p style="font-size: 0.9em; color: #7f8c8d; text-align: center;">
