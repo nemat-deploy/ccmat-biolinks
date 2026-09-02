@@ -206,7 +206,7 @@ export async function gerarPdfCertificado(
   textHolder.style.fontFamily = "Arial, sans-serif";
   // Força que o texto seja renderizado com mais contraste
   textHolder.style.textRendering = "geometricPrecision";
-  textHolder.style.WebkitFontSmoothing = "antialiased";
+  textHolder.style.setProperty("-webkit-font-smoothing", "antialiased");
   textHolder.innerHTML = htmlFinal;
 
   // Injeta um CSS para forçar que qualquer estilo vindo do editor Tiptap (ex: <span style="color: gray">) seja ignorado e fique preto puro.
