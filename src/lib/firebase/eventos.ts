@@ -123,6 +123,8 @@ export async function getEventos(): Promise<Evento[]> {
       certificateBgUrl: data.certificateBgUrl || '',
       cargaHoraria: data.cargaHoraria || 0,
       certificateText: data.certificateText || '',
+      certificateTextMonitor: data.certificateTextMonitor || '',
+      certificateTextMinistrante: data.certificateTextMinistrante || '',
       liberarCertificados: data.liberarCertificados === true,
     };
   });
@@ -157,6 +159,8 @@ export async function getEvento(id: string): Promise<Evento | null> {
     certificateBgUrl: data.certificateBgUrl || '',
     cargaHoraria: data.cargaHoraria || 0,
     certificateText: data.certificateText || '',
+    certificateTextMonitor: data.certificateTextMonitor || '',
+    certificateTextMinistrante: data.certificateTextMinistrante || '',
     liberarCertificados: data.liberarCertificados === true,
   };
 }
