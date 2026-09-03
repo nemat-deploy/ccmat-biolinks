@@ -404,7 +404,13 @@ export default function AdminEventoPage() {
     setProgressoEnvio("");
     try {
       // Filtrar participantes que realmente possuem um e-mail cadastrado
-      const participantesValidos = participantes.filter(p => p.email && p.email.trim() !== "");
+      // E IGNORAR e-mails falsos que causam bloqueio por Bounce no Gmail
+      const emailsFalsos = ["sem@email.com", "teste@teste.com", "naotem@email.com"];
+      const participantesValidos = participantes.filter(p => {
+        if (!p.email || p.email.trim() === "") return false;
+        if (emailsFalsos.includes(p.email.toLowerCase().trim())) return false;
+        return true;
+      });
       
       const TAMANHO_LOTE = 15;
       const totalLotes = Math.ceil(participantesValidos.length / TAMANHO_LOTE);
@@ -430,6 +436,12 @@ export default function AdminEventoPage() {
         });
 
         if (!response.ok) throw new Error(`Erro na requisição do lote ${i + 1}`);
+
+        // Pausa de 15 segundos entre os lotes (exceto após o último lote) para não engatilhar o anti-spam do Gmail
+        if (i < totalLotes - 1) {
+          setProgressoEnvio(`Pausa de segurança do Gmail (15s)... Aguarde.`);
+          await new Promise(resolve => setTimeout(resolve, 15000));
+        }
       }
 
       alert("E-mails enviados com sucesso para todos os inscritos!");
