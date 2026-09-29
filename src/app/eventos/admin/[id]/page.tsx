@@ -423,7 +423,7 @@ export default function AdminEventoPage() {
         return true;
       });
       
-      const TAMANHO_LOTE = 15;
+      const TAMANHO_LOTE = 5;
       const totalLotes = Math.ceil(participantesValidos.length / TAMANHO_LOTE);
 
       for (let i = 0; i < totalLotes; i++) {
