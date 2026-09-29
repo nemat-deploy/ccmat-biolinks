@@ -53,10 +53,21 @@ export default function AdminEventoPage() {
   const [assuntoEmail, setAssuntoEmail] = useState("Lembrete do Evento");
   const [mensagemEmail, setMensagemEmail] = useState("");
   const [progressoEnvio, setProgressoEnvio] = useState("");
+  const CustomLink = TiptapLink.extend({
+    addAttributes() {
+      return {
+        ...this.parent?.(),
+        style: {
+          default: null,
+        },
+      }
+    },
+  });
+
   const editor = useEditor({
     extensions: [
       StarterKit,
-      TiptapLink.configure({
+      CustomLink.configure({
         openOnClick: false, // evitar abrir o link sem querer enquanto edita
       }),
     ],
@@ -474,7 +485,7 @@ export default function AdminEventoPage() {
         body: JSON.stringify({ 
           // testing...
           participantes: [{ 
-            nome: "Ricardo Melo (teste)", 
+            nome: "Ricardo M. (teste)", 
             email: emailTeste 
           }],
           // Enviando os dados da tela para a API:
@@ -864,6 +875,27 @@ export default function AdminEventoPage() {
                   title="Adicionar Link"
                 >
                   🔗
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = window.prompt('Digite o link da Pesquisa de Satisfação:');
+                    if (url) {
+                      editor.chain().focus()
+                        .insertContent(`<a href="${url}" style="display: inline-block; padding: 12px 24px; background-color: #0070f3; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 15px 0; text-align: center;">Responder Pesquisa</a>`)
+                        .run();
+                    }
+                  }}
+                  style={{ 
+                    padding: "4px 8px", cursor: "pointer", 
+                    backgroundColor: '#fff',
+                    border: "1px solid #ccc", borderRadius: "4px",
+                    fontWeight: "bold", color: "#0070f3", marginLeft: "10px"
+                  }}
+                  title="Adicionar Botão de Pesquisa"
+                >
+                  🔘 Inserir Botão
                 </button>
               </div>
             )}
