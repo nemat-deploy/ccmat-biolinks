@@ -1,37 +1,63 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
+import "../page.css";
 import styles from "./Page.module.css";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 function Fluxograma() {
-  const handleImageOpen = () => {
-    window.open("/docs/pre-requisitos-2021.pdf");
-  };
-  const handleResumidoPdf = () => {
-    window.open("/docs/fluxograma-resumido.pdf");
-  };
-  const handleCompletoPdf = () => {
-    window.open("/docs/fluxograma-matematica-ufdpar.pdf");
-  };
-
   return (
-    <div className={styles.mainFluxograma}>
-      <div className={styles.options}>
-        <h3>Fluxograma do Curso de Matemática - UFDPar</h3>
+    <main className="main">
+      <Header />
 
-        <button className={styles.btImage} onClick={handleImageOpen}>
-          Pré-requisitos
-        </button>
+      <div className={styles.contentWrapper}>
+        <h2 className={styles.sectionTitle}>Fluxograma do Curso</h2>
 
-        <button className={styles.btImage} onClick={handleResumidoPdf}>
-          Fluxograma Resumido
-        </button>
+        <div className={styles.card}>
+          <div className={styles.docList}>
+            <a
+              href="/docs/pre-requisitos-2021.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.docButton}
+            >
+              <span>📄 Pré-requisitos</span>
+              <span className={styles.badge}>PDF</span>
+            </a>
 
-        <button className={styles.btImage} onClick={handleCompletoPdf}>
-          Fluxograma Completo
-        </button>
+            <a
+              href="/docs/fluxograma-resumido.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.docButton}
+            >
+              <span>📊 Fluxograma Resumido</span>
+              <span className={styles.badge}>PDF</span>
+            </a>
+
+            <a
+              href="/docs/fluxograma-matematica-ufdpar.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.docButton}
+            >
+              <span>📑 Fluxograma Completo</span>
+              <span className={styles.badge}>PDF</span>
+            </a>
+          </div>
+        </div>
+
+        <div className={styles.backWrapper}>
+          <Link href="/" className={styles.backButton}>
+            ← voltar
+          </Link>
+        </div>
       </div>
-    </div>
+
+      <Footer />
+    </main>
   );
 }
 

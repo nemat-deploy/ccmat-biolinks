@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { parseTimestamp } from '@/lib/utils';
+import { SITE_URL } from '@/lib/site';
 import EventoClientContent from './EventoClientContent';
 
 type Evento = {
@@ -68,7 +70,7 @@ export async function generateMetadata(props: any): Promise<Metadata> {
   const evento = await getEvento(params.id);
 
   if (!evento) {
-    return { title: 'Evento não encontrado' };
+    return { title: 'Evento não encontrado', robots: { index: false } };
   }
   
   const firstSentence = evento.description ? evento.description.replace(/<[^>]*>?/gm, '').split('. ')[0] : '';
@@ -76,6 +78,7 @@ export async function generateMetadata(props: any): Promise<Metadata> {
   return {
     title: evento.name,
     description: `Detalhes e inscrição para o evento: ${evento.name}`,
+    alternates: { canonical: `/eventos/${params.id}` },
     openGraph: {
       title: evento.name,
       description: firstSentence,
@@ -99,7 +102,8 @@ export default async function EventoPage(props: any) {
   const evento = await getEvento(params.id);
 
   if (!evento) {
-    return <p className="loadingEvents">Evento não encontrado.</p>;
+    // Retorna HTTP 404 de verdade (evita que o Google indexe páginas inexistentes)
+    notFound();
   }
 
   const serializableEvento = {
@@ -109,5 +113,34 @@ export default async function EventoPage(props: any) {
     registrationDeadLine: parseTimestamp(evento.registrationDeadLine)?.toISOString() || new Date(0).toISOString(),
   };
 
-  return <EventoClientContent initialEvento={serializableEvento} />;
+  // Dados estruturados de Evento (Schema.org): permitem que o Google mostre
+  // o evento com data e local nos resultados de busca (rich results).
+  const plainDescription = evento.description
+    ? evento.description.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim()
+    : '';
+  const eventUrl = `${SITE_URL}/eventos/${encodeURIComponent(evento.id)}`;
+  const eventJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: evento.name,
+    description: plainDescription.slice(0, 500) || `Detalhes e inscrição para o evento: ${evento.name}`,
+    url: eventUrl,
+    image: [evento.imageUrl || `${SITE_URL}/images/logo-app-eventos-og.png`],
+    startDate: serializableEvento.startDate,
+    endDate: serializableEvento.endDate,
+    eventStatus: 'https://schema.org/EventScheduled',
+    // Local, modalidade (presencial/online) e organizador não são informados
+    // porque o cadastro do evento ainda não tem esses campos e o app atende
+    // qualquer curso, instituição ou organizador.
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd).replace(/</g, '\\u003c') }}
+      />
+      <EventoClientContent initialEvento={serializableEvento} />
+    </>
+  );
 }
