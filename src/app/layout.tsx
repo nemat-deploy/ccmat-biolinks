@@ -55,9 +55,9 @@ export const metadata: Metadata = {
     apple: "/favicon/apple-touch-icon.png",
   },
   manifest: "/favicon/site.webmanifest",
-  // Após verificar o domínio no Google Search Console (método "Tag HTML"),
-  // cole aqui o código fornecido:
-  // verification: { google: "SEU_CODIGO_AQUI" },
+  verification: {
+    google: "vAjU_JZ9NWDHACY6YTZFCDy24PD0ylLaBBLVBccW6KI",
+  },
 };
 
 export default function RootLayout({
